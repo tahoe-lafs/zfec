@@ -71,8 +71,25 @@ trove_classifiers=[
     "Topic :: System :: Archiving", 
     ]
 
+import re
+VERSIONFILE = "zfec/_version.py"
+verstr = "unknown"
+VSRE = re.compile("^verstr = ['\"]([^'\"]*)['\"]", re.M)
+try:
+    verstrline = open(VERSIONFILE, "rt").read()
+except EnvironmentError:
+    pass # Okay, there is no version file.
+else:
+    mo = VSRE.search(verstrline)
+    if mo:
+        verstr = mo.group(1)
+    else:
+        print "unable to find version in %s" % (VERSIONFILE,)
+        raise RuntimeError("if %s.py exists, it must be well-formed" % (VERSIONFILE,))
+
 setup(name='zfec',
-      version='1.0.0',
+      install_requires=['pyutil>=1.0.0',],
+      version=verstr,
       description='a fast erasure code with command-line, C, and Python interfaces',
       long_description='Fast, portable, programmable erasure coding a.k.a. "forward error correction": the generation of redundant blocks of information such that if some blocks are lost then the original data can be recovered from the remaining blocks.',
       author='Zooko O\'Whielacronx',

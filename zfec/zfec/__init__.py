@@ -6,15 +6,13 @@ maintainer web site: U{http://allmydata.com/source/zfec}
 zfec web site: U{http://allmydata.com/source/zfec}
 """
 
-from util.version import Version
-
-# For an explanation of what the parts of the version string mean,
-# please see pyutil.version.
-__version__ = Version("1.0.0b3-0-STABLE")
-
-# Please put a URL or other note here which shows where to get the branch of
-# development from which this version grew.
-__sources__ = ["http://allmydata.org/source/zfec",]
+__version__ = "unknown"
+try:
+    from _version import __version__
+except ImportError:
+    # we're running in a tree that hasn't run make-version.py, so we don't
+    # know what our version is. This should not happen very often.
+    pass
 
 from _fec import Encoder, Decoder, Error
 import filefec, cmdline_zfec, cmdline_zunfec

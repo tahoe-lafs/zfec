@@ -1,5 +1,5 @@
 
-from twisted.trial import unittest
+import unittest
 
 from zfec.util import mathutil
 
