@@ -93,7 +93,7 @@ else:
         raise RuntimeError("if %s.py exists, it is required to be well-formed" % (VERSIONFILE,))
 
 setup(name='zfec',
-      install_requires=['pyutil>=1.0.0',],
+      # install_requires=['pyutil>=1.0.0',], # It doesn't require pyutil yet.
       version=verstr,
       description='a fast erasure code with command-line, C, and Python interfaces',
       long_description='Fast, portable, programmable erasure coding a.k.a. "forward error correction": the generation of redundant blocks of information such that if some blocks are lost then the original data can be recovered from the remaining blocks.',

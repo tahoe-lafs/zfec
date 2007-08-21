@@ -9,8 +9,7 @@ from util import argparse
 import filefec
 
 from zfec import __version__ as libversion
-from util.version import Version
-__version__ = Version("1.0.0a1-0-STABLE")
+__version__ = libversion
 
 def main():
 
