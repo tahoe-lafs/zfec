@@ -90,7 +90,7 @@ else:
         verstr = mo.group(1)
     else:
         print "unable to find version in %s" % (VERSIONFILE,)
-        raise RuntimeError("if %s.py exists, it must be well-formed" % (VERSIONFILE,))
+        raise RuntimeError("if %s.py exists, it is required to be well-formed" % (VERSIONFILE,))
 
 setup(name='zfec',
       install_requires=['pyutil>=1.0.0',],
