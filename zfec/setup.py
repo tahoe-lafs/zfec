@@ -105,5 +105,7 @@ setup(name='zfec',
       classifiers=trove_classifiers,
       entry_points = { 'console_scripts': [ 'zfec = zfec.cmdline_zfec:main', 'zunfec = zfec.cmdline_zunfec:main' ] },
       ext_modules=[Extension('_fec', ['zfec/fec.c', 'zfec/_fecmodule.c',], extra_link_args=extra_link_args, extra_compile_args=extra_compile_args, undef_macros=undef_macros),],
+      include_package_data = True,
+      package_data = { '': ['*.h', 'ez_setup.py',] },
       test_suite="zfec.test",
       )
