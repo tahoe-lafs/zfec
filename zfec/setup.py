@@ -76,6 +76,12 @@ trove_classifiers=[
     "Topic :: System :: Archiving", 
     ]
 
+try:
+    import os
+    os.system("darcsver")
+except Exception, le:
+    print "le: %s" % (le,)
+    pass
 import re
 VERSIONFILE = "zfec/_version.py"
 verstr = "unknown"
