@@ -82,7 +82,6 @@ try:
     import os
     os.system("darcsver 2>/dev/null")
 except Exception, le:
-    print "le: %s" % (le,)
     pass
 import re
 VERSIONFILE = "zfec/_version.py"
