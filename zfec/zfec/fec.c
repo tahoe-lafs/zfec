@@ -11,16 +11,6 @@
 
 
 /*
- * If you get a error returned (negative value) from a fec_* function, 
- * look in here for the error message.
- */
-
-#define FEC_ERROR_SIZE 1025
-char fec_error[FEC_ERROR_SIZE+1];
-
-#define ERR(...) (snprintf(fec_error, FEC_ERROR_SIZE, __VA_ARGS__))
-
-/*
  * Primitive polynomials - see Lin & Costello, Appendix A,
  * and  Lee & Messerschmitt, p. 453.
  */
@@ -95,22 +85,8 @@ _init_mul_table(void) {
       gf_mul_table[0][j] = gf_mul_table[j][0] = 0;
 }
 
-/*
- * i use malloc so many times, it is easier to put checks all in
- * one place.
- */
-static void *
-my_malloc (int sz, char *err_string) {
-    void *p = malloc (sz);
-    if (p == NULL) {
-        ERR("Malloc failure allocating %s\n", err_string);
-        exit (1);
-    }
-    return p;
-}
-
 #define NEW_GF_MATRIX(rows, cols) \
-    (gf*)my_malloc(rows * cols, " ## __LINE__ ## " )
+    (gf*)malloc(rows * cols)
 
 /*
  * initialize the data structures used for computations in GF.
@@ -259,11 +235,10 @@ _invert_mat(gf* src, unsigned k) {
     unsigned icol = 0;
     unsigned row, col, i, ix;
 
-    unsigned* indxc = (unsigned*) my_malloc (k * sizeof(unsigned), "indxc");
-    unsigned* indxr = (unsigned*) my_malloc (k * sizeof(unsigned), "indxr");
-    unsigned* ipiv = (unsigned*) my_malloc (k * sizeof(unsigned), "ipiv");
+    unsigned* indxc = (unsigned*) malloc (k * sizeof(unsigned));
+    unsigned* indxr = (unsigned*) malloc (k * sizeof(unsigned));
+    unsigned* ipiv = (unsigned*) malloc (k * sizeof(unsigned));
     gf *id_row = NEW_GF_MATRIX (1, k);
-    gf *temp_row = NEW_GF_MATRIX (1, k);
 
     memset (id_row, '\0', k * sizeof (gf));
     /*
@@ -292,10 +267,8 @@ _invert_mat(gf* src, unsigned k) {
                             icol = ix;
                             goto found_piv;
                         }
-                    } else if (ipiv[ix] > 1) {
-                        ERR("singular matrix");
-                        goto fail;
-                    }
+                    } else
+                        assert (ipiv[ix] <= 1);
                 }
             }
         }
@@ -313,10 +286,7 @@ _invert_mat(gf* src, unsigned k) {
         indxc[col] = icol;
         pivot_row = &src[icol * k];
         c = pivot_row[icol];
-        if (c == 0) {
-            ERR("singular matrix 2");
-            goto fail;
-        }
+        assert (c != 0);
         if (c != 1) {                       /* otherwhise this is a NOP */
             /*
              * this is done often , but optimizing is not so
@@ -350,13 +320,6 @@ _invert_mat(gf* src, unsigned k) {
         if (indxr[col-1] != indxc[col-1])
             for (row = 0; row < k; row++)
                 SWAP (src[row * k + indxr[col-1]], src[row * k + indxc[col-1]], gf);
-  fail:
-    free (indxc);
-    free (indxr);
-    free (ipiv);
-    free (id_row);
-    free (temp_row);
-    return;
 }
 
 /*
@@ -443,11 +406,7 @@ init_fec (void) {
 
 void
 fec_free (fec_t *p) {
-    if (p == NULL ||
-        p->magic != (((FEC_MAGIC ^ p->k) ^ p->n) ^ (unsigned long) (p->enc_matrix))) {
-        ERR("bad parameters to fec_free");
-        return;
-    }
+    assert (p != NULL && p->magic == (((FEC_MAGIC ^ p->k) ^ p->n) ^ (unsigned long) (p->enc_matrix)));
     free (p->enc_matrix);
     free (p);
 }
@@ -459,12 +418,10 @@ fec_new(unsigned k, unsigned n) {
 
     fec_t *retval;
 
-    fec_error[FEC_ERROR_SIZE] = '\0';
-
     if (fec_initialized == 0)
         init_fec ();
 
-    retval = (fec_t *) my_malloc (sizeof (fec_t), "new_code");
+    retval = (fec_t *) malloc (sizeof (fec_t));
     retval->k = k;
     retval->n = n;
     retval->enc_matrix = NEW_GF_MATRIX (n, k);
