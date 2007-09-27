@@ -20,13 +20,14 @@ static char fec__doc__[] = "\
 FEC - Forward Error Correction \n\
 ";
 
+/* NOTE: if the complete expansion of the args (by vsprintf) exceeds 1024 then memory will be invalidly overwritten. */
 static PyObject *
 py_raise_fec_error(const char *format, ...) {
     char exceptionMsg[1024];
     va_list ap;
 
     va_start (ap, format);
-    vsnprintf (exceptionMsg, 1024, format, ap);
+    vsprintf (exceptionMsg, format, ap); /* Make sure that this can't exceed 1024 chars! */
     va_end (ap);
     exceptionMsg[1023]='\0';
     PyErr_SetString (py_fec_error, exceptionMsg);
