@@ -167,13 +167,13 @@ Encoder_encode(Encoder *self, PyObject *args) {
     Py_ssize_t sz, oldsz = 0;
     for (i=0; i<self->kk; i++) {
         if (!PyObject_CheckReadBuffer(fastinblocksitems[i])) {
-            py_raise_fec_error("Precondition violation: %u'th item is required to offer the single-segment read character buffer protocol, but it does not.\n", i);
+            py_raise_fec_error("Precondition violation: %u'th item is required to offer the single-segment read character buffer protocol, but it does not.", i);
             goto err;
         }
         if (PyObject_AsReadBuffer(fastinblocksitems[i], (const void**)&(incblocks[i]), &sz))
             goto err;
         if (oldsz != 0 && oldsz != sz) {
-            py_raise_fec_error("Precondition violation: Input blocks are required to be all the same length.  oldsz: %Zu, sz: %Zu\n", oldsz, sz);
+            py_raise_fec_error("Precondition violation: Input blocks are required to be all the same length.  oldsz: %Zu, sz: %Zu", oldsz, sz);
             goto err;
         }
         oldsz = sz;
