@@ -80,7 +80,7 @@ trove_classifiers=[
 
 try:
     import os
-    os.system("darcsver 2>/dev/null")
+    os.system("darcsver")
 except Exception, le:
     pass
 import re
