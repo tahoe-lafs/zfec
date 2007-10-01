@@ -28,6 +28,7 @@ def main():
     parser.add_argument('-k', '--requiredshares', help='the number of share files required to reconstruct (default 4)', default=4, type=int, metavar='K')
     parser.add_argument('-f', '--force', help='overwrite any file which already in place an output file (share file)', action='store_true')
     parser.add_argument('-v', '--verbose', help='print out messages about progress', action='store_true')
+    parser.add_argument('-q', '--quiet', help='quiet progress indications and warnings about silly choices of K and M', action='store_true')
     parser.add_argument('-V', '--version', help='print out version number and exit', action='store_true')
     args = parser.parse_args()
 
@@ -36,18 +37,22 @@ def main():
         if args.prefix == "<stdin>":
             args.prefix = ""
 
-    if args.totalshares < 3:
-        print "Invalid parameters, totalshares is required to be >= 3\nPlease see the accompanying documentation."
+    if args.verbose and args.quiet:
+        print "Please choose only one of --verbose and --quiet."
         sys.exit(1)
-    if args.totalshares > 256:
-        print "Invalid parameters, totalshares is required to be <= 256\nPlease see the accompanying documentation."
+        
+    if args.totalshares > 256 or args.totalshares < 1:
+        print "Invalid parameters, totalshares is required to be <= 256 and >= 1\nPlease see the accompanying documentation."
         sys.exit(1)
-    if args.requiredshares < 2:
-        print "Invalid parameters, requiredshares is required to be >= 2\nPlease see the accompanying documentation."
+    if args.requiredshares > args.totalshares or args.requiredshares < 1:
+        print "Invalid parameters, requiredshares is required to be <= totalshares and >= 1\nPlease see the accompanying documentation."
         sys.exit(1)
-    if args.requiredshares >= args.totalshares:
-        print "Invalid parameters, requiredshares is required to be < totalshares\nPlease see the accompanying documentation."
-        sys.exit(1)
+
+    if not args.quiet:
+        if args.requiredshares == 1:
+            print "warning: silly parameters: requiredshares == 1, which means that every share will be a complete copy of the file.  You could use \"cp\" for the same effect.  But proceeding to do it anyway..."
+        if args.requiredshares == args.totalshares:
+            print "warning: silly parameters: requiredshares == totalshares, which means that all shares will be required in order to reconstruct the file.  You could use \"split\" for the same effect.  But proceeding to do it anyway..."
 
     args.inputfile.seek(0, 2)
     fsize = args.inputfile.tell()

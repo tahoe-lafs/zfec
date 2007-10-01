@@ -98,8 +98,8 @@ class ZFec(unittest.TestCase):
 
 class FileFec(unittest.TestCase):
     def test_filefec_header(self):
-        for m in [3, 5, 7, 9, 11, 17, 19, 33, 35, 65, 66, 67, 129, 130, 131, 254, 255, 256,]:
-            for k in [2, 3, 5, 9, 17, 33, 65, 129, 255,]:
+        for m in [1, 2, 3, 5, 7, 9, 11, 17, 19, 33, 35, 65, 66, 67, 129, 130, 131, 254, 255, 256,]:
+            for k in [1, 2, 3, 5, 9, 17, 33, 65, 129, 255, 256,]:
                 if k >= m:
                     continue
                 for pad in [0, 1, k-1,]:

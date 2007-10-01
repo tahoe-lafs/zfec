@@ -23,17 +23,17 @@ class CorruptedShareFilesError(zfec.Error):
 
 def _build_header(m, k, pad, sh):
     """
-    @param m: the total number of shares; 3 <= m <= 256
-    @param k: the number of shares required to reconstruct; 2 <= k < m
+    @param m: the total number of shares; 1 <= m <= 256
+    @param k: the number of shares required to reconstruct; 1 <= k <= m
     @param pad: the number of bytes of padding added to the file before encoding; 0 <= pad < k
     @param sh: the shnum of this share; 0 <= k < m
 
     @return: a string (which is hopefully short) encoding m, k, sh, and pad
     """
-    assert m >= 3
+    assert m >= 1
     assert m <= 2**8
-    assert k >= 2
-    assert k < m
+    assert k >= 1
+    assert k <= m
     assert pad >= 0
     assert pad < k
 
@@ -43,14 +43,14 @@ def _build_header(m, k, pad, sh):
     bitsused = 0
     val = 0
 
-    val |= (m - 3)
+    val |= (m - 1)
     bitsused += 8 # the first 8 bits always encode m
 
-    kbits = log_ceil(m-2, 2) # num bits needed to store all possible values of k
+    kbits = log_ceil(m, 2) # num bits needed to store all possible values of k
     val <<= kbits
     bitsused += kbits
 
-    val |= (k - 2)
+    val |= (k - 1)
 
     padbits = log_ceil(k, 2) # num bits needed to store all possible values of pad
     val <<= padbits
@@ -64,8 +64,8 @@ def _build_header(m, k, pad, sh):
 
     val |= sh
 
-    assert bitsused >= 11
-    assert bitsused <= 32
+    assert bitsused >= 8, bitsused
+    assert bitsused <= 32, bitsused
 
     if bitsused <= 16:
         val <<= (16-bitsused)
@@ -98,17 +98,17 @@ def _parse_header(inf):
     if not ch:
         raise CorruptedShareFilesError("Share files were corrupted -- share file %r didn't have a complete metadata header at the front.  Perhaps the file was truncated." % (inf.name,))
     byte = ord(ch)
-    m = byte + 3
+    m = byte + 1
 
     # The next few bits encode k.
-    kbits = log_ceil(m-2, 2) # num bits needed to store all possible values of k
+    kbits = log_ceil(m, 2) # num bits needed to store all possible values of k
     b2_bits_left = 8-kbits
     kbitmask = MASK(kbits) << b2_bits_left
     ch = inf.read(1)
     if not ch:
         raise CorruptedShareFilesError("Share files were corrupted -- share file %r didn't have a complete metadata header at the front.  Perhaps the file was truncated." % (inf.name,))
     byte = ord(ch)
-    k = ((byte & kbitmask) >> b2_bits_left) + 2
+    k = ((byte & kbitmask) >> b2_bits_left) + 1
 
     shbits = log_ceil(m, 2) # num bits needed to store all possible values of shnum
     padbits = log_ceil(k, 2) # num bits needed to store all possible values of pad
