@@ -28,7 +28,7 @@ def _build_header(m, k, pad, sh):
     @param pad: the number of bytes of padding added to the file before encoding; 0 <= pad < k
     @param sh: the shnum of this share; 0 <= k < m
 
-    @return: a string (which is hopefully short) encoding m, k, sh, and pad
+    @return: a compressed string encoding m, k, pad, and sh
     """
     assert m >= 1
     assert m <= 2**8

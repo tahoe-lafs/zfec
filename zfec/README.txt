@@ -96,6 +96,10 @@ input to the encoding step.
 
  * Command-Line Tool
 
+NOTE: the format of the sharefiles was changed in zfec v1.1 to allow K == 1 
+and K == M.  This change of the format of sharefiles means that zfec >= v1.1 
+cannot read sharefiles produced by zfec < v1.1.
+
 The bin/ directory contains two Unix-style, command-line tools "zfec" and 
 "zunfec".  Execute "zfec --help" or "zunfec --help" for usage instructions.
 
@@ -233,5 +237,5 @@ releasing it under a Free Software licence.
 Enjoy!
 
 Zooko Wilcox-O'Hearn
-2007-04-27
+2007-10-01
 Boulder, Colorado
