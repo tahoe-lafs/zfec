@@ -12,29 +12,32 @@ def _make_new_rand_file(size):
 def donothing(results, reslenthing):
     pass
 
+K=3
+M=10
+
 import sha
-hashers = [ sha.new() for i in range(100) ]
+hashers = [ sha.new() for i in range(M) ]
 def hashem(results, reslenthing):
     for i, result in enumerate(results):
         hashers[i].update(result)
 
 def _encode_file(N):
-    filefec.encode_file(open(FNAME, "rb"), donothing, 25, 100)
+    filefec.encode_file(open(FNAME, "rb"), donothing, K, M)
    
 def _encode_file_stringy(N):
-    filefec.encode_file_stringy(open(FNAME, "rb"), donothing, 25, 100)
+    filefec.encode_file_stringy(open(FNAME, "rb"), donothing, K, M)
    
 def _encode_file_stringy_easyfec(N):
-    filefec.encode_file_stringy_easyfec(open(FNAME, "rb"), donothing, 25, 100)
+    filefec.encode_file_stringy_easyfec(open(FNAME, "rb"), donothing, K, M)
 
 def _encode_file_not_really(N):
-    filefec.encode_file_not_really(open(FNAME, "rb"), donothing, 25, 100)
+    filefec.encode_file_not_really(open(FNAME, "rb"), donothing, K, M)
 
 def _encode_file_not_really_and_hash(N):
-    filefec.encode_file_not_really_and_hash(open(FNAME, "rb"), donothing, 25, 100)
+    filefec.encode_file_not_really_and_hash(open(FNAME, "rb"), donothing, K, M)
 
 def _encode_file_and_hash(N):
-    filefec.encode_file(open(FNAME, "rb"), hashem, 25, 100)
+    filefec.encode_file(open(FNAME, "rb"), hashem, K, M)
 
 def bench():
     # for f in [_encode_file_stringy_easyfec, _encode_file_stringy, _encode_file, _encode_file_not_really,]:
