@@ -27,7 +27,7 @@ if 'cygwin' in sys.platform.lower():
     min_version='0.6c6'
 else:
     min_version='0.6a9'
-use_setuptools(min_version=min_version)
+use_setuptools(min_version=min_version, download_delay=0)
 
 from setuptools import Extension, find_packages, setup
 
