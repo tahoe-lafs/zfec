@@ -13,7 +13,7 @@ the appropriate options to ``use_setuptools()``.
 
 This file can also be run as a script to install or upgrade setuptools.
 """
-import subprocess, sys
+import sys
 DEFAULT_VERSION = "0.6c7"
 DEFAULT_URL     = "http://pypi.python.org/packages/%s/s/setuptools/" % sys.version[:3]
 
@@ -48,7 +48,11 @@ def setuptools_is_new_enough(required_version):
     """Return True if setuptools is already installed and has a version
     number >= required_version."""
     verstr = get_setuptools_version()
-    import pkg_resources
+    try:
+        import pkg_resources
+    except ImportError:
+        # Well then I guess it is definitely not new enough.
+        return False
     try:
         ver = pkg_resources.parse_version(verstr)
         newenough = ver and ver >= pkg_resources.parse_version(required_version)
@@ -202,7 +206,7 @@ def update_md5(filenames):
 
 
 if __name__=='__main__':
-    if '--md5update' in sys.argv[1]:
+    if '--md5update' in sys.argv:
         sys.argv.remove('--md5update')
         update_md5(sys.argv[1:])
     else:
