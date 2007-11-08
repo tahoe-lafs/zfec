@@ -19,11 +19,11 @@ class Encoder(object):
         @param data: string
         """
         chunksize = div_ceil(len(data), self.fec.k)
-        numchunks = div_ceil(len(data), chunksize)
-        l = [ data[i:i+chunksize] for i in range(0, len(data), chunksize) ]
+        l = [ data[i*chunksize:(i+1)*chunksize] for i in range(self.fec.k) ]
         # padding
-        if len(l[-1]) != len(l[0]):
-            l[-1] = l[-1] + ('\x00'*(len(l[0])-len(l[-1])))
+        if l and (len(l[-1]) != chunksize):
+            l[-1] = l[-1] + ('\x00'*(chunksize-len(l[-1])))
+        assert len(l) == self.fec.k, (len(l), self.fec.k,)
         res = self.fec.encode(l)
         return res
         
