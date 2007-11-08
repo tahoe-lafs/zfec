@@ -2,6 +2,14 @@
  * zfec -- fast forward error correction library with Python interface
  */
 
+#if defined(_MSC_VER)
+// actually, some of the flavors (i.e. Enterprise) do support it
+//#define restrict __restrict
+#define restrict
+#define inline __inline
+#define alloca _alloca
+#endif
+
 typedef unsigned char gf;
 
 typedef struct {

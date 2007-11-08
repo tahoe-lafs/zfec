@@ -494,14 +494,16 @@ build_decode_matrix_into_space(const fec_t*restrict const code, const unsigned*c
 
 void
 fec_decode(const fec_t* code, const gf*restrict const*restrict const inpkts, gf*restrict const*restrict const outpkts, const unsigned*restrict const index, size_t sz) {
-    gf m_dec[code->k * code->k];
+    gf* m_dec = (gf*)alloca(code->k * code->k);
+    unsigned char outix=0;
+    unsigned char row=0;
+    unsigned char col=0;
     build_decode_matrix_into_space(code, index, code->k, m_dec);
 
-    unsigned char outix=0;
-    for (unsigned char row=0; row<code->k; row++) {
+    for (row=0; row<code->k; row++) {
         if (index[row] >= code->k) {
             memset(outpkts[outix], 0, sz);
-            for (unsigned char col=0; col < code->k; col++)
+            for (col=0; col < code->k; col++)
                 addmul(outpkts[outix], inpkts[col], m_dec[row * code->k + col], sz);
             outix++;
         }

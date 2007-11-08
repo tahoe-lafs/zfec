@@ -113,20 +113,23 @@ Encoder_encode(Encoder *self, PyObject *args) {
     PyObject* desired_blocks_nums = NULL; /* The blocknums of the blocks that should be returned. */
     PyObject* result = NULL;
 
-    if (!PyArg_ParseTuple(args, "O|O", &inblocks, &desired_blocks_nums))
-        return NULL;
-
-    gf* check_blocks_produced[self->mm - self->kk]; /* This is an upper bound -- we will actually use only num_check_blocks_produced of these elements (see below). */
-    PyObject* pystrs_produced[self->mm - self->kk]; /* This is an upper bound -- we will actually use only num_check_blocks_produced of these elements (see below). */
+    gf** check_blocks_produced = (gf**)alloca(self->mm - self->kk); /* This is an upper bound -- we will actually use only num_check_blocks_produced of these elements (see below). */
+    PyObject** pystrs_produced = (PyObject**)alloca(self->mm - self->kk); /* This is an upper bound -- we will actually use only num_check_blocks_produced of these elements (see below). */
     unsigned num_check_blocks_produced = 0; /* The first num_check_blocks_produced elements of the check_blocks_produced array and of the pystrs_produced array will be used. */
-    const gf* incblocks[self->kk];
+    const gf** incblocks = (const gf**)alloca(self->kk);
     unsigned num_desired_blocks;
     PyObject* fast_desired_blocks_nums = NULL;
     PyObject** fast_desired_blocks_nums_items;
-    unsigned c_desired_blocks_nums[self->mm];
-    unsigned c_desired_checkblocks_ids[self->mm - self->kk];
+    unsigned* c_desired_blocks_nums = (unsigned*)alloca(self->mm);
+    unsigned* c_desired_checkblocks_ids = (unsigned*)alloca(self->mm - self->kk);
     unsigned i;
     PyObject* fastinblocks = NULL;
+    PyObject** fastinblocksitems;
+    Py_ssize_t sz, oldsz = 0;
+    unsigned char check_block_index = 0; /* index into the check_blocks_produced and (parallel) pystrs_produced arrays */
+
+    if (!PyArg_ParseTuple(args, "O|O", &inblocks, &desired_blocks_nums))
+        return NULL;
 
     for (i=0; i<self->mm - self->kk; i++)
         pystrs_produced[i] = NULL;
@@ -162,10 +165,10 @@ Encoder_encode(Encoder *self, PyObject *args) {
     }
 
     /* Construct a C array of gf*'s of the input data. */
-    PyObject** fastinblocksitems = PySequence_Fast_ITEMS(fastinblocks);
+    fastinblocksitems = PySequence_Fast_ITEMS(fastinblocks);
     if (!fastinblocksitems)
         goto err;
-    Py_ssize_t sz, oldsz = 0;
+
     for (i=0; i<self->kk; i++) {
         if (!PyObject_CheckReadBuffer(fastinblocksitems[i])) {
             py_raise_fec_error("Precondition violation: %u'th item is required to offer the single-segment read character buffer protocol, but it does not.", i);
@@ -181,7 +184,7 @@ Encoder_encode(Encoder *self, PyObject *args) {
     }
     
     /* Allocate space for all of the check blocks. */
-    unsigned char check_block_index = 0; /* index into the check_blocks_produced and (parallel) pystrs_produced arrays */
+
     for (i=0; i<num_desired_blocks; i++) {
         if (c_desired_blocks_nums[i] >= self->kk) {
             c_desired_checkblocks_ids[check_block_index] = c_desired_blocks_nums[i];
@@ -371,18 +374,26 @@ Decoder_decode(Decoder *self, PyObject *args) {
     PyObject*restrict blocknums;
     PyObject* result = NULL;
 
+    const gf**restrict cblocks = (const gf**restrict)alloca(self->kk);
+    unsigned* cblocknums = (unsigned*)alloca(self->kk);
+    gf**restrict recoveredcstrs = (gf**)alloca(self->kk); /* self->kk is actually an upper bound -- we probably won't need all of this space. */
+    PyObject**restrict recoveredpystrs = (PyObject**restrict)alloca(self->kk); /* self->kk is actually an upper bound -- we probably won't need all of this space. */
+    unsigned i;
+    PyObject*restrict fastblocknums = NULL;
+    PyObject*restrict fastblocks;
+    unsigned needtorecover=0;
+    PyObject** fastblocksitems;
+    PyObject** fastblocknumsitems;
+    Py_ssize_t sz, oldsz = 0;
+    long tmpl;
+    unsigned nextrecoveredix=0;
+
     if (!PyArg_ParseTuple(args, "OO", &blocks, &blocknums))
         return NULL;
 
-    const gf*restrict cblocks[self->kk];
-    unsigned cblocknums[self->kk];
-    gf*restrict recoveredcstrs[self->kk]; /* self->kk is actually an upper bound -- we probably won't need all of this space. */
-    PyObject*restrict recoveredpystrs[self->kk]; /* self->kk is actually an upper bound -- we probably won't need all of this space. */
-    unsigned i;
     for (i=0; i<self->kk; i++)
         recoveredpystrs[i] = NULL;
-    PyObject*restrict fastblocknums = NULL;
-    PyObject*restrict fastblocks = PySequence_Fast(blocks, "First argument was not a sequence.");
+    fastblocks = PySequence_Fast(blocks, "First argument was not a sequence.");
     if (!fastblocks)
         goto err;
     fastblocknums = PySequence_Fast(blocknums, "Second argument was not a sequence.");
@@ -399,20 +410,19 @@ Decoder_decode(Decoder *self, PyObject *args) {
     }
 
     /* Construct a C array of gf*'s of the data and another of C ints of the blocknums. */
-    unsigned needtorecover=0;
-    PyObject** fastblocknumsitems = PySequence_Fast_ITEMS(fastblocknums);
+    fastblocknumsitems = PySequence_Fast_ITEMS(fastblocknums);
     if (!fastblocknumsitems)
         goto err;
-    PyObject** fastblocksitems = PySequence_Fast_ITEMS(fastblocks);
+    fastblocksitems = PySequence_Fast_ITEMS(fastblocks);
     if (!fastblocksitems)
         goto err;
-    Py_ssize_t sz, oldsz = 0;
+
     for (i=0; i<self->kk; i++) {
         if (!PyInt_Check(fastblocknumsitems[i])) {
             py_raise_fec_error("Precondition violation: second argument is required to contain int.");
             goto err;
         }
-        long tmpl = PyInt_AsLong(fastblocknumsitems[i]);
+        tmpl = PyInt_AsLong(fastblocknumsitems[i]);
         if (tmpl < 0 || tmpl > 255) {
             py_raise_fec_error("Precondition violation: block nums can't be less than zero or greater than 255.  %ld\n", tmpl);
             goto err;
@@ -462,7 +472,6 @@ Decoder_decode(Decoder *self, PyObject *args) {
     fec_decode(self->fec_matrix, cblocks, recoveredcstrs, cblocknums, sz);
 
     /* Wrap up both original primary blocks and decoded blocks into a Python list of Python strings. */
-    unsigned nextrecoveredix=0;
     result = PyList_New(self->kk);
     if (result == NULL)
         goto err;
