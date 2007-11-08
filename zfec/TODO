@@ -5,9 +5,12 @@
  * memory usage analysis
  * announce on lwn, p2p-hackers
  * compile with Microsoft compiler, etc.
- * test cmdline (tricky)
- * test handling of filesystem exceptional conditions (even trickier)
- * install the setuptools bootstrap magic
- * include setuptools with package so that the bootstrap magic doesn't connect out
- * use setuptools's dependency magic
- * include all dependencies with package so that the dependency magic doesn't connect out
+ * test handling of filesystem exceptional conditions (tricky)
+
+ * ansi89 patch from Greg Hazel
+ * short input texts as per http://allmydata.org/trac/tahoe/changeset/1576
+ * Jerasure
+ * refactor exception raising like pycryptopp
+ * check calling conventions like pycryptopp
+ * check size_t usage like pycryptopp
+ 
