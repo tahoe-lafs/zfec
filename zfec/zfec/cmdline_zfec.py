@@ -11,6 +11,9 @@ import filefec
 from zfec import __version__ as libversion
 __version__ = libversion
 
+DEFAULT_K=3
+DEFAULT_M=8
+
 def main():
 
     if '-V' in sys.argv or '--version' in sys.argv:
@@ -24,8 +27,8 @@ def main():
     parser.add_argument('-d', '--output-dir', help='directory in which share file names will be created (default ".")', default='.', metavar='D')
     parser.add_argument('-p', '--prefix', help='prefix for share file names; If omitted, the name of the input file will be used.', metavar='P')
     parser.add_argument('-s', '--suffix', help='suffix for share file names (default ".fec")', default='.fec', metavar='S')
-    parser.add_argument('-m', '--totalshares', help='the total number of share files created (default 8)', default=8, type=int, metavar='M')
-    parser.add_argument('-k', '--requiredshares', help='the number of share files required to reconstruct (default 3)', default=3, type=int, metavar='K')
+    parser.add_argument('-m', '--totalshares', help='the total number of share files created (default 16)', default=16, type=int, metavar='M')
+    parser.add_argument('-k', '--requiredshares', help='the number of share files required to reconstruct (default 4)', default=4, type=int, metavar='K')
     parser.add_argument('-f', '--force', help='overwrite any file which already in place an output file (share file)', action='store_true')
     parser.add_argument('-v', '--verbose', help='print out messages about progress', action='store_true')
     parser.add_argument('-q', '--quiet', help='quiet progress indications and warnings about silly choices of K and M', action='store_true')
