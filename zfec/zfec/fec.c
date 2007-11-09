@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <alloca.h>
 
 #include "fec.h"
 

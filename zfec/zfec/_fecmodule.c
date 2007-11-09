@@ -113,15 +113,15 @@ Encoder_encode(Encoder *self, PyObject *args) {
     PyObject* desired_blocks_nums = NULL; /* The blocknums of the blocks that should be returned. */
     PyObject* result = NULL;
 
-    gf** check_blocks_produced = (gf**)alloca(self->mm - self->kk); /* This is an upper bound -- we will actually use only num_check_blocks_produced of these elements (see below). */
-    PyObject** pystrs_produced = (PyObject**)alloca(self->mm - self->kk); /* This is an upper bound -- we will actually use only num_check_blocks_produced of these elements (see below). */
+    gf** check_blocks_produced = (gf**)alloca((self->mm - self->kk) * sizeof(PyObject*)); /* This is an upper bound -- we will actually use only num_check_blocks_produced of these elements (see below). */
+    PyObject** pystrs_produced = (PyObject**)alloca((self->mm - self->kk) * sizeof(PyObject*)); /* This is an upper bound -- we will actually use only num_check_blocks_produced of these elements (see below). */
     unsigned num_check_blocks_produced = 0; /* The first num_check_blocks_produced elements of the check_blocks_produced array and of the pystrs_produced array will be used. */
-    const gf** incblocks = (const gf**)alloca(self->kk);
+    const gf** incblocks = (const gf**)alloca(self->kk * sizeof(const gf*));
     unsigned num_desired_blocks;
     PyObject* fast_desired_blocks_nums = NULL;
     PyObject** fast_desired_blocks_nums_items;
-    unsigned* c_desired_blocks_nums = (unsigned*)alloca(self->mm);
-    unsigned* c_desired_checkblocks_ids = (unsigned*)alloca(self->mm - self->kk);
+    unsigned* c_desired_blocks_nums = (unsigned*)alloca(self->mm * sizeof(unsigned));
+    unsigned* c_desired_checkblocks_ids = (unsigned*)alloca((self->mm - self->kk) * sizeof(unsigned));
     unsigned i;
     PyObject* fastinblocks = NULL;
     PyObject** fastinblocksitems;
@@ -374,10 +374,10 @@ Decoder_decode(Decoder *self, PyObject *args) {
     PyObject*restrict blocknums;
     PyObject* result = NULL;
 
-    const gf**restrict cblocks = (const gf**restrict)alloca(self->kk);
-    unsigned* cblocknums = (unsigned*)alloca(self->kk);
-    gf**restrict recoveredcstrs = (gf**)alloca(self->kk); /* self->kk is actually an upper bound -- we probably won't need all of this space. */
-    PyObject**restrict recoveredpystrs = (PyObject**restrict)alloca(self->kk); /* self->kk is actually an upper bound -- we probably won't need all of this space. */
+    const gf**restrict cblocks = (const gf**restrict)alloca(self->kk * sizeof(const gf*));
+    unsigned* cblocknums = (unsigned*)alloca(self->kk * sizeof(unsigned));
+    gf**restrict recoveredcstrs = (gf**)alloca(self->kk * sizeof(gf*)); /* self->kk is actually an upper bound -- we probably won't need all of this space. */
+    PyObject**restrict recoveredpystrs = (PyObject**restrict)alloca(self->kk * sizeof(PyObject*)); /* self->kk is actually an upper bound -- we probably won't need all of this space. */
     unsigned i;
     PyObject*restrict fastblocknums = NULL;
     PyObject*restrict fastblocks;
