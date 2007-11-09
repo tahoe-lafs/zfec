@@ -3,14 +3,10 @@
  * catch EnvironmentError when writing sharefiles and clean up
  * try Duff's device in _addmul1()?
  * memory usage analysis
- * announce on lwn, p2p-hackers
- * compile with Microsoft compiler, etc.
+ * What Every Programmer Should Know About Memory by Ulrich Drepper
  * test handling of filesystem exceptional conditions (tricky)
-
- * ansi89 patch from Greg Hazel
- * short input texts as per http://allmydata.org/trac/tahoe/changeset/1576
  * Jerasure
- * refactor exception raising like pycryptopp
- * check calling conventions like pycryptopp
- * check size_t usage like pycryptopp
+ * conditional compilation to handle a printf that doesn't understand %Zu
+
+ * announce on lwn, p2p-hackers
  
