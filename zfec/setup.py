@@ -100,7 +100,6 @@ else:
         raise RuntimeError("if %s.py exists, it is required to be well-formed" % (VERSIONFILE,))
 
 setup(name='zfec',
-      # install_requires=['pyutil>=1.0.0',], # It doesn't require pyutil yet.
       version=verstr,
       description='a fast erasure code with command-line, C, and Python interfaces',
       long_description='Fast, portable, programmable erasure coding a.k.a. "forward error correction": the generation of redundant blocks of information such that if some blocks are lost then the original data can be recovered from the remaining blocks.',
@@ -108,7 +107,10 @@ setup(name='zfec',
       author_email='zooko@zooko.com',
       url='http://allmydata.org/source/zfec',
       license='GNU GPL',
+      install_requires=["argparse >= 0.8", "pyutil >= 1.3.5",],
       packages=find_packages(),
+      include_package_data=True,
+      setup_requires=['setuptools_darcs >= 1.0.3',],
       classifiers=trove_classifiers,
       entry_points = { 'console_scripts': [ 'zfec = zfec.cmdline_zfec:main', 'zunfec = zfec.cmdline_zunfec:main' ] },
       ext_modules=[Extension('zfec/_fec', ['zfec/fec.c', 'zfec/_fecmodule.c',], extra_link_args=extra_link_args, extra_compile_args=extra_compile_args, undef_macros=undef_macros),],

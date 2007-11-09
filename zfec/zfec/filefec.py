@@ -1,6 +1,6 @@
 import easyfec, zfec
-from util import fileutil
-from util.mathutil import log_ceil
+from pyutil import fileutil
+from pyutil.mathutil import pad_size, log_ceil
 
 import array, os, re, struct, traceback
 
@@ -160,7 +160,7 @@ def encode_to_files(inf, fsize, dirname, prefix, k, m, suffix=".fec", overwrite=
     mlen = len(str(m))
     format = FORMAT_FORMAT % (mlen, mlen,)
 
-    padbytes = zfec.util.mathutil.pad_size(fsize, k)
+    padbytes = pad_size(fsize, k)
 
     fns = []
     fs = []

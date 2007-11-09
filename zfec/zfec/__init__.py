@@ -10,12 +10,12 @@ __version__ = "unknown"
 try:
     from _version import __version__
 except ImportError:
-    # we're running in a tree that hasn't run make-version.py, so we don't
+    # we're running in a tree that hasn't run darcsver.py, so we don't
     # know what our version is. This should not happen very often.
     pass
 
 from _fec import Encoder, Decoder, Error
-import filefec, cmdline_zfec, cmdline_zunfec
+import easyfec, filefec, cmdline_zfec, cmdline_zunfec
 
 # zfec -- fast forward error correction library with Python interface
 # 

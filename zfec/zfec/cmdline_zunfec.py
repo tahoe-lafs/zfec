@@ -5,7 +5,7 @@
 
 import os, sys
 
-from util import argparse
+import argparse
 import filefec
 
 from zfec import __version__ as libversion
