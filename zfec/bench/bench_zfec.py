@@ -1,4 +1,5 @@
-from zfec import filefec
+from zfec import easyfec, Encoder, filefec
+from pyutil import mathutil
 
 import os
 
@@ -14,6 +15,22 @@ def donothing(results, reslenthing):
 
 K=3
 M=10
+
+d = ""
+ds = []
+easyfecenc = None
+fecenc = None
+def _make_new_rand_data(size):
+    global d, easyfecenc, fecenc
+    d = os.urandom(size)
+    del ds[:]
+    ds.extend([None]*K)
+    blocksize = mathutil.div_ceil(size, K)
+    for i in range(K):
+        ds[i] = d[i*blocksize:(i+1)*blocksize]
+    ds[-1] = ds[-1] + "\x00" * (len(ds[-2]) - len(ds[-1]))
+    easyfecenc = easyfec.Encoder(K,M)
+    fecenc = Encoder(K,M)
 
 import sha
 hashers = [ sha.new() for i in range(M) ]
@@ -39,11 +56,26 @@ def _encode_file_not_really_and_hash(N):
 def _encode_file_and_hash(N):
     filefec.encode_file(open(FNAME, "rb"), hashem, K, M)
 
+def _encode_data_not_really(N):
+    i = 0
+    for c in d:
+        i += 1
+    assert len(d) == N == i
+    pass
+
+def _encode_data_easyfec(N):
+    easyfecenc.encode(d)
+
+def _encode_data_fec(N):
+    fecenc.encode(ds)
+
 def bench():
     # for f in [_encode_file_stringy_easyfec, _encode_file_stringy, _encode_file, _encode_file_not_really,]:
     # for f in [_encode_file,]:
-    for f in [_encode_file_not_really, _encode_file_not_really_and_hash, _encode_file, _encode_file_and_hash,]:
+    # for f in [_encode_file_not_really, _encode_file_not_really_and_hash, _encode_file, _encode_file_and_hash,]:
+    for f in [_encode_data_not_really, _encode_data_easyfec, _encode_data_fec,]:
         print f
-        benchutil.bench(f, initfunc=_make_new_rand_file, TOPXP=23, MAXREPS=128, MAXTIME=64)
+        benchutil.bench(f, initfunc=_make_new_rand_data, TOPXP=8, MAXREPS=256, MAXTIME=64)
+        benchutil.bench(f, initfunc=_make_new_rand_data, TOPXP=16, MAXREPS=256, MAXTIME=64)
 
-# bench()
+bench()
