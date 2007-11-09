@@ -52,7 +52,7 @@ typedef struct {
 } Encoder;
 
 static PyObject *
-Encoder_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
+Encoder_new(PyTypeObject *type, PyObject *args, PyObject *kwdict) {
     Encoder *self;
 
     self = (Encoder*)type->tp_alloc(type, 0);
@@ -78,19 +78,19 @@ Encoder_init(Encoder *self, PyObject *args, PyObject *kwdict) {
 
     if (ink < 1) {
         py_raise_fec_error("Precondition violation: first argument is required to be greater than or equal to 1, but it was %d", self->kk);
-	return -1;
+        return -1;
     }
     if (inm < 1) {
         py_raise_fec_error("Precondition violation: second argument is required to be greater than or equal to 1, but it was %d", self->mm);
-	return -1;
+        return -1;
     }
     if (inm > 256) {
         py_raise_fec_error("Precondition violation: second argument is required to be less than or equal to 256, but it was %d", self->mm);
-	return -1;
+        return -1;
     }
     if (ink > inm) {
         py_raise_fec_error("Precondition violation: first argument is required to be less than or equal to the second argument, but they were %d and %d respectively", ink, inm);
-	return -1;
+        return -1;
     }
     self->kk = (short)ink;
     self->mm = (short)inm;
@@ -307,7 +307,7 @@ typedef struct {
 } Decoder;
 
 static PyObject *
-Decoder_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
+Decoder_new(PyTypeObject *type, PyObject *args, PyObject *kwdict) {
     Decoder *self;
 
     self = (Decoder*)type->tp_alloc(type, 0);
