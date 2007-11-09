@@ -157,7 +157,7 @@ Encoder_encode(Encoder *self, PyObject *args) {
         goto err;
 
     if (PySequence_Fast_GET_SIZE(fastinblocks) != self->kk) {
-        py_raise_fec_error("Precondition violation: Wrong length -- first argument is required to contain exactly k blocks.  len(first): %d, k: %d", PySequence_Fast_GET_SIZE(fastinblocks), self->kk); 
+        py_raise_fec_error("Precondition violation: Wrong length -- first argument (the sequence of input blocks) is required to contain exactly k blocks.  len(first): %d, k: %d", PySequence_Fast_GET_SIZE(fastinblocks), self->kk);
         goto err;
     }
 
