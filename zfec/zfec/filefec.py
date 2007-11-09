@@ -6,6 +6,17 @@ import array, os, re, struct, traceback
 
 CHUNKSIZE = 4096
 
+from base64 import b32encode
+def ab(x): # debuggery
+    if len(x) >= 3:
+        return "%s:%s" % (len(x), b32encode(x[-3:]),)
+    elif len(x) == 2:
+        return "%s:%s" % (len(x), b32encode(x[-2:]),)
+    elif len(x) == 1:
+        return "%s:%s" % (len(x), b32encode(x[-1:]),)
+    elif len(x) == 0:
+        return "%s:%s" % (len(x), "--empty--",)
+
 class InsufficientShareFilesError(zfec.Error):
     def __init__(self, k, kb, *args, **kwargs):
         zfec.Error.__init__(self, *args, **kwargs)
@@ -216,9 +227,9 @@ def encode_to_files(inf, fsize, dirname, prefix, k, m, suffix=".fec", overwrite=
     return 0
 
 # Note: if you really prefer base-2 and you change this code, then please
-# denote 2^20 as "MiB" instead of "MB" in order to avoid ambiguity.
-# Thanks.
+# denote 2^20 as "MiB" instead of "MB" in order to avoid ambiguity.  See:
 # http://en.wikipedia.org/wiki/Megabyte
+# Thanks.
 MILLION_BYTES=10**6
 
 def decode_from_files(outf, infiles, verbose=False):

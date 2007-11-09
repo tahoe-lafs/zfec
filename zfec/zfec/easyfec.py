@@ -10,6 +10,17 @@ def div_ceil(n, d):
     """
     return (n/d) + (n%d != 0)
 
+from base64 import b32encode
+def ab(x): # debuggery
+    if len(x) >= 3:
+        return "%s:%s" % (len(x), b32encode(x[-3:]),)
+    elif len(x) == 2:
+        return "%s:%s" % (len(x), b32encode(x[-2:]),)
+    elif len(x) == 1:
+        return "%s:%s" % (len(x), b32encode(x[-1:]),)
+    elif len(x) == 0:
+        return "%s:%s" % (len(x), "--empty--",)
+
 class Encoder(object):
     def __init__(self, k, m):
         self.fec = zfec.Encoder(k, m)

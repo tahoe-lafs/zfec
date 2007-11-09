@@ -31,8 +31,7 @@ use_setuptools(min_version=min_version, download_delay=0)
 
 from setuptools import Extension, find_packages, setup
 
-DEBUGMODE=False
-# DEBUGMODE=True
+DEBUGMODE=("--debug" in sys.argv)
 
 extra_compile_args=[]
 extra_link_args=[]
