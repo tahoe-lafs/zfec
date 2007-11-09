@@ -41,7 +41,7 @@ def _h(k, m, ss):
 def _help_test_random():
     m = random.randrange(1, 257)
     k = random.randrange(1, m+1)
-    l = random.randrange(0, 2**10)
+    l = random.randrange(0, 2**9)
     ss = [ randstr(l/k) for x in range(k) ]
     _h(k, m, ss)
 
@@ -68,7 +68,7 @@ def _h_easy(k, m, s):
 def _help_test_random_easy():
     m = random.randrange(1, 257)
     k = random.randrange(1, m+1)
-    l = random.randrange(0, 2**10)
+    l = random.randrange(0, 2**9)
     s = randstr(l)
     _h_easy(k, m, s)
 
@@ -117,13 +117,13 @@ class ZFecTest(unittest.TestCase):
 
 class EasyFecTest(unittest.TestCase):
     def test_small(self):
-        for i in range(2**10):
+        for i in range(16):
             _help_test_random_with_l_easy(i)
         if VERBOSE:
             print "%d randomized tests pass." % (i+1)
 
     def test_random(self):
-        for i in range(2**10):
+        for i in range(3):
             _help_test_random_easy()
         if VERBOSE:
             print "%d randomized tests pass." % (i+1)
