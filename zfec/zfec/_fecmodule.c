@@ -14,25 +14,10 @@ typedef int Py_ssize_t;
 #include "stdarg.h"
 
 static PyObject *py_fec_error;
-static PyObject *py_raise_fec_error (const char *format, ...);
 
 static char fec__doc__[] = "\
 FEC - Forward Error Correction \n\
 ";
-
-/* NOTE: if the complete expansion of the args (by vsprintf) exceeds 1024 then memory will be invalidly overwritten. */
-static PyObject *
-py_raise_fec_error(const char *format, ...) {
-    char exceptionMsg[1024];
-    va_list ap;
-
-    va_start (ap, format);
-    vsprintf (exceptionMsg, format, ap); /* Make sure that this can't exceed 1024 chars! */
-    va_end (ap);
-    exceptionMsg[1023]='\0';
-    PyErr_SetString (py_fec_error, exceptionMsg);
-    return NULL;
-}
 
 static char Encoder__doc__[] = "\
 Hold static encoder state (an in-memory table for matrix multiplication), and k and m parameters, and provide {encode()} method.\n\n\
@@ -77,19 +62,19 @@ Encoder_init(Encoder *self, PyObject *args, PyObject *kwdict) {
         return -1;
 
     if (ink < 1) {
-        py_raise_fec_error("Precondition violation: first argument is required to be greater than or equal to 1, but it was %d", self->kk);
+        PyErr_Format(py_fec_error, "Precondition violation: first argument is required to be greater than or equal to 1, but it was %d", self->kk);
         return -1;
     }
     if (inm < 1) {
-        py_raise_fec_error("Precondition violation: second argument is required to be greater than or equal to 1, but it was %d", self->mm);
+        PyErr_Format(py_fec_error, "Precondition violation: second argument is required to be greater than or equal to 1, but it was %d", self->mm);
         return -1;
     }
     if (inm > 256) {
-        py_raise_fec_error("Precondition violation: second argument is required to be less than or equal to 256, but it was %d", self->mm);
+        PyErr_Format(py_fec_error, "Precondition violation: second argument is required to be less than or equal to 256, but it was %d", self->mm);
         return -1;
     }
     if (ink > inm) {
-        py_raise_fec_error("Precondition violation: first argument is required to be less than or equal to the second argument, but they were %d and %d respectively", ink, inm);
+        PyErr_Format(py_fec_error, "Precondition violation: first argument is required to be less than or equal to the second argument, but they were %d and %d respectively", ink, inm);
         return -1;
     }
     self->kk = (short)ink;
@@ -141,7 +126,7 @@ Encoder_encode(Encoder *self, PyObject *args) {
         fast_desired_blocks_nums_items = PySequence_Fast_ITEMS(fast_desired_blocks_nums);
         for (i=0; i<num_desired_blocks; i++) {
             if (!PyInt_Check(fast_desired_blocks_nums_items[i])) {
-                py_raise_fec_error("Precondition violation: second argument is required to contain int.");
+                PyErr_Format(py_fec_error, "Precondition violation: second argument is required to contain int.");
                 goto err;
             }
             c_desired_blocks_nums[i] = PyInt_AsLong(fast_desired_blocks_nums_items[i]);
@@ -160,7 +145,7 @@ Encoder_encode(Encoder *self, PyObject *args) {
         goto err;
 
     if (PySequence_Fast_GET_SIZE(fastinblocks) != self->kk) {
-        py_raise_fec_error("Precondition violation: Wrong length -- first argument (the sequence of input blocks) is required to contain exactly k blocks.  len(first): %d, k: %d", PySequence_Fast_GET_SIZE(fastinblocks), self->kk);
+        PyErr_Format(py_fec_error, "Precondition violation: Wrong length -- first argument (the sequence of input blocks) is required to contain exactly k blocks.  len(first): %d, k: %d", PySequence_Fast_GET_SIZE(fastinblocks), self->kk);
         goto err;
     }
 
@@ -171,13 +156,13 @@ Encoder_encode(Encoder *self, PyObject *args) {
 
     for (i=0; i<self->kk; i++) {
         if (!PyObject_CheckReadBuffer(fastinblocksitems[i])) {
-            py_raise_fec_error("Precondition violation: %u'th item is required to offer the single-segment read character buffer protocol, but it does not.", i);
+            PyErr_Format(py_fec_error, "Precondition violation: %u'th item is required to offer the single-segment read character buffer protocol, but it does not.", i);
             goto err;
         }
         if (PyObject_AsReadBuffer(fastinblocksitems[i], (const void**)&(incblocks[i]), &sz))
             goto err;
         if (oldsz != 0 && oldsz != sz) {
-            py_raise_fec_error("Precondition violation: Input blocks are required to be all the same length.  length of one block was: %Zu, length of another block was: %Zu", oldsz, sz);
+            PyErr_Format(py_fec_error, "Precondition violation: Input blocks are required to be all the same length.  length of one block was: %Zu, length of another block was: %Zu", oldsz, sz);
             goto err;
         }
         oldsz = sz;
@@ -336,19 +321,19 @@ Decoder_init(Encoder *self, PyObject *args, PyObject *kwdict) {
         return -1;
 
     if (ink < 1) {
-        py_raise_fec_error("Precondition violation: first argument is required to be greater than or equal to 1, but it was %d", self->kk);
+        PyErr_Format(py_fec_error, "Precondition violation: first argument is required to be greater than or equal to 1, but it was %d", self->kk);
 	return -1;
     }
     if (inm < 1) {
-        py_raise_fec_error("Precondition violation: second argument is required to be greater than or equal to 1, but it was %d", self->mm);
+        PyErr_Format(py_fec_error, "Precondition violation: second argument is required to be greater than or equal to 1, but it was %d", self->mm);
 	return -1;
     }
     if (inm > 256) {
-        py_raise_fec_error("Precondition violation: second argument is required to be less than or equal to 256, but it was %d", self->mm);
+        PyErr_Format(py_fec_error, "Precondition violation: second argument is required to be less than or equal to 256, but it was %d", self->mm);
 	return -1;
     }
     if (ink > inm) {
-        py_raise_fec_error("Precondition violation: first argument is required to be less than or equal to the second argument, but they were %d and %d respectively", ink, inm);
+        PyErr_Format(py_fec_error, "Precondition violation: first argument is required to be less than or equal to the second argument, but they were %d and %d respectively", ink, inm);
 	return -1;
     }
     self->kk = (short)ink;
@@ -401,11 +386,11 @@ Decoder_decode(Decoder *self, PyObject *args) {
         goto err;
 
     if (PySequence_Fast_GET_SIZE(fastblocks) != self->kk) {
-        py_raise_fec_error("Precondition violation: Wrong length -- first argument is required to contain exactly k blocks.  len(first): %d, k: %d", PySequence_Fast_GET_SIZE(fastblocks), self->kk); 
+        PyErr_Format(py_fec_error, "Precondition violation: Wrong length -- first argument is required to contain exactly k blocks.  len(first): %d, k: %d", PySequence_Fast_GET_SIZE(fastblocks), self->kk); 
         goto err;
     }
     if (PySequence_Fast_GET_SIZE(fastblocknums) != self->kk) {
-        py_raise_fec_error("Precondition violation: Wrong length -- blocknums is required to contain exactly k blocks.  len(blocknums): %d, k: %d", PySequence_Fast_GET_SIZE(fastblocknums), self->kk); 
+        PyErr_Format(py_fec_error, "Precondition violation: Wrong length -- blocknums is required to contain exactly k blocks.  len(blocknums): %d, k: %d", PySequence_Fast_GET_SIZE(fastblocknums), self->kk); 
         goto err;
     }
 
@@ -419,12 +404,12 @@ Decoder_decode(Decoder *self, PyObject *args) {
 
     for (i=0; i<self->kk; i++) {
         if (!PyInt_Check(fastblocknumsitems[i])) {
-            py_raise_fec_error("Precondition violation: second argument is required to contain int.");
+            PyErr_Format(py_fec_error, "Precondition violation: second argument is required to contain int.");
             goto err;
         }
         tmpl = PyInt_AsLong(fastblocknumsitems[i]);
         if (tmpl < 0 || tmpl > 255) {
-            py_raise_fec_error("Precondition violation: block nums can't be less than zero or greater than 255.  %ld\n", tmpl);
+            PyErr_Format(py_fec_error, "Precondition violation: block nums can't be less than zero or greater than 255.  %ld\n", tmpl);
             goto err;
         }
         cblocknums[i] = (unsigned)tmpl;
@@ -432,13 +417,13 @@ Decoder_decode(Decoder *self, PyObject *args) {
             needtorecover+=1;
 
         if (!PyObject_CheckReadBuffer(fastblocksitems[i])) {
-            py_raise_fec_error("Precondition violation: %u'th item is required to offer the single-segment read character buffer protocol, but it does not.\n", i);
+            PyErr_Format(py_fec_error, "Precondition violation: %u'th item is required to offer the single-segment read character buffer protocol, but it does not.\n", i);
             goto err;
         }
         if (PyObject_AsReadBuffer(fastblocksitems[i], (const void**)&(cblocks[i]), &sz))
             goto err;
         if (oldsz != 0 && oldsz != sz) {
-            py_raise_fec_error("Precondition violation: Input blocks are required to be all the same length.  length of one block was: %Zu, length of another block was: %Zu\n", oldsz, sz);
+            PyErr_Format(py_fec_error, "Precondition violation: Input blocks are required to be all the same length.  length of one block was: %Zu, length of another block was: %Zu\n", oldsz, sz);
             goto err;
         }
         oldsz = sz;
