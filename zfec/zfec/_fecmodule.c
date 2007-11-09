@@ -177,7 +177,7 @@ Encoder_encode(Encoder *self, PyObject *args) {
         if (PyObject_AsReadBuffer(fastinblocksitems[i], (const void**)&(incblocks[i]), &sz))
             goto err;
         if (oldsz != 0 && oldsz != sz) {
-            py_raise_fec_error("Precondition violation: Input blocks are required to be all the same length.  oldsz: %Zu, sz: %Zu", oldsz, sz);
+            py_raise_fec_error("Precondition violation: Input blocks are required to be all the same length.  length of one block was: %Zu, length of another block was: %Zu", oldsz, sz);
             goto err;
         }
         oldsz = sz;
@@ -438,7 +438,7 @@ Decoder_decode(Decoder *self, PyObject *args) {
         if (PyObject_AsReadBuffer(fastblocksitems[i], (const void**)&(cblocks[i]), &sz))
             goto err;
         if (oldsz != 0 && oldsz != sz) {
-            py_raise_fec_error("Precondition violation: Input blocks are required to be all the same length.  oldsz: %Zu, sz: %Zu\n", oldsz, sz);
+            py_raise_fec_error("Precondition violation: Input blocks are required to be all the same length.  length of one block was: %Zu, length of another block was: %Zu\n", oldsz, sz);
             goto err;
         }
         oldsz = sz;
