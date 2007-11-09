@@ -60,9 +60,10 @@ def _h_easy(k, m, s):
     blocks = [ x[1] for x in nums_and_blocks ]
     nums = [ x[0] for x in nums_and_blocks ]
     decer = zfec.easyfec.Decoder(k, m)
-    decodeds = decer.decode(blocks, nums)
-    assert len(decodeds) == len(s), (len(decodeds), len(s),)
-    assert decodeds == s, (decodeds, s,)
+    
+    decodeds = decer.decode(blocks, nums, padlen=k*len(blocks[0]) - len(s))
+    assert len(decodeds) == len(s), (ab(decodeds), ab(s), k, m)
+    assert decodeds == s, (ab(decodeds), ab(s),)
 
 def _help_test_random_easy():
     m = random.randrange(1, 257)
@@ -94,7 +95,7 @@ class ZFecTest(unittest.TestCase):
         decer = zfec.Decoder(2, 4)
 
         try:
-            decer.decode(98) # first argument is not a sequence
+            decer.decode(98, []) # first argument is not a sequence
         except TypeError, e:
             assert "First argument was not a sequence" in str(e), e
         else:
@@ -122,7 +123,7 @@ class EasyFecTest(unittest.TestCase):
             print "%d randomized tests pass." % (i+1)
 
     def test_random(self):
-        for i in range(2**8):
+        for i in range(2**10):
             _help_test_random_easy()
         if VERBOSE:
             print "%d randomized tests pass." % (i+1)
@@ -131,21 +132,21 @@ class EasyFecTest(unittest.TestCase):
         decer = zfec.easyfec.Decoder(2, 4)
 
         try:
-            decer.decode(98, [0, 1]) # first argument is not a sequence
+            decer.decode(98, [0, 1], 0) # first argument is not a sequence
         except TypeError, e:
             assert "First argument was not a sequence" in str(e), e
         else:
             raise "Should have gotten TypeError for wrong type of second argument."
 
         try:
-            decer.decode("ab", ["c", "d",])
+            decer.decode("ab", ["c", "d",], 0)
         except zfec.Error, e:
             assert "Precondition violation: second argument is required to contain int" in str(e), e
         else:
             raise "Should have gotten zfec.Error for wrong type of second argument."
 
         try:
-            decer.decode("ab", 98) # not a sequence at all
+            decer.decode("ab", 98, 0) # not a sequence at all
         except TypeError, e:
             assert "Second argument was not a sequence" in str(e), e
         else:
@@ -182,6 +183,7 @@ class FileFec(unittest.TestCase):
         try:
             tempf = tempdir.file(TESTFNAME, 'w+b')
             tempf.write(teststr)
+            tempf.flush()
             tempf.seek(0)
 
             # encode the file
@@ -200,9 +202,10 @@ class FileFec(unittest.TestCase):
             # decode from the share files
             outf = tempdir.file('recovered-testfile.txt', 'w+b')
             zfec.filefec.decode_from_files(outf, sharefs, verbose=VERBOSE)
+            outf.flush()
             outf.seek(0)
             recovereddata = outf.read()
-            assert recovereddata == teststr
+            assert recovereddata == teststr, (ab(recovereddata), ab(teststr),)
         finally:
             tempdir.shutdown()
 

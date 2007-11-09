@@ -17,26 +17,31 @@ class Encoder(object):
     def encode(self, data):
         """
         @param data: string
+
+        @return: a sequence of m blocks -- any k of which suffice to
+            reconstruct the input data
         """
         chunksize = div_ceil(len(data), self.fec.k)
-        l = [ data[i*chunksize:(i+1)*chunksize] for i in range(self.fec.k) ]
-        # padding
-        if l and (len(l[-1]) != chunksize):
-            l[-1] = l[-1] + ('\x00'*(chunksize-len(l[-1])))
+        l = [ data[i*chunksize:(i+1)*chunksize] + "\x00" * min(chunksize, (((i+1)*chunksize)-len(data))) for i in range(self.fec.k) ]
         assert len(l) == self.fec.k, (len(l), self.fec.k,)
-        res = self.fec.encode(l)
-        return res
+        assert (not l) or (not [ x for x in l if len(x) != len(l[0]) ], (len(l), [ ab(x) for x in l ], chunksize, self.fec.k, len(data),))
+        return self.fec.encode(l)
         
 class Decoder(object):
     def __init__(self, k, m):
         self.fec = zfec.Decoder(k, m)
 
-    def decode(self, blocks, sharenums, padlen=0):
-        blocks = self.fec.decode(blocks, sharenums)
-        data = ''.join(blocks)
+    def decode(self, blocks, sharenums, padlen):
+        """
+        @param padlen: the number of bytes of padding to strip off;  Note that
+            the padlen is always equal to (blocksize times k) minus the length
+            of data.  (Therefore, padlen can be 0.)
+        """
+        data = ''.join(self.fec.decode(blocks, sharenums))
         if padlen:
-            data = data[:-padlen]
-        return data
+            return data[:-padlen]
+        else:
+            return data
 
 # zfec -- fast forward error correction library with Python interface
 # 
