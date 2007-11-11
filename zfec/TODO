@@ -6,6 +6,7 @@
  * What Every Programmer Should Know About Memory by Ulrich Drepper
  * test handling of filesystem exceptional conditions (tricky)
  * Jerasure
+  ** try multiplication without a lookup table? (to save cache pressure)
  * conditional compilation to handle a printf that doesn't understand %Zu
 
  * announce on lwn, p2p-hackers
