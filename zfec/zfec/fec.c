@@ -75,6 +75,7 @@ static gf gf_mul_table[256][256];
 #define gf_mul(x,y) gf_mul_table[x][y]
 
 #define USE_GF_MULC register gf * __gf_mulc_
+
 #define GF_MULC0(c) __gf_mulc_ = gf_mul_table[c]
 #define GF_ADDMULC(dst, x) dst ^= __gf_mulc_[x]
 
@@ -470,19 +471,26 @@ fec_new(unsigned k, unsigned n) {
     return retval;
 }
 
+/* To make sure that we stay within cache in the inner loops of fec_encode()
+   and fec_decode(). */
+#define STRIDE 1024
+
 void
 fec_encode(const fec_t* code, const gf*restrict const*restrict const src, gf*restrict const*restrict const fecs, const unsigned*restrict const block_nums, size_t num_block_nums, size_t sz) {
     unsigned char i, j;
+    size_t k;
     unsigned fecnum;
-    gf* p;
+    const gf* p;
 
     for (i=0; i<num_block_nums; i++) {
         fecnum=block_nums[i];
         assert (fecnum >= code->k);
         memset(fecs[i], 0, sz);
         p = &(code->enc_matrix[fecnum * code->k]);
-        for (j = 0; j < code->k; j++)
-            addmul(fecs[i], src[j], p[j], sz);
+// DUFF ME
+        for (k = 0; k < sz; k += STRIDE)
+            for (j = 0; j < code->k; j++)
+                addmul(fecs[i]+k, src[j]+k, p[j], ((sz-k) < STRIDE)?(sz-k):STRIDE);
     }
 }
 
