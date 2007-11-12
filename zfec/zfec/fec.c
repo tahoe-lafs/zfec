@@ -482,15 +482,16 @@ fec_encode(const fec_t* code, const gf*restrict const*restrict const src, gf*res
     unsigned fecnum;
     const gf* p;
 
-    for (i=0; i<num_block_nums; i++) {
-        fecnum=block_nums[i];
-        assert (fecnum >= code->k);
-        memset(fecs[i], 0, sz);
-        p = &(code->enc_matrix[fecnum * code->k]);
-// DUFF ME
-        for (k = 0; k < sz; k += STRIDE)
+    for (k = 0; k < sz; k += STRIDE) {
+        size_t stride = ((sz-k) < STRIDE)?(sz-k):STRIDE;
+        for (i=0; i<num_block_nums; i++) {
+            fecnum=block_nums[i];
+            assert (fecnum >= code->k);
+            memset(fecs[i]+k, 0, stride);
+            p = &(code->enc_matrix[fecnum * code->k]);
             for (j = 0; j < code->k; j++)
-                addmul(fecs[i]+k, src[j]+k, p[j], ((sz-k) < STRIDE)?(sz-k):STRIDE);
+                addmul(fecs[i]+k, src[j]+k, p[j], stride);
+        }
     }
 }
 
