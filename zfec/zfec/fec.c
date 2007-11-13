@@ -2,13 +2,26 @@
  * zfec -- fast forward error correction library with Python interface
  */
 
+#include "fec.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <alloca.h>
 
-#include "fec.h"
+#if defined(_MSC_VER)
+// actually, some of the flavors (i.e. Enterprise) do support it
+//#define restrict __restrict
+#define restrict
+#define inline __inline
+#define alloca _alloca
+#else
+#ifdef __GNUC__
+#define alloca(x) __builtin_alloca(x)
+#else
+#include <alloca.h>
+#endif
+#endif
 
 
 /*

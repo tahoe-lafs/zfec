@@ -8,6 +8,7 @@
  * Jerasure
   ** try multiplication without a lookup table? (to save cache pressure)
  * conditional compilation to handle a printf that doesn't understand %Zu
+ * try malloc() instead of alloca() (more portable, possibly better for keeping stacks aligned)
 
  * announce on lwn, p2p-hackers
  
