@@ -14,7 +14,7 @@ def donothing(results, reslenthing):
     pass
 
 K=3
-M=256
+M=10
 
 d = ""
 ds = []
