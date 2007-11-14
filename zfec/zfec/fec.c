@@ -10,7 +10,7 @@
 #include <assert.h>
 
 #if defined(_MSC_VER)
-// actually, some of the flavors (i.e. Enterprise) do support it
+// actually, some of the flavors (i.e. Enterprise) do support restrict
 //#define restrict __restrict
 #define restrict
 #define inline __inline
