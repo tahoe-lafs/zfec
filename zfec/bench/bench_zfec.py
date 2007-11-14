@@ -76,7 +76,6 @@ def bench():
     # for f in [_encode_data_not_really, _encode_data_easyfec, _encode_data_fec,]:
     for f in [_encode_data_fec,]:
         print f
-        # benchutil.bench(f, initfunc=_make_new_rand_data, TOPXP=8, MAXREPS=256, MAXTIME=64)
-        benchutil.bench(f, initfunc=_make_new_rand_data, TOPXP=25, MAXREPS=256, MAXTIME=64)
+        benchutil.bench(f, initfunc=_make_new_rand_data, TOPXP=24, MAXREPS=256, MAXTIME=64)
 
 bench()
