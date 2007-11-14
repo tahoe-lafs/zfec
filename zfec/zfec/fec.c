@@ -473,7 +473,7 @@ fec_new(unsigned k, unsigned n) {
 
 /* To make sure that we stay within cache in the inner loops of fec_encode()
    and fec_decode(). */
-#define STRIDE 1024
+#define STRIDE 8192
 
 void
 fec_encode(const fec_t* code, const gf*restrict const*restrict const src, gf*restrict const*restrict const fecs, const unsigned*restrict const block_nums, size_t num_block_nums, size_t sz) {
