@@ -83,7 +83,7 @@ trove_classifiers=[
 
 try:
     import os
-    (cin, cout, cerr,) = os.popen3("darcsver")
+    (cin, cout, cerr,) = os.popen3("darcsver --quiet")
     print cout.read()
 except Exception, le:
     pass
