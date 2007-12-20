@@ -22,8 +22,8 @@ This package is largely based on the old "fec" library by Luigi Rizzo et al.,
 which is a mature and optimized implementation of erasure coding.  The zfec
 package makes several changes from the original "fec" package, including
 addition of the Python API, refactoring of the C API to support zero-copy
-operation, a few clean-ups and micro-optimizations of the core code itself, 
-and the addition of a command-line tool named "zfec".
+operation, a few clean-ups and optimizations of the core code itself, and the
+addition of a command-line tool named "zfec".
 
 
  * Installation
