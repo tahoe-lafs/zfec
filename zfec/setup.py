@@ -57,6 +57,7 @@ trove_classifiers=[
     "Environment :: Console",
     "License :: OSI Approved :: GNU General Public License (GPL)", 
     "License :: DFSG approved",
+    "License :: Other/Proprietary License",
     "Intended Audience :: Developers", 
     "Intended Audience :: End Users/Desktop",
     "Intended Audience :: System Administrators",
