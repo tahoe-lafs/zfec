@@ -21,12 +21,13 @@
 # Inc., please contact partnerships@allmydata.com and visit
 # http://allmydata.com/.
 
+import sys
+
 try:
     from ez_setup import use_setuptools
 except ImportError:
     pass
 else:
-    import sys
     if 'cygwin' in sys.platform.lower():
         min_version='0.6c6'
     else:
