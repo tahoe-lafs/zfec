@@ -9,21 +9,6 @@
 #include <string.h>
 #include <assert.h>
 
-#if defined(_MSC_VER)
-// actually, some of the flavors (i.e. Enterprise) do support restrict
-//#define restrict __restrict
-#define restrict
-#define inline __inline
-#define alloca _alloca
-#else
-#ifdef __GNUC__
-#define alloca(x) __builtin_alloca(x)
-#else
-#include <alloca.h>
-#endif
-#endif
-
-
 /*
  * Primitive polynomials - see Lin & Costello, Appendix A,
  * and  Lee & Messerschmitt, p. 453.

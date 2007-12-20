@@ -36,6 +36,21 @@ void fec_encode(const fec_t* code, const gf*restrict const*restrict const src, g
  */
 void fec_decode(const fec_t* code, const gf*restrict const*restrict const inpkts, gf*restrict const*restrict const outpkts, const unsigned*restrict const index, size_t sz);
 
+#if defined(_MSC_VER)
+// actually, some of the flavors (i.e. Enterprise) do support restrict
+//#define restrict __restrict
+#define restrict
+#define inline __inline
+#define alloca _alloca
+#else
+#ifdef __GNUC__
+#ifndef alloca
+#define alloca(x) __builtin_alloca(x)
+#endif
+#else
+#include <alloca.h>
+#endif
+#endif
 
 /**
  * zfec -- fast forward error correction library with Python interface
