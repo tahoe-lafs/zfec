@@ -541,26 +541,14 @@ fec_decode(const fec_t* code, const gf*restrict const*restrict const inpkts, gf*
  * 
  * This file is part of zfec.
  * 
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 2 of the License, or (at your option)
- * any later version, with the added permission that, if you become obligated
- * to release a derived work under this licence (as per section 2.b), you may
- * delay the fulfillment of this obligation for up to 12 months.  See the file
- * COPYING for details.
- *
- * If you would like to inquire about a commercial relationship with Allmydata,
- * Inc., please contact partnerships@allmydata.com and visit
- * http://allmydata.com/.
+ * See README.txt for licensing information.
  */
 
 /*
- * Much of this work is derived from the "fec" software by Luigi Rizzo, et
- * al., the copyright notice and licence terms of which are included below
- * for reference.
- * fec.c -- forward error correction based on Vandermonde matrices
- * 980624
- * (C) 1997-98 Luigi Rizzo (luigi@iet.unipi.it)
+ * This work is derived from the "fec" software by Luigi Rizzo, et al., the
+ * copyright notice and licence terms of which are included below for reference.
+ * fec.c -- forward error correction based on Vandermonde matrices 980624 (C)
+ * 1997-98 Luigi Rizzo (luigi@iet.unipi.it)
  *
  * Portions derived from code by Phil Karn (karn@ka9q.ampr.org),
  * Robert Morelos-Zaragoza (robert@spectra.eng.hawaii.edu) and Hari
