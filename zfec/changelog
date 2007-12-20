@@ -1,0 +1,29 @@
+Thu Dec 20 09:23:41 MST 2007  zooko@zooko.com
+  * zfec: setup: require setuptools_darcs >= 1.1.0 (fixes problem with building incomplete packages)
+
+Wed Nov 14 09:44:26 MST 2007  zooko@zooko.com
+  * zfec: set STRIDE to 8192 after extensive experimentation on my PowerPC G4 867 MHz (256 KB L2 cache)
+  
+
+Mon Nov 12 07:58:19 MST 2007  zooko@zooko.com
+  * zfec: reorder the inner loop to be more cache-friendly
+  
+  Loop over this stride of each input block before looping over all strides of
+  this input block.  In theory, this should allow the strides of the input blocks
+  to remain in cache while we produce all of the output blocks.
+  
+
+Sun Nov 11 10:04:44 MST 2007  zooko@zooko.com
+  * zfec: do encoding within a fixed window of memory in order to be cache friendly
+
+Tue Nov 13 13:13:52 MST 2007  zooko@zooko.com
+  * zfec: conditionally-compile the right magic to use alloca() with gcc -mno-cygwin
+
+Tue Nov 13 13:11:33 MST 2007  zooko@zooko.com
+  * zfec: setup: fix the spelling of "zfec.fec" package name
+
+Sun Nov 11 08:50:54 MST 2007  zooko@zooko.com
+  * zfec: add a TODO note
+
+Fri Nov  9 11:17:04 MST 2007  zooko@zooko.com
+  tagged zfec-1.2.0
