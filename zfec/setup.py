@@ -34,7 +34,7 @@ else:
         min_version='0.6a9'
     use_setuptools(min_version=min_version, download_delay=0)
 
-from setuptools import Extension, find_packages, setup
+from setuptools import Extension, setup
 
 DEBUGMODE=("--debug" in sys.argv)
 
@@ -113,9 +113,8 @@ setup(name='zfec',
       url='http://allmydata.org/source/zfec',
       license='GNU GPL',
       install_requires=["argparse >= 0.8", "pyutil >= 1.3.5",],
-      packages=find_packages(),
       include_package_data=True,
-      setup_requires=['setuptools_darcs >= 1.0.4',],
+      setup_requires=['setuptools_darcs >= 1.1.0',],
       classifiers=trove_classifiers,
       entry_points = { 'console_scripts': [ 'zfec = zfec.cmdline_zfec:main', 'zunfec = zfec.cmdline_zunfec:main' ] },
       ext_modules=[Extension('zfec._fec', ['zfec/fec.c', 'zfec/_fecmodule.c',], extra_link_args=extra_link_args, extra_compile_args=extra_compile_args, undef_macros=undef_macros),],
