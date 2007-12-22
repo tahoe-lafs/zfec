@@ -34,7 +34,7 @@ static gf inverse[256]; /* inverse of field elem.               */
  * modnn(x) computes x % GF_SIZE, where GF_SIZE is 2**GF_BITS - 1,
  * without a slow divide.
  */
-static inline gf
+static gf
 modnn(int x) {
     while (x >= 255) {
         x -= 255;
