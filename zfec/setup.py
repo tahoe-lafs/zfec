@@ -9,7 +9,9 @@
 #
 # See README.txt for licensing information.
 
-import sys
+import os, re, sys
+
+miscdeps=os.path.join('misc', 'dependencies')
 
 try:
     from ez_setup import use_setuptools
@@ -20,7 +22,8 @@ else:
         min_version='0.6c6'
     else:
         min_version='0.6a9'
-    use_setuptools(min_version=min_version, download_delay=0)
+    download_base = "file:"+os.path.join('misc', 'dependencies')+os.path.sep
+    use_setuptools(min_version=min_version, download_delay=0, download_base=download_base, to_dir=miscdeps)
 
 from setuptools import Extension, find_packages, setup
 
@@ -72,12 +75,10 @@ trove_classifiers=[
     ]
 
 try:
-    import os
     (cin, cout, cerr,) = os.popen3("darcsver --quiet")
     print cout.read()
 except Exception, le:
     pass
-import re
 VERSIONFILE = "zfec/_version.py"
 verstr = "unknown"
 VSRE = re.compile("^verstr = ['\"]([^'\"]*)['\"]", re.M)
@@ -93,6 +94,8 @@ else:
         print "unable to find version in %s" % (VERSIONFILE,)
         raise RuntimeError("if %s.py exists, it is required to be well-formed" % (VERSIONFILE,))
 
+dependency_links=[os.path.join(miscdeps, t) for t in os.listdir(miscdeps) if t.endswith(".tar")]
+
 setup(name='zfec',
       version=verstr,
       description='a fast erasure code with command-line, C, and Python interfaces',
@@ -101,7 +104,8 @@ setup(name='zfec',
       author_email='zooko@zooko.com',
       url='http://allmydata.org/source/zfec',
       license='GNU GPL',
-      install_requires=["argparse >= 0.8", "pyutil >= 1.3.5",],
+      dependency_links=dependency_links,
+      install_requires=["argparse >= 0.8", "pyutil >= 1.3.5"],
       packages=find_packages(),
       include_package_data=True,
       setup_requires=['setuptools_darcs >= 1.1.0',],
