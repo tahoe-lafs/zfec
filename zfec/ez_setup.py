@@ -68,10 +68,33 @@ def parse_version(s):
 def setuptools_is_new_enough(required_version):
     """Return True if setuptools is already installed and has a version
     number >= required_version."""
-    (cin, cout, cerr,) = os.popen3("%s -c \"import os,sys; sys.path.extend([x for x in os.listdir('.') if x.endswith('.egg')] ; import setuptools;print setuptools.__version__\"" % (sys.executable,))
-    verstr = cout.read().strip()
-    ver = parse_version(verstr)
-    return ver and ver >= parse_version(required_version)
+    if 'pkg_resources' in sys.modules:
+        import pkg_resources
+        try:
+            pkg_resources.require('setuptools >= %s' % (required_version,))
+        except pkg_resources.VersionConflict:
+            # An insufficiently new version is installed.
+            return False
+        else:
+            return True
+    else:
+        try:
+            import pkg_resources
+        except ImportError:
+            # Okay it is not installed.
+            return False
+        else:
+            try:
+                pkg_resources.require('setuptools >= %s' % (required_version,))
+            except pkg_resources.VersionConflict:
+                # An insufficiently new version is installed.
+                pkg_resources.__dict__.clear() # "If you want to be absolutely sure... before deleting it." --said PJE on IRC
+                del sys.modules['pkg_resources']
+                return False
+            else:
+                pkg_resources.__dict__.clear() # "If you want to be absolutely sure... before deleting it." --said PJE on IRC
+                del sys.modules['pkg_resources']
+                return True
 
 def use_setuptools(
     version=DEFAULT_VERSION, download_base=DEFAULT_URL, to_dir=os.curdir,
