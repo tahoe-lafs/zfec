@@ -68,7 +68,7 @@ def parse_version(s):
 def setuptools_is_new_enough(required_version):
     """Return True if setuptools is already installed and has a version
     number >= required_version."""
-    (cin, cout, cerr,) = os.popen3("%s -c \"import setuptools;print setuptools.__version__\"" % (sys.executable,))
+    (cin, cout, cerr,) = os.popen3("%s -c \"import os,sys; sys.path.extend([x for x in os.listdir('.') if x.endswith('.egg')] ; import setuptools;print setuptools.__version__\"" % (sys.executable,))
     verstr = cout.read().strip()
     ver = parse_version(verstr)
     return ver and ver >= parse_version(required_version)
@@ -91,12 +91,12 @@ def use_setuptools(
     if min_version is None:
         min_version = version
     if not setuptools_is_new_enough(min_version):
-        egg = download_setuptools(version, download_base, to_dir, download_delay)
+        egg = download_setuptools(version, min_version, download_base, to_dir, download_delay)
         sys.path.insert(0, egg)
         import setuptools; setuptools.bootstrap_install_from = egg
 
 def download_setuptools(
-    version=DEFAULT_VERSION, download_base=DEFAULT_URL, to_dir=os.curdir,
+    version=DEFAULT_VERSION, min_version=DEFAULT_VERSION, download_base=DEFAULT_URL, to_dir=os.curdir,
     delay = 15
 ):
     """Download setuptools from a specified location and return its filename
@@ -117,8 +117,8 @@ def download_setuptools(
             if delay:
                 log.warn("""
 ---------------------------------------------------------------------------
-This script requires setuptools version %s to run (even to display
-help).  I will attempt to download it for you (from
+This script requires setuptools version >= %s to run (even to display
+help).  I will attempt to download setuptools for you (from
 %s), but
 you may need to enable firewall access for this script first.
 I will start the download in %d seconds.
@@ -129,7 +129,7 @@ I will start the download in %d seconds.
 
 and place it in this directory before rerunning this script.)
 ---------------------------------------------------------------------------""",
-                    version, download_base, delay, url
+                    min_version, download_base, delay, url
                 ); from time import sleep; sleep(delay)
             log.warn("Downloading %s", url)
             src = urllib2.urlopen(url)
@@ -155,7 +155,7 @@ def main(argv, version=DEFAULT_VERSION):
     else:
         egg = None
         try:
-            egg = download_setuptools(version, delay=0)
+            egg = download_setuptools(version, min_version=version, delay=0)
             sys.path.insert(0,egg)
             from setuptools.command.easy_install import main
             return main(list(argv)+[egg])   # we're done here
