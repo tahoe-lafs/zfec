@@ -11,7 +11,7 @@
 
 import os, re, sys
 
-miscdeps=os.path.join('misc', 'dependencies')
+miscdeps=os.path.join(os.getcwd(), 'misc', 'dependencies')
 
 try:
     from ez_setup import use_setuptools
