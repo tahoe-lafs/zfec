@@ -81,13 +81,13 @@ except Exception, le:
     pass
 VERSIONFILE = "zfec/_version.py"
 verstr = "unknown"
-VSRE = re.compile("^verstr = ['\"]([^'\"]*)['\"]", re.M)
 try:
     verstrline = open(VERSIONFILE, "rt").read()
 except EnvironmentError:
     pass # Okay, there is no version file.
 else:
-    mo = VSRE.search(verstrline)
+    VSRE = r"^verstr = ['\"]([^'\"]*)['\"]"
+    mo = re.search(VSRE, verstrline, re.M)
     if mo:
         verstr = mo.group(1)
     else:

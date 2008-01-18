@@ -294,12 +294,3 @@ class Cmdline(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-# zfec -- fast forward error correction library with Python interface
-# 
-# Copyright (C) 2007 Allmydata, Inc.
-# Author: Zooko Wilcox-O'Hearn
-# 
-# This file is part of zfec.
-#
-# See README.txt for licensing information.

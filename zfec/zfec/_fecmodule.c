@@ -618,18 +618,6 @@ init_fec(void) {
 }
 
 /**
- * zfec -- fast forward error correction library with Python interface
- * 
- * Copyright (C) 2007 Allmydata, Inc.
- * Author: Zooko Wilcox-O'Hearn
- * 
- * This file is part of zfec.
- * 
- * See README.txt for licensing information.
- */
-
-/**
  * originally inspired by fecmodule.c by the Mnet Project, especially Myers
  * Carpenter and Hauke Johannknecht
  */
-
