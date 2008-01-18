@@ -547,7 +547,45 @@ static PyTypeObject Decoder_type = {
     Decoder_new,                 /* tp_new */
 };
 
-static PyMethodDef fec_methods[] = { 
+PyObject*
+test_from_agl() {
+  unsigned char b1c[8], b2c[8];
+  unsigned char b1[8], b2[8], b3[8], b4[8], b5[8];
+  memset(b1, 1, 8);
+  memset(b2, 2, 8);
+  memset(b3, 3, 8);
+  const unsigned char *blocks[3] = {b1, b2, b3};
+  unsigned char *outblocks[2] = {b4, b5};
+  unsigned block_nums[] = {3, 4};
+
+  fec_t *const fec = fec_new(3, 5);
+  fec_encode(fec, blocks, outblocks, block_nums, 2, 8);
+
+  write(1, b1, 8);
+  write(1, b2, 8);
+  write(1, b3, 8);
+  write(1, b4, 8);
+  write(1, b5, 8);
+
+  memcpy(b1c, b1, 8); memcpy(b2c, b2, 8);
+
+  const unsigned char *inpkts[] = {b3, b4, b5};
+  unsigned char *outpkts[] = {b1, b2};
+  unsigned indexes[] = {2, 3, 4};
+
+  fec_decode(fec, inpkts, outpkts, indexes, 8);
+
+  write(1, b1, 8);
+  write(1, b2, 8);
+
+  if ((memcmp(b1, b1c,8) == 0) && (memcmp(b2, b2c,8) == 0))
+    Py_RETURN_TRUE;
+  else
+    Py_RETURN_FALSE;
+}
+
+static PyMethodDef fec_functions[] = { 
+  {"test_from_agl", test_from_agl, METH_NOARGS, NULL},
     {NULL} 
 };
 
@@ -564,7 +602,7 @@ init_fec(void) {
     if (PyType_Ready(&Decoder_type) < 0)
         return;
 
-    module = Py_InitModule3("_fec", fec_methods, fec__doc__);
+    module = Py_InitModule3("_fec", fec_functions, fec__doc__);
     if (module == NULL)
       return;
 

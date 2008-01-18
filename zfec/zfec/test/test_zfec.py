@@ -79,6 +79,18 @@ def _help_test_random_with_l_easy(l):
     _h_easy(k, m, s)
     
 class ZFecTest(unittest.TestCase):
+    def test_from_agl_c(self):
+        self.failUnless(zfec._fec.test_from_agl())
+            
+    def test_from_agl_py(self):
+        e = zfec.Encoder(3, 5)
+        b1 = '\x01'*8 ; b2 = '\x02'*8 ; b3 = '\x03'*8
+        b4, b5 = e.encode([b1, b2, b3], (3, 4))
+        d = zfec.Decoder(3, 5)
+        resblocks = d.decode((b3, b4, b5), (2, 3, 4))
+        
+        print "b1: %r, b2: %r, b3: %r, b4: %r, b5: %r, resblocks: %r" % (b1, b2, b3, b4, b5, resblocks)
+
     def test_small(self):
         for i in range(16):
             _help_test_random_with_l(i)
