@@ -429,7 +429,9 @@ Decoder_decode(Decoder *self, PyObject *args) {
         oldsz = sz;
     }
 
-    /* move src packets into position */
+    /* Move src packets into position.  At the end of this loop we want the i'th
+       element of the arrays to be the block with block number i, if that block
+       is among our inputs. */
     for (i=0; i<self->kk;) {
         if (cblocknums[i] >= self->kk || cblocknums[i] == i)
             i++;
