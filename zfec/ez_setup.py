@@ -15,12 +15,10 @@ This file can also be run as a script to install or upgrade setuptools.
 """
 import os, sys
 DEFAULT_VERSION = "0.6c7"
-DEFAULT_URL     = "http://pypi.python.org/packages/%s/s/setuptools/" % sys.version[:3]
+DEFAULT_URL     = "file:misc/dependencies/"
 
 md5_data = {
-    'setuptools-0.6c7-py2.3.egg': '209fdf9adc3a615e5115b725658e13e2',
-    'setuptools-0.6c7-py2.4.egg': '5a8f954807d46a0fb67cf1f26c55a82e',
-    'setuptools-0.6c7-py2.5.egg': '45d2ad28f9750e7434111fde831e8372',
+    'setuptools-0.6c7.egg': 'ab87e88b800ad71d5235826b37acdbb1',
 }
 
 def _validate_md5(egg_name, data):
@@ -130,7 +128,7 @@ def download_setuptools(
     `delay` is the number of seconds to pause before an actual download attempt.
     """
     import urllib2, shutil
-    egg_name = "setuptools-%s-py%s.egg" % (version,sys.version[:3])
+    egg_name = "setuptools-%s.egg" % (version,)
     url = download_base + egg_name
     saveto = os.path.join(to_dir, egg_name)
     src = dst = None
