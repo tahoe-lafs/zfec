@@ -84,12 +84,19 @@ class ZFecTest(unittest.TestCase):
             
     def test_from_agl_py(self):
         e = zfec.Encoder(3, 5)
-        b1 = '\x01'*8 ; b2 = '\x02'*8 ; b3 = '\x03'*8
-        b4, b5 = e.encode([b1, b2, b3], (3, 4))
+        b0 = '\x01'*8 ; b1 = '\x02'*8 ; b2 = '\x03'*8
+        # print "_from_py before encoding:"
+        # print "b0: %s, b1: %s, b2: %s" % tuple(base64.b16encode(x) for x in [b0, b1, b2])
+
+        b3, b4 = e.encode([b0, b1, b2], (3, 4))
+        # print "after encoding:"
+        # print "b3: %s, b4: %s" % tuple(base64.b16encode(x) for x in [b3, b4])
+
         d = zfec.Decoder(3, 5)
-        resblocks = d.decode((b3, b4, b5), (2, 3, 4))
+        r0, r1, r2 = d.decode((b2, b3, b4), (1, 2, 3))
         
-        print "b1: %r, b2: %r, b3: %r, b4: %r, b5: %r, resblocks: %r" % (b1, b2, b3, b4, b5, resblocks)
+        # print "after decoding:"
+        # print "b0: %s, b1: %s" % tuple(base64.b16encode(x) for x in [b0, b1])
 
     def test_small(self):
         for i in range(16):

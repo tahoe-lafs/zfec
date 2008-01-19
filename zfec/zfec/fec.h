@@ -30,11 +30,12 @@ void fec_free(fec_t* p);
  * @param fecs buffers into which the secondary blocks will be written
  * @param block_nums the numbers of the desired check blocks (the id >= k) which fec_encode() will produce and store into the buffers of the fecs parameter
  * @param num_block_nums the length of the block_nums array
+ * @param sz size of a packet in bytes
  */
 void fec_encode(const fec_t* code, const gf*restrict const*restrict const src, gf*restrict const*restrict const fecs, const unsigned*restrict const block_nums, size_t num_block_nums, size_t sz);
 
 /**
- * @param inpkts an array of packets (size k)
+ * @param inpkts an array of packets (size k); If the block whose number is i is present, then it is required to be in the i'th element.
  * @param outpkts an array of buffers into which the reconstructed output packets will be written (only packets which are not present in the inpkts input will be reconstructed and written to outpkts)
  * @param index an array of the blocknums of the packets in inpkts
  * @param sz size of a packet in bytes

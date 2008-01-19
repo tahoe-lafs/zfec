@@ -509,6 +509,7 @@ fec_decode(const fec_t* code, const gf*restrict const*restrict const inpkts, gf*
     build_decode_matrix_into_space(code, index, code->k, m_dec);
 
     for (row=0; row<code->k; row++) {
+        assert ((index[row] >= code->k) || (index[row] == row)); /* If the block whose number is i is present, then it is required to be in the i'th element. */
         if (index[row] >= code->k) {
             memset(outpkts[outix], 0, sz);
             for (col=0; col < code->k; col++)

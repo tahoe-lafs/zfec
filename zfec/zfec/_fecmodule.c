@@ -549,38 +549,51 @@ static PyTypeObject Decoder_type = {
     Decoder_new,                 /* tp_new */
 };
 
+void
+_hexwrite(unsigned char*s, size_t l) {
+  for (size_t i = 0; i < l; i++)
+    printf("%.2x", s[i]);
+}
+
 PyObject*
 test_from_agl() {
-  unsigned char b1c[8], b2c[8];
-  unsigned char b1[8], b2[8], b3[8], b4[8], b5[8];
-  memset(b1, 1, 8);
-  memset(b2, 2, 8);
-  memset(b3, 3, 8);
-  const unsigned char *blocks[3] = {b1, b2, b3};
-  unsigned char *outblocks[2] = {b4, b5};
+  unsigned char b0c[8], b1c[8];
+  unsigned char b0[8], b1[8], b2[8], b3[8], b4[8];
+  memset(b0, 1, 8);
+  memset(b1, 2, 8);
+  memset(b2, 3, 8);
+  const unsigned char *blocks[3] = {b0, b1, b2};
+  unsigned char *outblocks[2] = {b3, b4};
   unsigned block_nums[] = {3, 4};
+
+  /*printf("_from_c before encoding:\n");
+  printf("b0: "); _hexwrite(b0, 8); printf(", ");
+  printf("b1: "); _hexwrite(b1, 8); printf(", ");
+  printf("b2: "); _hexwrite(b2, 8); printf(", ");
+  printf("\n");*/
 
   fec_t *const fec = fec_new(3, 5);
   fec_encode(fec, blocks, outblocks, block_nums, 2, 8);
 
-  write(1, b1, 8);
-  write(1, b2, 8);
-  write(1, b3, 8);
-  write(1, b4, 8);
-  write(1, b5, 8);
+  /*printf("after encoding:\n");
+  printf("b3: "); _hexwrite(b3, 8); printf(", ");
+  printf("b4: "); _hexwrite(b4, 8); printf(", ");
+  printf("\n");*/
 
-  memcpy(b1c, b1, 8); memcpy(b2c, b2, 8);
+  memcpy(b0c, b0, 8); memcpy(b1c, b1, 8);
 
-  const unsigned char *inpkts[] = {b3, b4, b5};
-  unsigned char *outpkts[] = {b1, b2};
-  unsigned indexes[] = {2, 3, 4};
+  const unsigned char *inpkts[] = {b3, b4, b2};
+  unsigned char *outpkts[] = {b0, b1};
+  unsigned indexes[] = {3, 4, 2};
 
   fec_decode(fec, inpkts, outpkts, indexes, 8);
 
-  write(1, b1, 8);
-  write(1, b2, 8);
+  /*printf("after decoding:\n");
+  printf("b0: "); _hexwrite(b0, 8); printf(", ");
+  printf("b1: "); _hexwrite(b1, 8);
+  printf("\n");*/
 
-  if ((memcmp(b1, b1c,8) == 0) && (memcmp(b2, b2c,8) == 0))
+  if ((memcmp(b0, b0c,8) == 0) && (memcmp(b1, b1c,8) == 0))
     Py_RETURN_TRUE;
   else
     Py_RETURN_FALSE;
