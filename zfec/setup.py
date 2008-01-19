@@ -27,7 +27,11 @@ else:
 
 from setuptools import Extension, find_packages, setup
 
-DEBUGMODE=("--debug" in sys.argv)
+if "--debug" in sys.argv:
+    DEBUGMODE=True
+    sys.argv.remove("--debug")
+else:
+    DEBUGMODE=("--debug" in sys.argv)
 
 extra_compile_args=[]
 extra_link_args=[]
