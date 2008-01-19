@@ -35,7 +35,7 @@ void fec_free(fec_t* p);
 void fec_encode(const fec_t* code, const gf*restrict const*restrict const src, gf*restrict const*restrict const fecs, const unsigned*restrict const block_nums, size_t num_block_nums, size_t sz);
 
 /**
- * @param inpkts an array of packets (size k); If the block whose number is i is present, then it is required to be in the i'th element.
+ * @param inpkts an array of packets (size k); If a primary block, i, is present then it must be at index i. Secondary blocks can appear anywhere.
  * @param outpkts an array of buffers into which the reconstructed output packets will be written (only packets which are not present in the inpkts input will be reconstructed and written to outpkts)
  * @param index an array of the blocknums of the packets in inpkts
  * @param sz size of a packet in bytes
