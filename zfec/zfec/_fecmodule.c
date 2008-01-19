@@ -145,7 +145,7 @@ Encoder_encode(Encoder *self, PyObject *args) {
         goto err;
 
     if (PySequence_Fast_GET_SIZE(fastinblocks) != self->kk) {
-        PyErr_Format(py_fec_error, "Precondition violation: Wrong length -- first argument (the sequence of input blocks) is required to contain exactly k blocks.  len(first): %d, k: %d", PySequence_Fast_GET_SIZE(fastinblocks), self->kk);
+        PyErr_Format(py_fec_error, "Precondition violation: Wrong length -- first argument (the sequence of input blocks) is required to contain exactly k blocks.  len(first): %Zu, k: %d", PySequence_Fast_GET_SIZE(fastinblocks), self->kk);
         goto err;
     }
 
@@ -386,11 +386,11 @@ Decoder_decode(Decoder *self, PyObject *args) {
         goto err;
 
     if (PySequence_Fast_GET_SIZE(fastblocks) != self->kk) {
-        PyErr_Format(py_fec_error, "Precondition violation: Wrong length -- first argument is required to contain exactly k blocks.  len(first): %d, k: %d", PySequence_Fast_GET_SIZE(fastblocks), self->kk); 
+        PyErr_Format(py_fec_error, "Precondition violation: Wrong length -- first argument is required to contain exactly k blocks.  len(first): %Zu, k: %d", PySequence_Fast_GET_SIZE(fastblocks), self->kk); 
         goto err;
     }
     if (PySequence_Fast_GET_SIZE(fastblocknums) != self->kk) {
-        PyErr_Format(py_fec_error, "Precondition violation: Wrong length -- blocknums is required to contain exactly k blocks.  len(blocknums): %d, k: %d", PySequence_Fast_GET_SIZE(fastblocknums), self->kk); 
+        PyErr_Format(py_fec_error, "Precondition violation: Wrong length -- blocknums is required to contain exactly k blocks.  len(blocknums): %Zu, k: %d", PySequence_Fast_GET_SIZE(fastblocknums), self->kk); 
         goto err;
     }
 
