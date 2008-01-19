@@ -74,11 +74,6 @@ trove_classifiers=[
     "Topic :: System :: Archiving", 
     ]
 
-try:
-    (cin, cout, cerr,) = os.popen3("darcsver --quiet")
-    print cout.read()
-except Exception, le:
-    pass
 VERSIONFILE = "zfec/_version.py"
 verstr = "unknown"
 try:
@@ -95,6 +90,20 @@ else:
         raise RuntimeError("if %s.py exists, it is required to be well-formed" % (VERSIONFILE,))
 
 dependency_links=[os.path.join(miscdeps, t) for t in os.listdir(miscdeps) if t.endswith(".tar")]
+setup_requires = []
+
+# darcsver is needed only if you want "./setup.py darcsver" to write a new
+# version stamp in pycryptopp/_version.py, with a version number derived from
+# darcs history.  http://pypi.python.org/pypi/darcsver
+if "darcsver" in sys.argv[1:]:
+    setup_requires.append('darcsver >= 1.0.0')
+
+# setuptools_darcs is required to produce complete distributions (such as with
+# "sdist" or "bdist_egg"), unless there is a PKG-INFO file present which shows
+# that this is itself a source distribution.
+# http://pypi.python.org/pypi/setuptools_darcs
+if not os.path.exists('PKG-INFO'):
+    setup_requires.append('setuptools_darcs >= 1.0.5')
 
 setup(name='zfec',
       version=verstr,
@@ -109,7 +118,7 @@ setup(name='zfec',
       tests_require=["pyutil >= 1.3.5"],
       packages=find_packages(),
       include_package_data=True,
-      setup_requires=['setuptools_darcs >= 1.1.0',],
+      setup_requires=setup_requires,
       classifiers=trove_classifiers,
       entry_points = { 'console_scripts': [ 'zfec = zfec.cmdline_zfec:main', 'zunfec = zfec.cmdline_zunfec:main' ] },
       ext_modules=[Extension('zfec._fec', ['zfec/fec.c', 'zfec/_fecmodule.c',], extra_link_args=extra_link_args, extra_compile_args=extra_compile_args, undef_macros=undef_macros),],
