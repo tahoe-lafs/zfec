@@ -165,7 +165,7 @@ being passed in.
 
 The output from fec_decode() is the set of primary blocks which were missing
 from the input and had to be reconstructed.  These reconstructed blocks are
-written into putput buffers provided by the caller.
+written into output buffers provided by the caller.
 
  ** Python API
 
