@@ -57,7 +57,7 @@ void fec_decode(const fec_t* code, const gf*restrict const*restrict const inpkts
 /**
  * zfec -- fast forward error correction library with Python interface
  * 
- * Copyright (C) 2007 Allmydata, Inc.
+ * Copyright (C) 2007-2008 Allmydata, Inc.
  * Author: Zooko Wilcox-O'Hearn
  * 
  * This file is part of zfec.
