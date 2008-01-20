@@ -40,7 +40,13 @@ Python installed, you can run "trial zfec" for nicer output and test options.)
 This will run the tests of the C API, the Python API, and the command-line
 tools.
 
-To run the tests of the Haskell API, do XYZ.
+To run the tests of the Haskell API:
+  % runhaskell haskell/test/FECTest.hs
+
+Note that you must have installed the library first in order for this to work
+due to the fact that the interpreter cannot process FEC.hs as it takes a
+reference to an FFI function.
+
 
 
  * Community
@@ -205,7 +211,8 @@ objects (e.g. Python strings) to hold the data that you pass to zfec.
 
  ** Haskell API
 
-XYZ
+The Haskell code is fully Haddocked, to generate the documentation, run
+  % runhaskell Setup.lhs haddock
 
 
  * Utilities
@@ -219,7 +226,7 @@ command-line tools from the bin/ directory.
 
 A C compiler is required.  To use the Python API or the command-line tools a
 Python interpreter is also required.  We have tested it with Python v2.4 and
-v2.5.  For the Haskell interface, a Haskell compiler is required XYZ.
+v2.5.  For the Haskell interface, GHC >= 6.8.1 is required.
 
 
  * Acknowledgements
