@@ -37,6 +37,10 @@ give it these arguments: "python ./setup.py install
 
 To run the self-tests, execute "python ./setup.py test" (or if you have Twisted
 Python installed, you can run "trial zfec" for nicer output and test options.)
+This will run the tests of the C API, the Python API, and the command-line
+tools.
+
+To run the tests of the Haskell API, do XYZ.
 
 
  * Community
@@ -199,6 +203,10 @@ be mutated.  This subtlety is the price you pay for avoiding data copying.  If
 you don't want to have to worry about this then you can simply use immutable
 objects (e.g. Python strings) to hold the data that you pass to zfec.
 
+ ** Haskell API
+
+XYZ
+
 
  * Utilities
 
@@ -211,7 +219,7 @@ command-line tools from the bin/ directory.
 
 A C compiler is required.  To use the Python API or the command-line tools a
 Python interpreter is also required.  We have tested it with Python v2.4 and
-v2.5.
+v2.5.  For the Haskell interface, a Haskell compiler is required XYZ.
 
 
  * Acknowledgements
@@ -221,7 +229,8 @@ contributed to it: Phil Karn, Robert Morelos-Zaragoza, Hari Thirumoorthy, and
 Dan Rubenstein.  Thanks to the Mnet hackers who wrote an earlier Python wrapper,
 especially Myers Carpenter and Hauke Johannknecht.  Thanks to Brian Warner and
 Amber O'Whielacronx for help with the API, documentation, debugging,
-compression, and unit tests.  Thanks to the creators of GCC (starting with
+compression, and unit tests.  Thanks to Adam Langley for improving the C API and
+contributing the Haskell API.  Thanks to the creators of GCC (starting with
 Richard M. Stallman) and Valgrind (starting with Julian Seward) for a pair of
 excellent tools.  Thanks to my coworkers at Allmydata -- http://allmydata.com --
 Fabrice Grinda, Peter Secor, Rob Kinninmont, Brian Warner, Zandr Milewski,
@@ -232,5 +241,5 @@ Software licence.
 Enjoy!
 
 Zooko Wilcox-O'Hearn
-2007-10-01
+2008-01-20
 Boulder, Colorado

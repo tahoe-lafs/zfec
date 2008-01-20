@@ -107,8 +107,8 @@ if not os.path.exists('PKG-INFO'):
 
 setup(name='zfec',
       version=verstr,
-      description='a fast erasure code with command-line, C, and Python interfaces',
-      long_description='Fast, portable, programmable erasure coding a.k.a. "forward error correction": the generation of redundant blocks of information such that if some blocks are lost then the original data can be recovered from the remaining blocks.',
+      description='a fast erasure codec which can be used with the command-line, C, Python, or Haskell',
+      long_description='Fast, portable, programmable erasure coding a.k.a. "forward error correction": the generation of redundant blocks of information such that if some blocks are lost then the original data can be recovered from the remaining blocks.  The zfec package includes command-line tools, C API, Python API, and Haskell API',
       author='Zooko O\'Whielacronx',
       author_email='zooko@zooko.com',
       url='http://allmydata.org/source/zfec',
