@@ -1,5 +1,5 @@
 name:            fec
-version:         0.1
+version:         0.1.1
 license:         GPL
 license-file:    README.txt
 author:          Adam Langley <agl@imperialviolet.org>
@@ -27,4 +27,4 @@ ghc-options:     -Wall
 c-sources:       zfec/fec.c
 cc-options:      -std=c99
 include-dirs:    zfec
-extra-source-files: zfec/fec.h
+extra-source-files: zfec/fec.h, COPYING.GPL, COPYING.TGPPL.html
