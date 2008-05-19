@@ -74,7 +74,8 @@ trove_classifiers=[
     "Topic :: System :: Archiving", 
     ]
 
-VERSIONFILE = "zfec/_version.py"
+PKG = "zfec"
+VERSIONFILE = PKG+"/_version.py"
 verstr = "unknown"
 try:
     verstrline = open(VERSIONFILE, "rt").read()
@@ -105,23 +106,31 @@ if "darcsver" in sys.argv[1:]:
 if not os.path.exists('PKG-INFO'):
     setup_requires.append('setuptools_darcs >= 1.0.5')
 
-setup(name='zfec',
+data_fnames=[ 'COPYING.GPL', 'changelog', 'COPYING.TGPPL.html', 'TODO', 'README.txt' ]
+
+# In case we are building for a .deb with stdeb's sdist_dsc command, we put the
+# docs in "share/doc/python-$PKG".
+doc_loc = "share/doc/python-" + PKG
+data_files = [(doc_loc, data_fnames)]
+
+setup(name=PKG,
       version=verstr,
       description='a fast erasure codec which can be used with the command-line, C, Python, or Haskell',
       long_description='Fast, portable, programmable erasure coding a.k.a. "forward error correction": the generation of redundant blocks of information such that if some blocks are lost then the original data can be recovered from the remaining blocks.  The zfec package includes command-line tools, C API, Python API, and Haskell API',
       author='Zooko O\'Whielacronx',
       author_email='zooko@zooko.com',
-      url='http://allmydata.org/source/zfec',
+      url='http://allmydata.org/source/'+PKG,
       license='GNU GPL',
       dependency_links=dependency_links,
       install_requires=["argparse >= 0.8", "pyutil >= 1.3.5"],
       tests_require=["pyutil >= 1.3.5"],
       packages=find_packages(),
       include_package_data=True,
+      data_files=data_files,
       setup_requires=setup_requires,
       classifiers=trove_classifiers,
-      entry_points = { 'console_scripts': [ 'zfec = zfec.cmdline_zfec:main', 'zunfec = zfec.cmdline_zunfec:main' ] },
-      ext_modules=[Extension('zfec._fec', ['zfec/fec.c', 'zfec/_fecmodule.c',], extra_link_args=extra_link_args, extra_compile_args=extra_compile_args, undef_macros=undef_macros),],
-      test_suite="zfec.test",
+      entry_points = { 'console_scripts': [ 'zfec = %s.cmdline_zfec:main' % PKG, 'zunfec = %s.cmdline_zunfec:main' % PKG ] },
+      ext_modules=[Extension(PKG+'._fec', [PKG+'/fec.c', PKG+'/_fecmodule.c',], extra_link_args=extra_link_args, extra_compile_args=extra_compile_args, undef_macros=undef_macros),],
+      test_suite=PKG+".test",
       zip_safe=False, # I prefer unzipped for easier access.
       )
