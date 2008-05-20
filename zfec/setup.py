@@ -94,17 +94,16 @@ dependency_links=[os.path.join(miscdeps, t) for t in os.listdir(miscdeps) if t.e
 setup_requires = []
 
 # darcsver is needed only if you want "./setup.py darcsver" to write a new
-# version stamp in pycryptopp/_version.py, with a version number derived from
+# version stamp in zfec/_version.py, with a version number derived from
 # darcs history.  http://pypi.python.org/pypi/darcsver
 if "darcsver" in sys.argv[1:]:
     setup_requires.append('darcsver >= 1.0.0')
 
 # setuptools_darcs is required to produce complete distributions (such as with
-# "sdist" or "bdist_egg"), unless there is a PKG-INFO file present which shows
-# that this is itself a source distribution.
+# "sdist" or "bdist_egg"), unless there is a zfec.egg-info/SOURCE.txt file
+# present which contains a complete list of files that should be included.
 # http://pypi.python.org/pypi/setuptools_darcs
-if not os.path.exists('PKG-INFO'):
-    setup_requires.append('setuptools_darcs >= 1.0.5')
+setup_requires.append('setuptools_darcs >= 1.1.0')
 
 data_fnames=[ 'COPYING.GPL', 'changelog', 'COPYING.TGPPL.html', 'TODO', 'README.txt' ]
 

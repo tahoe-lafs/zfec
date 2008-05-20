@@ -8,7 +8,9 @@ Grace Period Public Licence, version 1.0.  (You may choose to use this package
 under the terms of either licence, at your option.)  See the file COPYING.GPL
 for the terms of the GNU General Public License, version 2.  See the file
 COPYING.TGPPL.html for the terms of the Transitive Grace Period Public Licence,
-version 1.0.
+version 1.0.  In addition, Allmydata, Inc. offers other licensing terms.  If you
+would like to inquire about a commercial relationship with Allmydata, Inc.,
+please contact partnerships@allmydata.com and visit http://allmydata.com .
 
 The most widely known example of an erasure code is the RAID-5 algorithm which
 makes it so that in the event of the loss of any one hard drive, the stored data
@@ -46,7 +48,6 @@ To run the tests of the Haskell API:
 Note that you must have installed the library first in order for this to work
 due to the fact that the interpreter cannot process FEC.hs as it takes a
 reference to an FFI function.
-
 
 
  * Community
