@@ -58,7 +58,7 @@ Encoder_init(Encoder *self, PyObject *args, PyObject *kwdict) {
         NULL
     };
     int ink, inm;
-    if (!PyArg_ParseTupleAndKeywords(args, kwdict, "ii", kwlist, &ink, &inm))
+    if (!PyArg_ParseTupleAndKeywords(args, kwdict, "ii:Encoder.__init__", kwlist, &ink, &inm))
         return -1;
 
     if (ink < 1) {
@@ -113,7 +113,7 @@ Encoder_encode(Encoder *self, PyObject *args) {
     Py_ssize_t sz, oldsz = 0;
     unsigned char check_block_index = 0; /* index into the check_blocks_produced and (parallel) pystrs_produced arrays */
 
-    if (!PyArg_ParseTuple(args, "O|O", &inblocks, &desired_blocks_nums))
+    if (!PyArg_ParseTuple(args, "O|O:Encoder.encode", &inblocks, &desired_blocks_nums))
         return NULL;
 
     for (i=0; i<self->mm - self->kk; i++)
@@ -317,7 +317,7 @@ Decoder_init(Encoder *self, PyObject *args, PyObject *kwdict) {
     };
 
     int ink, inm;
-    if (!PyArg_ParseTupleAndKeywords(args, kwdict, "ii", kwlist, &ink, &inm))
+    if (!PyArg_ParseTupleAndKeywords(args, kwdict, "ii:Decoder.__init__", kwlist, &ink, &inm))
         return -1;
 
     if (ink < 1) {
@@ -373,7 +373,7 @@ Decoder_decode(Decoder *self, PyObject *args) {
     long tmpl;
     unsigned nextrecoveredix=0;
 
-    if (!PyArg_ParseTuple(args, "OO", &blocks, &blocknums))
+    if (!PyArg_ParseTuple(args, "OO:Decoder.decode", &blocks, &blocknums))
         return NULL;
 
     for (i=0; i<self->kk; i++)
