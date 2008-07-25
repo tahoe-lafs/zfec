@@ -79,9 +79,19 @@ def _help_test_random_with_l_easy(l):
     _h_easy(k, m, s)
 
 class ZFecTest(unittest.TestCase):
-    def test_instantiate_no_args(self):
+    def test_instantiate_encoder_no_args(self):
         try:
             e = zfec.Encoder()
+        except TypeError:
+            # Okay, so that's because we're required to pass constructor args.
+            pass
+        else:
+            # Oops, it should have raised an exception.
+            self.fail("Should have raised exception from incorrect arguments to constructor.")
+
+    def test_instantiate_decoder_no_args(self):
+        try:
+            e = zfec.Decoder()
         except TypeError:
             # Okay, so that's because we're required to pass constructor args.
             pass
