@@ -34,7 +34,17 @@ extra_link_args=[]
 
 extra_compile_args.append("-std=c99")
 
+define_macros=[]
 undef_macros=[]
+
+for arg in sys.argv:
+    if arg.startswith("--STRIDE="):
+        stride = int(arg[len("--stride="):])
+        define_macros.append(('STRIDE', stride))
+        break
+
+sys.argv.remove(arg)
+
 
 if DEBUGMODE:
     extra_compile_args.append("-O0")
@@ -129,7 +139,7 @@ setup(name=PKG,
       setup_requires=setup_requires,
       classifiers=trove_classifiers,
       entry_points = { 'console_scripts': [ 'zfec = %s.cmdline_zfec:main' % PKG, 'zunfec = %s.cmdline_zunfec:main' % PKG ] },
-      ext_modules=[Extension(PKG+'._fec', [PKG+'/fec.c', PKG+'/_fecmodule.c',], extra_link_args=extra_link_args, extra_compile_args=extra_compile_args, undef_macros=undef_macros),],
+      ext_modules=[Extension(PKG+'._fec', [PKG+'/fec.c', PKG+'/_fecmodule.c',], extra_link_args=extra_link_args, extra_compile_args=extra_compile_args, undef_macros=undef_macros, define_macros=define_macros),],
       test_suite=PKG+".test",
       zip_safe=False, # I prefer unzipped for easier access.
       )
