@@ -38,7 +38,7 @@ define_macros=[]
 undef_macros=[]
 
 for arg in sys.argv:
-    if arg.startswith("--STRIDE="):
+    if arg.startswith("--stride="):
         stride = int(arg[len("--stride="):])
         define_macros.append(('STRIDE', stride))
         break
