@@ -41,10 +41,8 @@ for arg in sys.argv:
     if arg.startswith("--stride="):
         stride = int(arg[len("--stride="):])
         define_macros.append(('STRIDE', stride))
+        sys.argv.remove(arg)
         break
-
-sys.argv.remove(arg)
-
 
 if DEBUGMODE:
     extra_compile_args.append("-O0")
