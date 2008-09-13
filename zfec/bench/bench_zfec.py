@@ -75,7 +75,7 @@ def bench():
     # for f in [_encode_file_not_really, _encode_file_not_really_and_hash, _encode_file, _encode_file_and_hash,]:
     # for f in [_encode_data_not_really, _encode_data_easyfec, _encode_data_fec,]:
     for f in [_encode_data_fec,]:
-        print f
-        benchutil.bench(f, initfunc=_make_new_rand_data, TOPXP=24, MAXREPS=256, MAXTIME=64)
+        for BSIZE in [2**22]:
+            benchutil.rep_bench(f, n=BSIZE, initfunc=_make_new_rand_data, MAXREPS=64, MAXTIME=None)
 
 bench()
