@@ -1,5 +1,7 @@
 /**
  * zfec -- fast forward error correction library with Python interface
+ *
+ * See README.txt for documentation.
  */
 
 #include <stddef.h>

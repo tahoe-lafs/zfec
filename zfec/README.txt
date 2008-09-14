@@ -45,9 +45,9 @@ tools.
 To run the tests of the Haskell API:
   % runhaskell haskell/test/FECTest.hs
 
-Note that you must have installed the library first in order for this to work
-due to the fact that the interpreter cannot process FEC.hs as it takes a
-reference to an FFI function.
+Note that in order to run the Haskell API tests you must have installed the
+library first due to the fact that the interpreter cannot process FEC.hs as it
+takes a reference to an FFI function.
 
 
  * Community
@@ -80,8 +80,7 @@ and k is required to be at least 1 and at most m.
 degenerates to the equivalent of the Unix "split" utility which simply splits
 the input into successive segments.  Similarly, when k == 1 it degenerates to
 the equivalent of the unix "cp" utility -- each block is a complete copy of the
-input data.  The "zfec" command-line tool does not implement these degenerate
-cases.)
+input data.)
 
 Note that each "primary block" is a segment of the original data, so its size is
 1/k'th of the size of original data, and each "secondary block" is of the same
@@ -148,9 +147,8 @@ which is the first few bytes of the file, the 1'st block is the next primary
 block, which is the next few bytes of the file, and so on.  The last primary
 block has blocknum k-1.  The blocknum of each secondary block is an arbitrary
 integer between k and 255 inclusive.  (When using the Python API, if you don't
-specify which blocknums you want for your secondary blocks when invoking
-encode(), then it will by default provide the blocks with ids from k to m-1
-inclusive.)
+specify which secondary blocks you want when invoking encode(), then it will by
+default provide the blocks with ids from k to m-1 inclusive.)
 
  ** C API
 
@@ -164,6 +162,20 @@ required to be >= k and < m.)
 The output from fec_encode() is the requested set of secondary blocks which are
 written into output buffers provided by the caller.
 
+Note that this fec_encode() is a "low-level" API in that it requires the input
+data to be provided in a set of memory buffers of exactly the right sizes.  If
+you are starting instead with a single buffer containing all of the data then
+please see easyfec.py's "class Encoder" as an example of how to split a single
+large buffer into the appropriate set of input buffers for fec_encode().  If you
+are starting with a file on disk, then please see filefec.py's
+encode_file_stringy_easyfec() for an example of how to read the data from a file
+and pass it to "class Encoder".  The Python interface provides these
+higher-level operations, as does the Haskell interface.  If you implement
+functions to do these higher-level tasks in other languages than Python or
+Haskell, then please send a patch to zfec-dev@allmydata.org so that your API can
+be included in future releases of zfec.
+
+
 fec_decode() takes as input an array of k pointers, where each pointer points to
 a buffer containing a block.  There is also a separate input parameter which is
 an array of blocknums, indicating the blocknum of each of the blocks which is
@@ -172,6 +184,7 @@ being passed in.
 The output from fec_decode() is the set of primary blocks which were missing
 from the input and had to be reconstructed.  These reconstructed blocks are
 written into output buffers provided by the caller.
+
 
  ** Python API
 
