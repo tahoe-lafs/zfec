@@ -27,7 +27,7 @@ if "--debug" in sys.argv:
     DEBUGMODE=True
     sys.argv.remove("--debug")
 else:
-    DEBUGMODE=("--debug" in sys.argv)
+    DEBUGMODE=False
 
 extra_compile_args=[]
 extra_link_args=[]
@@ -120,24 +120,36 @@ data_fnames=[ 'COPYING.GPL', 'changelog', 'COPYING.TGPPL.html', 'TODO', 'README.
 doc_loc = "share/doc/python-" + PKG
 data_files = [(doc_loc, data_fnames)]
 
-setup(name=PKG,
-      version=verstr,
-      description='a fast erasure codec which can be used with the command-line, C, Python, or Haskell',
-      long_description='Fast, portable, programmable erasure coding a.k.a. "forward error correction": the generation of redundant blocks of information such that if some blocks are lost then the original data can be recovered from the remaining blocks.  The zfec package includes command-line tools, C API, Python API, and Haskell API',
-      author='Zooko O\'Whielacronx',
-      author_email='zooko@zooko.com',
-      url='http://allmydata.org/trac/'+PKG,
-      license='GNU GPL',
-      dependency_links=dependency_links,
-      install_requires=["argparse >= 0.8", "pyutil >= 1.3.19"],
-      tests_require=["pyutil >= 1.3.19"],
-      packages=find_packages(),
-      include_package_data=True,
-      data_files=data_files,
-      setup_requires=setup_requires,
-      classifiers=trove_classifiers,
-      entry_points = { 'console_scripts': [ 'zfec = %s.cmdline_zfec:main' % PKG, 'zunfec = %s.cmdline_zunfec:main' % PKG ] },
-      ext_modules=[Extension(PKG+'._fec', [PKG+'/fec.c', PKG+'/_fecmodule.c',], extra_link_args=extra_link_args, extra_compile_args=extra_compile_args, undef_macros=undef_macros, define_macros=define_macros),],
-      test_suite=PKG+".test",
-      zip_safe=False, # I prefer unzipped for easier access.
-      )
+def _setup(test_suite):
+    setup(name=PKG,
+          version=verstr,
+          description='a fast erasure codec which can be used with the command-line, C, Python, or Haskell',
+          long_description='Fast, portable, programmable erasure coding a.k.a. "forward error correction": the generation of redundant blocks of information such that if some blocks are lost then the original data can be recovered from the remaining blocks.  The zfec package includes command-line tools, C API, Python API, and Haskell API',
+          author='Zooko O\'Whielacronx',
+          author_email='zooko@zooko.com',
+          url='http://allmydata.org/trac/'+PKG,
+          license='GNU GPL',
+          dependency_links=dependency_links,
+          install_requires=["argparse >= 0.8", "pyutil >= 1.3.19"],
+          tests_require=["pyutil >= 1.3.19"],
+          packages=find_packages(),
+          include_package_data=True,
+          data_files=data_files,
+          setup_requires=setup_requires,
+          classifiers=trove_classifiers,
+          entry_points = { 'console_scripts': [ 'zfec = %s.cmdline_zfec:main' % PKG, 'zunfec = %s.cmdline_zunfec:main' % PKG ] },
+          ext_modules=[Extension(PKG+'._fec', [PKG+'/fec.c', PKG+'/_fecmodule.c',], extra_link_args=extra_link_args, extra_compile_args=extra_compile_args, undef_macros=undef_macros, define_macros=define_macros),],
+          test_suite=test_suite,
+          zip_safe=False, # I prefer unzipped for easier access.
+          )
+
+test_suite_name=PKG+".test"
+try:
+    _setup(test_suite=test_suite_name)
+except BaseException, le:
+    # to work around a bug in Elisa v0.3.5
+    # https://bugs.launchpad.net/elisa/+bug/263697
+    if "test_suite must be a list" in str(le):
+        _setup(test_suite=[test_suite_name])
+    else:
+        raise
