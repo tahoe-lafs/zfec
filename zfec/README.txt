@@ -113,8 +113,8 @@ Guard" for encryption or "sha256sum" for integrity.  It is important to do
 things in order: first archive, then compress, then either encrypt or sha256sum,
 then erasure code.  Note that if GNU Privacy Guard is used for privacy, then it
 will also ensure integrity, so the use of sha256sum is unnecessary in that case.
-Note that if 7z is used for archiving then it also does very good compression,
-so you don't need a separate compressor in that case.
+Note that if 7z is used for archiving then it also does compression, so you 
+don't need a separate compressor in that case.
 
 
  * Performance Measurements

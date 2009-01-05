@@ -456,8 +456,8 @@ fec_new(unsigned k, unsigned n) {
     return retval;
 }
 
-/* To make sure that we stay within cache in the inner loops of fec_encode()
-   and fec_decode(). */
+/* To make sure that we stay within cache in the inner loops of fec_encode().  (It would
+   probably help to also do this for fec_decode(). */
 #ifndef STRIDE
 #define STRIDE 8192
 #endif
