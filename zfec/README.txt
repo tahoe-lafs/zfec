@@ -105,15 +105,16 @@ input to the encoding step.
 The bin/ directory contains two Unix-style, command-line tools "zfec" and
 "zunfec".  Execute "zfec --help" or "zunfec --help" for usage instructions.
 
-Note: a Unix-style tool like "zfec" does only one thing -- in this case
-erasure coding -- and leaves other tasks to other tools.  Other Unix-style
-tools that go well with zfec include "GNU tar" for archiving multiple files
-and directories into one file, "rzip" or "lrzip" for compression, and "GNU
-Privacy Guard" for encryption or "sha256sum" for integrity.  It is important
-to do things in order: first archive, then compress, then either encrypt or
-sha256sum, then erasure code.  Note that if GNU Privacy Guard is used for
-privacy, then it will also ensure integrity, so the use of sha256sum is
-unnecessary in that case.
+Note: a Unix-style tool like "zfec" does only one thing -- in this case erasure
+coding -- and leaves other tasks to other tools.  Other Unix-style tools that go
+well with zfec include "GNU tar" or "7z" a.k.a. "p7zip" for archiving multiple
+files and directories into one file, "7z" or "rzip" for compression, and "GNU Privacy
+Guard" for encryption or "sha256sum" for integrity.  It is important to do
+things in order: first archive, then compress, then either encrypt or sha256sum,
+then erasure code.  Note that if GNU Privacy Guard is used for privacy, then it
+will also ensure integrity, so the use of sha256sum is unnecessary in that case.
+Note that if 7z is used for archiving then it also does compression, so you
+don't need a separate compressor in that case.
 
 
  * Performance Measurements
