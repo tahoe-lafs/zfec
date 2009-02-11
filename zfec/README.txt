@@ -54,7 +54,7 @@ takes a reference to an FFI function.
 
 The source is currently available via darcs on the web with the command:
 
-darcs get http://allmydata.org/source/zfec
+darcs get http://allmydata.org/source/zfec/trunk
 
 More information on darcs is available at http://darcs.net
 
