@@ -86,7 +86,7 @@ trove_classifiers=[
     ]
 
 PKG = "zfec"
-VERSIONFILE = os.path.join(PKG, "_version.py")
+VERSIONFILE = PKG+"/_version.py"
 verstr = "unknown"
 try:
     verstrline = open(VERSIONFILE, "rt").read()
