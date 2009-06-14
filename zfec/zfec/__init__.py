@@ -18,7 +18,7 @@ except ImportError:
 from _fec import Encoder, Decoder, Error
 import easyfec, filefec, cmdline_zfec, cmdline_zunfec
 
-quiet_pyflakes=[ '__version__', 'Error', 'Encoder', 'Decoder', 'cmdline_zunfec', 'filefec', 'cmdline_zfec', 'easyfec', ]
+quiet_pyflakes=[__version__, Error, Encoder, Decoder, cmdline_zunfec, filefec, cmdline_zfec, easyfec]
 
 # zfec -- fast forward error correction library with Python interface
 # 
