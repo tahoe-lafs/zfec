@@ -557,10 +557,7 @@ _hexwrite(unsigned char*s, size_t l) {
 
 
 PyObject*
-test_from_agl(); /* <- prototype */
-
-PyObject*
-test_from_agl() {
+test_from_agl(PyObject* self, PyObject* args) {
   unsigned char b0c[8], b1c[8];
   unsigned char b0[8], b1[8], b2[8], b3[8], b4[8];
   memset(b0, 1, 8);
@@ -604,7 +601,7 @@ test_from_agl() {
 }
 
 static PyMethodDef fec_functions[] = { 
-  {"test_from_agl", test_from_agl, METH_NOARGS, NULL},
+    {"test_from_agl", test_from_agl, METH_NOARGS, NULL},
     {NULL} 
 };
 
