@@ -2,7 +2,7 @@ import easyfec, zfec
 from pyutil import fileutil
 from pyutil.mathutil import pad_size, log_ceil
 
-import array, os, re, struct, traceback
+import array, os, struct
 
 CHUNKSIZE = 4096
 
