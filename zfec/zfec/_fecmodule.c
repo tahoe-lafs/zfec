@@ -555,8 +555,12 @@ _hexwrite(unsigned char*s, size_t l) {
     printf("%.2x", s[i]);
 }
 
+
 PyObject*
-test_from_agl(void) {
+test_from_agl(); /* <- prototype */
+
+PyObject*
+test_from_agl() {
   unsigned char b0c[8], b1c[8];
   unsigned char b0[8], b1[8], b2[8], b3[8], b4[8];
   memset(b0, 1, 8);
