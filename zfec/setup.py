@@ -104,11 +104,19 @@ else:
 dependency_links=[os.path.join(miscdeps, t) for t in os.listdir(miscdeps) if t.endswith(".tar")]
 setup_requires = []
 
-# darcsver is needed only if you want "./setup.py darcsver" to write a new
-# version stamp in zfec/_version.py, with a version number derived from
-# darcs history.  http://pypi.python.org/pypi/darcsver
-if "darcsver" in sys.argv[1:]:
-    setup_requires.append('darcsver >= 1.0.0')
+# The darcsver command from the darcsver plugin is needed to initialize the
+# distribution's .version attribute correctly. (It does this either by
+# examining darcs history, or if that fails by reading the
+# zfec/_version.py file). darcsver will also write a new version
+# stamp in zfec/_version.py, with a version number derived from
+# darcs history. Note that the setup.cfg file has an "[aliases]" section
+# which enumerates commands that you might run and specifies that it will run
+# darcsver before each one. If you add different commands (or if I forgot
+# some that are already in use), you may need to add it to setup.cfg and
+# configure it to run darcsver before your command, if you want the version
+# number to be correct when that command runs.
+# http://pypi.python.org/pypi/darcsver
+setup_requires.append('darcsver >= 1.2.0')
 
 # setuptools_darcs is required to produce complete distributions (such as with
 # "sdist" or "bdist_egg"), unless there is a zfec.egg-info/SOURCE.txt file
