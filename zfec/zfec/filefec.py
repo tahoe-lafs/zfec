@@ -347,7 +347,12 @@ def encode_file(inf, cb, k, m, chunksize=4096):
         res = enc.encode(l)
         cb(res, indatasize)
 
-import sha
+try:
+    from hashlib import sha1
+except ImportError:
+    # hashlib was added in Python 2.5.0.
+    import sha as sha1
+
 def encode_file_not_really(inf, cb, k, m, chunksize=4096):
     enc = zfec.Encoder(k, m)
     l = tuple([ array.array('c') for i in range(k) ])
@@ -380,7 +385,7 @@ def encode_file_not_really(inf, cb, k, m, chunksize=4096):
         cb(None, None)
 
 def encode_file_not_really_and_hash(inf, cb, k, m, chunksize=4096):
-    hasher = sha.new()
+    hasher = sha1.new()
     enc = zfec.Encoder(k, m)
     l = tuple([ array.array('c') for i in range(k) ])
     indatasize = k*chunksize # will be reset to shorter upon EOF
