@@ -157,7 +157,7 @@ def _setup(test_suite):
 test_suite_name=PKG+".test"
 try:
     _setup(test_suite=test_suite_name)
-except BaseException, le:
+except Exception, le:
     # to work around a bug in Elisa v0.3.5
     # https://bugs.launchpad.net/elisa/+bug/263697
     if "test_suite must be a list" in str(le):
