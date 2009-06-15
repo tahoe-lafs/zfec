@@ -131,6 +131,10 @@ data_fnames=[ 'COPYING.GPL', 'changelog', 'COPYING.TGPPL.html', 'TODO', 'README.
 doc_loc = "share/doc/python-" + PKG
 data_files = [(doc_loc, data_fnames)]
 
+extras_require = {
+    'command_line_tools': ["argparse >= 0.8", "pyutil >= 1.3.19"]
+    }
+
 def _setup(test_suite):
     setup(name=PKG,
           version=verstr,
@@ -141,7 +145,7 @@ def _setup(test_suite):
           url='http://allmydata.org/trac/'+PKG,
           license='GNU GPL',
           dependency_links=dependency_links,
-          install_requires=["argparse >= 0.8", "pyutil >= 1.3.19"],
+          extras_require=extras_require,
           tests_require=["pyutil >= 1.3.19"],
           packages=find_packages(),
           include_package_data=True,
