@@ -412,7 +412,7 @@ fec_free (fec_t *p) {
 }
 
 fec_t *
-fec_new(unsigned k, unsigned n) {
+fec_new(unsigned short k, unsigned short n) {
     unsigned row, col;
     gf *p, *tmp_m;
 

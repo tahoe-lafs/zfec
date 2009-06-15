@@ -30,8 +30,8 @@ typedef struct {
     PyObject_HEAD
 
     /* expose these */
-    short kk;
-    short mm;
+    unsigned short kk;
+    unsigned short mm;
 
     /* internal */
     fec_t* fec_matrix;
@@ -78,8 +78,8 @@ Encoder_init(Encoder *self, PyObject *args, PyObject *kwdict) {
         PyErr_Format(py_fec_error, "Precondition violation: first argument is required to be less than or equal to the second argument, but they were %d and %d respectively", ink, inm);
         return -1;
     }
-    self->kk = (short)ink;
-    self->mm = (short)inm;
+    self->kk = (unsigned short)ink;
+    self->mm = (unsigned short)inm;
     self->fec_matrix = fec_new(self->kk, self->mm);
 
     return 0;
@@ -289,8 +289,8 @@ typedef struct {
     PyObject_HEAD
 
     /* expose these */
-    short kk;
-    short mm;
+    unsigned short kk;
+    unsigned short mm;
 
     /* internal */
     fec_t* fec_matrix;
@@ -338,8 +338,8 @@ Decoder_init(Encoder *self, PyObject *args, PyObject *kwdict) {
         PyErr_Format(py_fec_error, "Precondition violation: first argument is required to be less than or equal to the second argument, but they were %d and %d respectively", ink, inm);
 	return -1;
     }
-    self->kk = (short)ink;
-    self->mm = (short)inm;
+    self->kk = (unsigned short)ink;
+    self->mm = (unsigned short)inm;
     self->fec_matrix = fec_new(self->kk, self->mm);
 
     return 0;

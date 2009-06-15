@@ -10,7 +10,7 @@ typedef unsigned char gf;
 
 typedef struct {
   unsigned long magic;
-  unsigned k, n;                     /* parameters of the code */
+  unsigned short k, n;                     /* parameters of the code */
   gf* enc_matrix;
 } fec_t;
 
@@ -24,7 +24,7 @@ typedef struct {
  * param k the number of blocks required to reconstruct
  * param m the total number of blocks created
  */
-fec_t* fec_new(unsigned k, unsigned m);
+fec_t* fec_new(unsigned short k, unsigned short m);
 void fec_free(fec_t* p);
 
 /**
