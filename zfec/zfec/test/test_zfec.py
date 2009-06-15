@@ -155,21 +155,21 @@ class ZFecTest(unittest.TestCase):
         except TypeError, e:
             assert "First argument was not a sequence" in str(e), e
         else:
-            raise "Should have gotten TypeError for wrong type of second argument."
+            self.fail("Should have gotten TypeError for wrong type of second argument.")
 
         try:
             decer.decode(["a", "b", ], ["c", "d",])
         except zfec.Error, e:
             assert "Precondition violation: second argument is required to contain int" in str(e), e
         else:
-            raise "Should have gotten zfec.Error for wrong type of second argument."
+            self.fail("Should have gotten zfec.Error for wrong type of second argument.")
 
         try:
             decer.decode(["a", "b", ], 98) # not a sequence at all
         except TypeError, e:
             assert "Second argument was not a sequence" in str(e), e
         else:
-            raise "Should have gotten TypeError for wrong type of second argument."
+            self.fail("Should have gotten TypeError for wrong type of second argument.")
 
 class EasyFecTest(unittest.TestCase):
     def test_small(self):
@@ -192,21 +192,21 @@ class EasyFecTest(unittest.TestCase):
         except TypeError, e:
             assert "First argument was not a sequence" in str(e), e
         else:
-            raise "Should have gotten TypeError for wrong type of second argument."
+            self.fail("Should have gotten TypeError for wrong type of second argument.")
 
         try:
             decer.decode("ab", ["c", "d",], 0)
         except zfec.Error, e:
             assert "Precondition violation: second argument is required to contain int" in str(e), e
         else:
-            raise "Should have gotten zfec.Error for wrong type of second argument."
+            self.fail("Should have gotten zfec.Error for wrong type of second argument.")
 
         try:
             decer.decode("ab", 98, 0) # not a sequence at all
         except TypeError, e:
             assert "Second argument was not a sequence" in str(e), e
         else:
-            raise "Should have gotten TypeError for wrong type of second argument."
+            self.fail("Should have gotten TypeError for wrong type of second argument.")
 
 class FileFec(unittest.TestCase):
     def test_filefec_header(self):
