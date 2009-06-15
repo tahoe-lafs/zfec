@@ -62,15 +62,15 @@ Encoder_init(Encoder *self, PyObject *args, PyObject *kwdict) {
         return -1;
 
     if (ink < 1) {
-        PyErr_Format(py_fec_error, "Precondition violation: first argument is required to be greater than or equal to 1, but it was %d", self->kk);
+        PyErr_Format(py_fec_error, "Precondition violation: first argument is required to be greater than or equal to 1, but it was %d", ink);
         return -1;
     }
     if (inm < 1) {
-        PyErr_Format(py_fec_error, "Precondition violation: second argument is required to be greater than or equal to 1, but it was %d", self->mm);
+        PyErr_Format(py_fec_error, "Precondition violation: second argument is required to be greater than or equal to 1, but it was %d", inm);
         return -1;
     }
     if (inm > 256) {
-        PyErr_Format(py_fec_error, "Precondition violation: second argument is required to be less than or equal to 256, but it was %d", self->mm);
+        PyErr_Format(py_fec_error, "Precondition violation: second argument is required to be less than or equal to 256, but it was %d", inm);
         return -1;
     }
     if (ink > inm) {
@@ -220,7 +220,8 @@ Encoder_encode(Encoder *self, PyObject *args) {
 
 static void
 Encoder_dealloc(Encoder * self) {
-    fec_free(self->fec_matrix);
+    if (self->fec_matrix)
+        fec_free(self->fec_matrix);
     self->ob_type->tp_free((PyObject*)self);
 }
 
@@ -321,15 +322,15 @@ Decoder_init(Encoder *self, PyObject *args, PyObject *kwdict) {
         return -1;
 
     if (ink < 1) {
-        PyErr_Format(py_fec_error, "Precondition violation: first argument is required to be greater than or equal to 1, but it was %d", self->kk);
+        PyErr_Format(py_fec_error, "Precondition violation: first argument is required to be greater than or equal to 1, but it was %d", ink);
 	return -1;
     }
     if (inm < 1) {
-        PyErr_Format(py_fec_error, "Precondition violation: second argument is required to be greater than or equal to 1, but it was %d", self->mm);
+        PyErr_Format(py_fec_error, "Precondition violation: second argument is required to be greater than or equal to 1, but it was %d", inm);
 	return -1;
     }
     if (inm > 256) {
-        PyErr_Format(py_fec_error, "Precondition violation: second argument is required to be less than or equal to 256, but it was %d", self->mm);
+        PyErr_Format(py_fec_error, "Precondition violation: second argument is required to be less than or equal to 256, but it was %d", inm);
 	return -1;
     }
     if (ink > inm) {
@@ -492,7 +493,8 @@ Decoder_decode(Decoder *self, PyObject *args) {
 
 static void
 Decoder_dealloc(Decoder * self) {
-    fec_free(self->fec_matrix);
+    if (self->fec_matrix)
+        fec_free(self->fec_matrix);
     self->ob_type->tp_free((PyObject*)self);
 }
 

@@ -110,6 +110,43 @@ class ZFecTest(unittest.TestCase):
         if VERBOSE:
             print "%d randomized tests pass." % (i+1)
 
+    def test_bad_args_construct_decoder(self):
+        try:
+            zfec.Decoder(-1, -1)
+        except zfec.Error, e:
+            assert "argument is required to be greater than or equal to 1" in str(e), e
+        else:
+            self.fail("Should have gotten an exception from out-of-range arguments.")
+
+        try:
+            zfec.Decoder(1, 257)
+        except zfec.Error, e:
+            assert "argument is required to be less than or equal to 256" in str(e), e
+        else:
+            self.fail("Should have gotten an exception from out-of-range arguments.")
+
+        try:
+            zfec.Decoder(3, 2)
+        except zfec.Error, e:
+            assert "first argument is required to be less than or equal to the second argument" in str(e), e
+        else:
+            self.fail("Should have gotten an exception from out-of-range arguments.")
+
+    def test_bad_args_construct_encoder(self):
+        try:
+            zfec.Encoder(-1, -1)
+        except zfec.Error, e:
+            assert "argument is required to be greater than or equal to 1" in str(e), e
+        else:
+            self.fail("Should have gotten an exception from out-of-range arguments.")
+
+        try:
+            zfec.Encoder(1, 257)
+        except zfec.Error, e:
+            assert "argument is required to be less than or equal to 256" in str(e), e
+        else:
+            self.fail("Should have gotten an exception from out-of-range arguments.")
+
     def test_bad_args_dec(self):
         decer = zfec.Decoder(2, 4)
 
