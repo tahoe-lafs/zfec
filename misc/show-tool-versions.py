@@ -36,5 +36,5 @@ try:
     out = str(pkg_resources.require("setuptools"))
     print
     print "setuptools:", out.replace("\n", " ")
-except EnvironmentError:
+except (ImportError, EnvironmentError):
     pass
