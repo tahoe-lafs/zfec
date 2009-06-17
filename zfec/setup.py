@@ -18,16 +18,12 @@ try:
 except ImportError:
     pass
 else:
-    if sys.platform.lower().startswith('win'):
-        # 0.6c7 on Windows had a problem with multiple overlapping dependencies
-        # on pyutil -- it would end up with the 'pyutil' key set in sys.modules
-        # but the actual code (and the temporary directory in the filesystem in
-        # which the code used to reside) gone, when it needed pyutil again
-        # later.
-        min_version='0.6c9'
-    else:
-        min_version='0.6c6'
-    use_setuptools(min_version=min_version, download_delay=0, to_dir=miscdeps)
+    # 0.6c7 on Windows and 0.6c6 on Ubuntu had a problem with multiple
+    # overlapping dependencies on pyutil -- it would end up with the 'pyutil'
+    # key set in sys.modules but the actual code (and the temporary directory
+    # in the filesystem in which the code used to reside) gone, when it needed
+    # pyutil again later.
+    use_setuptools(min_version='0.6c9', download_delay=0, to_dir=miscdeps)
 
 from setuptools import Extension, find_packages, setup
 
