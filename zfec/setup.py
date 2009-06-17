@@ -123,6 +123,10 @@ setup_requires.append('darcsver >= 1.2.0')
 # http://pypi.python.org/pypi/setuptools_darcs
 setup_requires.append('setuptools_darcs >= 1.1.0')
 
+# stdeb is required to build Debian dsc files.
+if "sdist_dsc" in sys.argv:
+    setup_requires.append('stdeb')
+
 data_fnames=[ 'COPYING.GPL', 'changelog', 'COPYING.TGPPL.html', 'TODO', 'README.txt' ]
 
 # In case we are building for a .deb with stdeb's sdist_dsc command, we put the
