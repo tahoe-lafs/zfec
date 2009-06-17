@@ -18,8 +18,7 @@ try:
 except ImportError:
     pass
 else:
-    # On cygwin there was a permissions error that was fixed in 0.6c6.
-    use_setuptools(min_version='0.6c10', download_delay=0, to_dir=miscdeps)
+    use_setuptools(min_version='0.6c9', download_delay=0, to_dir=miscdeps)
 
 from setuptools import Extension, find_packages, setup
 
