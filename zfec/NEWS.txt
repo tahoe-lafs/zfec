@@ -1,0 +1,10 @@
+User visible changes in zfec.           -*- outline -*-
+
+* Release 1.4.5 (2009-06-17)
+
+** Bug fixes
+
+Fix seg fault if the Python classes Encoder or Decoder are constructed with k or m less than 1, greater than 256, or with k greater m.
+Fix several compiler warnings, add unit tests, improve Python packaging, set up more buildbots to run the unit tests on more platforms.
+
+For details about older releases, see the version control history.
