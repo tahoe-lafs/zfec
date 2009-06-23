@@ -1,0 +1,23 @@
+This package was debianized by Zooko O'Whielacronx zooko@zooko.com on
+Mon, 22 June 2009 23:30:00 +0000.
+
+It was originally downloaded from http://allmydata.org/trac/zfec
+
+Upstream Author: Zooko O'Whielacronx <zooko@zooko.com>
+
+Copyright:
+
+You may use this package under the GNU General Public License, version
+2 or, at your option, any later version.  You may use this package
+under the Transitive Grace Period Public Licence, version 1.0 or, at
+your option, any later version.  (You may choose to use this package
+under the terms of either licence, at your option.)  See the file
+COPYING.GPL for the terms of the GNU General Public License, version 2.
+See the file COPYING.TGPPL.html for the terms of the Transitive Grace
+Period Public Licence, version 1.0.
+
+The Debian packaging is © 2009 Zooko O'Whielacronx <zooko@zooko.com> - it is
+licensed under the same terms as the zfec source code itself.
+
+On Debian systems, the complete text of the GNU General Public License
+can be found in `/usr/share/common-licenses/GPL'.

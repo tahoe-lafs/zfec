@@ -135,8 +135,8 @@ if "sdist_dsc" in sys.argv:
 data_fnames=[ 'COPYING.GPL', 'changelog', 'COPYING.TGPPL.html', 'TODO', 'README.txt' ]
 
 # In case we are building for a .deb with stdeb's sdist_dsc command, we put the
-# docs in "share/doc/python-$PKG".
-doc_loc = "share/doc/python-" + PKG
+# docs in "share/doc/$PKG".
+doc_loc = "share/doc/" + PKG
 data_files = [(doc_loc, data_fnames)]
 
 def _setup(test_suite):
