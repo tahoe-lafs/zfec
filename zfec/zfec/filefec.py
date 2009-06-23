@@ -349,9 +349,11 @@ def encode_file(inf, cb, k, m, chunksize=4096):
 
 try:
     from hashlib import sha1
+    sha1 = sha1 # hush pyflakes
 except ImportError:
     # hashlib was added in Python 2.5.0.
-    import sha as sha1
+    import sha
+    sha1 = sha
 
 def encode_file_not_really(inf, cb, k, m, chunksize=4096):
     enc = zfec.Encoder(k, m)
