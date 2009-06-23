@@ -23,7 +23,13 @@ else:
     # key set in sys.modules but the actual code (and the temporary directory
     # in the filesystem in which the code used to reside) gone, when it needed
     # pyutil again later.
-    use_setuptools(min_version='0.6c9', download_delay=0, to_dir=miscdeps)
+    # On cygwin there was a conflict with swig with setuptools 0.6c7:
+    #   File "/home/Buildslave/windows-cygwin-pycryptopp/windows-cygwin/build/misc/dependencies/setuptools-0.6c7.egg/setuptools/command/build_ext.py", line 77, in swig_sources
+    # TypeError: swig_sources() takes exactly 3 arguments (2 given)
+    # This invokes our own customized version of ez_setup.py to make sure
+    # that setuptools v0.6c12dev (which is our own toothpick of setuptools)
+    # is used to build.
+    use_setuptools(download_delay=0, min_version="0.6c12dev")
 
 from setuptools import Extension, find_packages, setup
 
