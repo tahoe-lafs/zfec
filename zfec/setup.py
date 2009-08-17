@@ -2,7 +2,7 @@
 
 # zfec -- fast forward error correction library with Python interface
 # 
-# Copyright (C) 2007-2008 Allmydata, Inc.
+# Copyright (C) 2007-2009 Allmydata, Inc.
 # Author: Zooko Wilcox-O'Hearn
 # 
 # This file is part of zfec.
@@ -26,10 +26,9 @@ else:
     # On cygwin there was a conflict with swig with setuptools 0.6c7:
     #   File "/home/Buildslave/windows-cygwin-pycryptopp/windows-cygwin/build/misc/dependencies/setuptools-0.6c7.egg/setuptools/command/build_ext.py", line 77, in swig_sources
     # TypeError: swig_sources() takes exactly 3 arguments (2 given)
-    # This invokes our own customized version of ez_setup.py to make sure
-    # that setuptools v0.6c12dev (which is our own toothpick of setuptools)
-    # is used to build.
-    use_setuptools(download_delay=0, min_version="0.6c12dev")
+    # If there isn't a setuptools already installed, then this will install
+    # setuptools v0.6c12dev (which is our own toothpick of setuptools).
+    use_setuptools(download_delay=0, min_version="0.6c8")
 
 from setuptools import Extension, find_packages, setup
 
