@@ -75,9 +75,10 @@ def use_setuptools(
             "The required version of setuptools (>=%s) is not available, and\n"
             "can't be installed while this script is running. Please install\n"
             " a more recent version first, using 'easy_install -U setuptools'."
-            "\n\n(Currently using %r)"
+            "\n\n(Currently using %r)\n"
+            "Proceeding to attempt to build with the current version...\n"
             ) % (min_version, e.args[0])
-            sys.exit(2)
+            return
         else:
             del pkg_resources, sys.modules['pkg_resources']    # reload ok
             return do_download()
