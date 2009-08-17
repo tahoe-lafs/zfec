@@ -4,13 +4,14 @@ This package implements an "erasure code", or "forward error correction code".
 
 You may use this package under the GNU General Public License, version 2 or, at
 your option, any later version.  You may use this package under the Transitive
-Grace Period Public Licence, version 1.0.  (You may choose to use this package
-under the terms of either licence, at your option.)  See the file COPYING.GPL
-for the terms of the GNU General Public License, version 2.  See the file
-COPYING.TGPPL.html for the terms of the Transitive Grace Period Public Licence,
-version 1.0.  In addition, Allmydata, Inc. offers other licensing terms.  If you
-would like to inquire about a commercial relationship with Allmydata, Inc.,
-please contact partnerships@allmydata.com and visit http://allmydata.com .
+Grace Period Public Licence, version 1.0 or, at your option, any later version.
+(You may choose to use this package under the terms of either licence, at your
+option.)  See the file COPYING.GPL for the terms of the GNU General Public
+License, version 2.  See the file COPYING.TGPPL.html for the terms of the
+Transitive Grace Period Public Licence, version 1.0.  In addition, Allmydata,
+Inc. offers other licensing terms.  If you would like to inquire about a
+commercial relationship with Allmydata, Inc., please contact
+partnerships@allmydata.com and visit http://allmydata.com .
 
 The most widely known example of an erasure code is the RAID-5 algorithm which
 makes it so that in the event of the loss of any one hard drive, the stored data
