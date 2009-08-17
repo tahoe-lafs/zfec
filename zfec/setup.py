@@ -28,7 +28,7 @@ else:
     # TypeError: swig_sources() takes exactly 3 arguments (2 given)
     # If there isn't a setuptools already installed, then this will install
     # setuptools v0.6c12dev (which is our own toothpick of setuptools).
-    use_setuptools(download_delay=0, min_version="0.6c8")
+    use_setuptools(download_delay=0, min_version="0.6c12dev")
 
 from setuptools import Extension, find_packages, setup
 
