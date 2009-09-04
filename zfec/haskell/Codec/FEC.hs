@@ -2,7 +2,7 @@
 -- |
 -- Module:    Codec.FEC
 -- Copyright: Adam Langley
--- License:   BSD3
+-- License:   GPLv2+|TGPPLv1+ (see README.txt for details)
 --
 -- Stability: experimental
 --
