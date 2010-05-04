@@ -60,7 +60,7 @@ def _h_easy(k, m, s):
     blocks = [ x[1] for x in nums_and_blocks ]
     nums = [ x[0] for x in nums_and_blocks ]
     decer = zfec.easyfec.Decoder(k, m)
-    
+
     decodeds = decer.decode(blocks, nums, padlen=k*len(blocks[0]) - len(s))
     assert len(decodeds) == len(s), (ab(decodeds), ab(s), k, m)
     assert decodeds == s, (ab(decodeds), ab(s),)
@@ -77,7 +77,7 @@ def _help_test_random_with_l_easy(l):
     k = random.randrange(1, m+1)
     s = randstr(l)
     _h_easy(k, m, s)
-    
+
 class ZFecTest(unittest.TestCase):
     def test_from_agl_c(self):
         self.failUnless(zfec._fec.test_from_agl())
@@ -94,7 +94,7 @@ class ZFecTest(unittest.TestCase):
 
         d = zfec.Decoder(3, 5)
         r0, r1, r2 = d.decode((b2, b3, b4), (1, 2, 3))
-        
+
         # print "after decoding:"
         # print "b0: %s, b1: %s" % tuple(base64.b16encode(x) for x in [b0, b1])
 
@@ -301,7 +301,7 @@ class FileFec(unittest.TestCase):
     def test_filefec_min_shares_with_crcrlflf(self, noisy=VERBOSE):
         return self._help_test_filefec("Yellow Whirled!A\r\r\n\n", 3, 8, numshs=3)
 
- 
+
 class Cmdline(unittest.TestCase):
     def test_basic(self, noisy=VERBOSE):
         tempdir = fileutil.NamedTemporaryDirectory(cleanup=True)
@@ -314,7 +314,7 @@ class Cmdline(unittest.TestCase):
             DEFAULT_M=8
             DEFAULT_K=3
             sys.argv = ["zfec", os.path.join(tempdir.name, "test.data"),]
-        
+
             retcode = zfec.cmdline_zfec.main()
             assert retcode == 0, retcode
 
@@ -328,7 +328,7 @@ class Cmdline(unittest.TestCase):
             sys.argv = ["zunfec",]
             sys.argv.extend(sharefns)
             sys.argv.extend(['-o', os.path.join(tempdir.name, 'test.data-recovered'),])
-            
+
             retcode = zfec.cmdline_zunfec.main()
             assert retcode == 0, retcode
             import filecmp

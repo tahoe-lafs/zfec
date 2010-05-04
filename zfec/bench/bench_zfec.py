@@ -40,10 +40,10 @@ def hashem(results, reslenthing):
 
 def _encode_file(N):
     filefec.encode_file(open(FNAME, "rb"), donothing, K, M)
-   
+
 def _encode_file_stringy(N):
     filefec.encode_file_stringy(open(FNAME, "rb"), donothing, K, M)
-   
+
 def _encode_file_stringy_easyfec(N):
     filefec.encode_file_stringy_easyfec(open(FNAME, "rb"), donothing, K, M)
 

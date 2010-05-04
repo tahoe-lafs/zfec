@@ -133,7 +133,7 @@ def _parse_header(inf):
             raise CorruptedShareFilesError("Share files were corrupted -- share file %r didn't have a complete metadata header at the front.  Perhaps the file was truncated." % (inf.name,))
         byte = struct.unpack(">B", ch)[0]
         val <<= 8
-        val |= byte 
+        val |= byte
         needed_padbits -= 8
     assert needed_padbits <= 0
     extrabits = -needed_padbits
@@ -147,7 +147,7 @@ def _parse_header(inf):
             raise CorruptedShareFilesError("Share files were corrupted -- share file %r didn't have a complete metadata header at the front.  Perhaps the file was truncated." % (inf.name,))
         byte = struct.unpack(">B", ch)[0]
         val <<= 8
-        val |= byte 
+        val |= byte
         needed_shbits -= 8
     assert needed_shbits <= 0
 
@@ -163,7 +163,7 @@ def encode_to_files(inf, fsize, dirname, prefix, k, m, suffix=".fec", overwrite=
     """
     Encode inf, writing the shares to specially named, newly created files.
 
-    @param fsize: calling read() on inf must yield fsize bytes of data and 
+    @param fsize: calling read() on inf must yield fsize bytes of data and
         then raise an EOFError
     @param dirname: the name of the directory into which the sharefiles will
         be written
@@ -199,7 +199,7 @@ def encode_to_files(inf, fsize, dirname, prefix, k, m, suffix=".fec", overwrite=
             if verbose:
                 if int((float(oldsumlen) / fsize) * 10) != int((float(sumlen[0]) / fsize) * 10):
                     print str(int((float(sumlen[0]) / fsize) * 10) * 10) + "% ...",
-            
+
             if sumlen[0] > fsize:
                 raise IOError("Wrong file size -- possibly the size of the file changed during encoding.  Original size: %d, observed size at least: %s" % (fsize, sumlen[0],))
             for i in range(len(blocks)):
@@ -222,7 +222,7 @@ def encode_to_files(inf, fsize, dirname, prefix, k, m, suffix=".fec", overwrite=
             fileutil.remove_if_possible(fn)
         return 1
     if verbose:
-        print 
+        print
         print "Done!"
     return 0
 
@@ -292,29 +292,29 @@ def encode_file(inf, cb, k, m, chunksize=4096):
     """
     Read in the contents of inf, encode, and call cb with the results.
 
-    First, k "input blocks" will be read from inf, each input block being of 
-    size chunksize.  Then these k blocks will be encoded into m "result 
-    blocks".  Then cb will be invoked, passing a list of the m result blocks 
-    as its first argument, and the length of the encoded data as its second 
-    argument.  (The length of the encoded data is always equal to k*chunksize, 
-    until the last iteration, when the end of the file has been reached and 
-    less than k*chunksize bytes could be read from the file.)  This procedure 
-    is iterated until the end of the file is reached, in which case the space 
+    First, k "input blocks" will be read from inf, each input block being of
+    size chunksize.  Then these k blocks will be encoded into m "result
+    blocks".  Then cb will be invoked, passing a list of the m result blocks
+    as its first argument, and the length of the encoded data as its second
+    argument.  (The length of the encoded data is always equal to k*chunksize,
+    until the last iteration, when the end of the file has been reached and
+    less than k*chunksize bytes could be read from the file.)  This procedure
+    is iterated until the end of the file is reached, in which case the space
     of the input blocks that is unused is filled with zeroes before encoding.
 
     Note that the sequence passed in calls to cb() contains mutable array
-    objects in its first k elements whose contents will be overwritten when 
-    the next segment is read from the input file.  Therefore the 
-    implementation of cb() has to either be finished with those first k arrays 
-    before returning, or if it wants to keep the contents of those arrays for 
-    subsequent use after it has returned then it must make a copy of them to 
+    objects in its first k elements whose contents will be overwritten when
+    the next segment is read from the input file.  Therefore the
+    implementation of cb() has to either be finished with those first k arrays
+    before returning, or if it wants to keep the contents of those arrays for
+    subsequent use after it has returned then it must make a copy of them to
     keep.
 
     @param inf the file object from which to read the data
     @param cb the callback to be invoked with the results
     @param k the number of shares required to reconstruct the file
     @param m the total number of shares created
-    @param chunksize how much data to read from inf for each of the k input 
+    @param chunksize how much data to read from inf for each of the k input
         blocks
     """
     enc = zfec.Encoder(k, m)
@@ -335,7 +335,7 @@ def encode_file(inf, cb, k, m, chunksize=4096):
             except EOFError:
                 eof = True
                 indatasize = i*chunksize + len(a)
-                
+
                 # padding
                 a.fromstring("\x00" * (chunksize-len(a)))
                 i += 1
@@ -374,7 +374,7 @@ def encode_file_not_really(inf, cb, k, m, chunksize=4096):
             except EOFError:
                 eof = True
                 indatasize = i*chunksize + len(a)
-                
+
                 # padding
                 a.fromstring("\x00" * (chunksize-len(a)))
                 i += 1
@@ -406,7 +406,7 @@ def encode_file_not_really_and_hash(inf, cb, k, m, chunksize=4096):
             except EOFError:
                 eof = True
                 indatasize = i*chunksize + len(a)
-                
+
                 # padding
                 a.fromstring("\x00" * (chunksize-len(a)))
                 i += 1
@@ -424,21 +424,21 @@ def encode_file_stringy(inf, cb, k, m, chunksize=4096):
     """
     Read in the contents of inf, encode, and call cb with the results.
 
-    First, k "input blocks" will be read from inf, each input block being of 
-    size chunksize.  Then these k blocks will be encoded into m "result 
-    blocks".  Then cb will be invoked, passing a list of the m result blocks 
-    as its first argument, and the length of the encoded data as its second 
-    argument.  (The length of the encoded data is always equal to k*chunksize, 
-    until the last iteration, when the end of the file has been reached and 
-    less than k*chunksize bytes could be read from the file.)  This procedure 
-    is iterated until the end of the file is reached, in which case the part 
+    First, k "input blocks" will be read from inf, each input block being of
+    size chunksize.  Then these k blocks will be encoded into m "result
+    blocks".  Then cb will be invoked, passing a list of the m result blocks
+    as its first argument, and the length of the encoded data as its second
+    argument.  (The length of the encoded data is always equal to k*chunksize,
+    until the last iteration, when the end of the file has been reached and
+    less than k*chunksize bytes could be read from the file.)  This procedure
+    is iterated until the end of the file is reached, in which case the part
     of the input shares that is unused is filled with zeroes before encoding.
 
     @param inf the file object from which to read the data
     @param cb the callback to be invoked with the results
     @param k the number of shares required to reconstruct the file
     @param m the total number of shares created
-    @param chunksize how much data to read from inf for each of the k input 
+    @param chunksize how much data to read from inf for each of the k input
         blocks
     """
     enc = zfec.Encoder(k, m)
@@ -454,7 +454,7 @@ def encode_file_stringy(inf, cb, k, m, chunksize=4096):
             l.append(inf.read(chunksize))
             if len(l[-1]) < chunksize:
                 indatasize = i*chunksize + len(l[-1])
-                
+
                 # padding
                 l[-1] = l[-1] + "\x00" * (chunksize-len(l[-1]))
                 while i<k:
@@ -482,7 +482,7 @@ def encode_file_stringy_easyfec(inf, cb, k, m, chunksize=4096):
     @param cb the callback to be invoked with the results
     @param k the number of shares required to reconstruct the file
     @param m the total number of shares created
-    @param chunksize how much data to read from inf for each of the k input 
+    @param chunksize how much data to read from inf for each of the k input
         blocks
     """
     enc = easyfec.Encoder(k, m)
@@ -495,10 +495,10 @@ def encode_file_stringy_easyfec(inf, cb, k, m, chunksize=4096):
         indata = inf.read(readsize)
 
 # zfec -- fast forward error correction library with Python interface
-# 
-# Copyright (C) 2007 Allmydata, Inc.
+#
+# Copyright (C) 2007-2010 Allmydata, Inc.
 # Author: Zooko Wilcox-O'Hearn
-# 
+#
 # This file is part of zfec.
 #
 # See README.txt for licensing information.

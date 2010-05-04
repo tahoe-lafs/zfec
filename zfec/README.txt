@@ -118,7 +118,7 @@ Note that if 7z is used for archiving then it also does compression, so you
 don't need a separate compressor in that case.
 
 
- * Performance Measurements
+ * Performance
 
 On my Athlon 64 2.4 GHz workstation (running Linux), the "zfec" command-line
 tool encoded a 160 MB file with m=100, k=94 (about 6% redundancy) in 3.9
@@ -138,6 +138,14 @@ at about 6.8 million bytes per second.
 
 On my old PowerPC G4 867 MHz Mac laptop, it encoded from a file at about 1.3
 million bytes per second.
+
+Here is a paper analyzing the performance of various erasure codes and their
+implementations, including zfec:
+
+http://www.usenix.org/events/fast09/tech/full_papers/plank/plank.pdf
+
+Zfec shows good performance on different machines and with different values of
+K and M. It also has a nice small memory footprint.
 
 
  * API

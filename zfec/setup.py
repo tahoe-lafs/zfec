@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
 # zfec -- fast forward error correction library with Python interface
-# 
-# Copyright (C) 2007-2009 Allmydata, Inc.
+#
+# Copyright (C) 2007-2010 Allmydata, Inc.
 # Author: Zooko Wilcox-O'Hearn
-# 
+#
 # This file is part of zfec.
 #
 # See README.txt for licensing information.
@@ -63,10 +63,10 @@ if DEBUGMODE:
 trove_classifiers=[
     "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
-    "License :: OSI Approved :: GNU General Public License (GPL)", 
+    "License :: OSI Approved :: GNU General Public License (GPL)",
     "License :: DFSG approved",
     "License :: Other/Proprietary License",
-    "Intended Audience :: Developers", 
+    "Intended Audience :: Developers",
     "Intended Audience :: End Users/Desktop",
     "Intended Audience :: System Administrators",
     "Operating System :: Microsoft",
@@ -76,9 +76,9 @@ trove_classifiers=[
     "Operating System :: POSIX",
     "Operating System :: MacOS :: MacOS X",
     "Operating System :: Microsoft :: Windows :: Windows NT/2000",
-    "Operating System :: OS Independent", 
-    "Natural Language :: English", 
-    "Programming Language :: C", 
+    "Operating System :: OS Independent",
+    "Natural Language :: English",
+    "Programming Language :: C",
     "Programming Language :: Python", 
     "Programming Language :: Python :: 2",
     "Programming Language :: Python :: 2.4",
@@ -89,9 +89,9 @@ trove_classifiers=[
     "Topic :: System :: Distributed Computing",
     "Topic :: Software Development :: Libraries",
     "Topic :: Communications :: Usenet News",
-    "Topic :: System :: Archiving :: Backup", 
-    "Topic :: System :: Archiving :: Mirroring", 
-    "Topic :: System :: Archiving", 
+    "Topic :: System :: Archiving :: Backup",
+    "Topic :: System :: Archiving :: Mirroring",
+    "Topic :: System :: Archiving",
     ]
 
 PKG = "zfec"

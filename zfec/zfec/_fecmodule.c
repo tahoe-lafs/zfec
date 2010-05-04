@@ -168,7 +168,7 @@ Encoder_encode(Encoder *self, PyObject *args) {
         }
         oldsz = sz;
     }
-    
+
     /* Allocate space for all of the check blocks. */
 
     for (i=0; i<num_desired_blocks; i++) {
