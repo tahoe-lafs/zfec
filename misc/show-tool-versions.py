@@ -57,3 +57,21 @@ try:
 except EnvironmentError, le:
     sys.stderr.write("Got exception invoking 'darcs': %s" % (le,))
     pass
+
+try:
+    import pkg_resources
+    out = str(pkg_resources.require("coverage"))
+    print
+    print "coverage:", out.replace("\n", " ")
+except (ImportError, EnvironmentError), le:
+    sys.stderr.write("Got exception using 'pkg_resources' to get the version of coverage: %s" % (le,))
+    pass
+
+try:
+    import pkg_resources
+    out = str(pkg_resources.require("trialcoverage"))
+    print
+    print "trialcoverage:", out.replace("\n", " ")
+except (ImportError, EnvironmentError), le:
+    sys.stderr.write("Got exception using 'pkg_resources' to get the version of trialcoverage: %s" % (le,))
+    pass
