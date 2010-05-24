@@ -6,6 +6,7 @@
 #include <structmember.h>
 #include <stddef.h>
 
+
 #if (PY_VERSION_HEX < 0x02050000)
 typedef int Py_ssize_t;
 #endif
@@ -388,11 +389,11 @@ Decoder_decode(Decoder *self, PyObject *args) {
         goto err;
 
     if (PySequence_Fast_GET_SIZE(fastblocks) != self->kk) {
-        PyErr_Format(py_fec_error, "Precondition violation: Wrong length -- first argument is required to contain exactly k blocks.  len(first): %Zu, k: %d", PySequence_Fast_GET_SIZE(fastblocks), self->kk); 
+        PyErr_Format(py_fec_error, "Precondition violation: Wrong length -- first argument is required to contain exactly k blocks.  len(first): %Zu, k: %d", PySequence_Fast_GET_SIZE(fastblocks), self->kk);
         goto err;
     }
     if (PySequence_Fast_GET_SIZE(fastblocknums) != self->kk) {
-        PyErr_Format(py_fec_error, "Precondition violation: Wrong length -- blocknums is required to contain exactly k blocks.  len(blocknums): %Zu, k: %d", PySequence_Fast_GET_SIZE(fastblocknums), self->kk); 
+        PyErr_Format(py_fec_error, "Precondition violation: Wrong length -- blocknums is required to contain exactly k blocks.  len(blocknums): %Zu, k: %d", PySequence_Fast_GET_SIZE(fastblocknums), self->kk);
         goto err;
     }
 
@@ -552,9 +553,11 @@ static PyTypeObject Decoder_type = {
     Decoder_new,                 /* tp_new */
 };
 
+
 void
 _hexwrite(unsigned char*s, size_t l) {
-  for (size_t i = 0; i < l; i++)
+  size_t i;
+  for (i = 0; i < l; i++)
     printf("%.2x", s[i]);
 }
 
@@ -563,12 +566,20 @@ PyObject*
 test_from_agl(PyObject* self, PyObject* args) {
   unsigned char b0c[8], b1c[8];
   unsigned char b0[8], b1[8], b2[8], b3[8], b4[8];
-  memset(b0, 1, 8);
-  memset(b1, 2, 8);
-  memset(b2, 3, 8);
+
   const unsigned char *blocks[3] = {b0, b1, b2};
   unsigned char *outblocks[2] = {b3, b4};
   unsigned block_nums[] = {3, 4};
+
+  fec_t *const fec = fec_new(3, 5);
+
+  const unsigned char *inpkts[] = {b3, b4, b2};
+  unsigned char *outpkts[] = {b0, b1};
+  unsigned indexes[] = {3, 4, 2};
+
+  memset(b0, 1, 8);
+  memset(b1, 2, 8);
+  memset(b2, 3, 8);
 
   /*printf("_from_c before encoding:\n");
   printf("b0: "); _hexwrite(b0, 8); printf(", ");
@@ -576,7 +587,6 @@ test_from_agl(PyObject* self, PyObject* args) {
   printf("b2: "); _hexwrite(b2, 8); printf(", ");
   printf("\n");*/
 
-  fec_t *const fec = fec_new(3, 5);
   fec_encode(fec, blocks, outblocks, block_nums, 2, 8);
 
   /*printf("after encoding:\n");
@@ -585,10 +595,6 @@ test_from_agl(PyObject* self, PyObject* args) {
   printf("\n");*/
 
   memcpy(b0c, b0, 8); memcpy(b1c, b1, 8);
-
-  const unsigned char *inpkts[] = {b3, b4, b2};
-  unsigned char *outpkts[] = {b0, b1};
-  unsigned indexes[] = {3, 4, 2};
 
   fec_decode(fec, inpkts, outpkts, indexes, 8);
 
@@ -603,9 +609,9 @@ test_from_agl(PyObject* self, PyObject* args) {
     Py_RETURN_FALSE;
 }
 
-static PyMethodDef fec_functions[] = { 
+static PyMethodDef fec_functions[] = {
     {"test_from_agl", test_from_agl, METH_NOARGS, NULL},
-    {NULL} 
+    {NULL}
 };
 
 #ifndef PyMODINIT_FUNC	/* declarations for DLL import/export */

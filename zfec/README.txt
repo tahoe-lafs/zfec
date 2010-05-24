@@ -263,11 +263,11 @@ Richard M. Stallman) and Valgrind (starting with Julian Seward) for a pair of
 excellent tools.  Thanks to my coworkers at Allmydata -- http://allmydata.com --
 Fabrice Grinda, Peter Secor, Rob Kinninmont, Brian Warner, Zandr Milewski,
 Justin Boreta, Mark Meras for sponsoring this work and releasing it under a Free
-Software licence.
+Software licence. Thanks to Jack Lloyd, Samuel Neves, and David-Sarah Hopwood.
 
 
 Enjoy!
 
 Zooko Wilcox-O'Hearn
-2008-01-20
+2010-05-24
 Boulder, Colorado
