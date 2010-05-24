@@ -9,26 +9,11 @@
 #
 # See README.txt for licensing information.
 
-import os, re, sys
+import glob, os, re, sys
 
-miscdeps=os.path.join(os.getcwd(), 'misc', 'dependencies')
-
-try:
-    from ez_setup import use_setuptools
-except ImportError:
-    pass
-else:
-    # 0.6c7 on Windows and 0.6c6 on Ubuntu had a problem with multiple
-    # overlapping dependencies on pyutil -- it would end up with the 'pyutil'
-    # key set in sys.modules but the actual code (and the temporary directory
-    # in the filesystem in which the code used to reside) gone, when it needed
-    # pyutil again later.
-    # On cygwin there was a conflict with swig with setuptools 0.6c7:
-    #   File "/home/Buildslave/windows-cygwin-pycryptopp/windows-cygwin/build/misc/dependencies/setuptools-0.6c7.egg/setuptools/command/build_ext.py", line 77, in swig_sources
-    # TypeError: swig_sources() takes exactly 3 arguments (2 given)
-    # If there isn't a setuptools already installed, then this will install
-    # setuptools v0.6c12dev (which is our own toothpick of setuptools).
-    use_setuptools(download_delay=0, min_version="0.6c12dev")
+egg = os.path.realpath(glob.glob('setuptools-*.egg')[0])
+sys.path.insert(0, egg)
+import setuptools; setuptools.bootstrap_install_from = egg
 
 from setuptools import Extension, find_packages, setup
 
@@ -110,7 +95,6 @@ else:
         print "unable to find version in %s" % (VERSIONFILE,)
         raise RuntimeError("if %s.py exists, it is required to be well-formed" % (VERSIONFILE,))
 
-dependency_links=[os.path.join(miscdeps, t) for t in os.listdir(miscdeps) if t.endswith(".tar")]
 setup_requires = []
 
 # The darcsver command from the darcsver plugin is needed to initialize the
@@ -153,7 +137,6 @@ def _setup(test_suite):
           author_email='zooko@zooko.com',
           url='http://allmydata.org/trac/'+PKG,
           license='GNU GPL',
-          dependency_links=dependency_links,
           install_requires=["argparse >= 0.8", "pyutil >= 1.3.19"],
           tests_require=["pyutil >= 1.3.19"],
           packages=find_packages(),
