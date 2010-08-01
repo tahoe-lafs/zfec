@@ -122,11 +122,10 @@ setup_requires.append('setuptools_darcs >= 1.1.0')
 
 # trialcoverage is required if you want the "trial" unit test runner to have a
 # "--reporter=bwverbose-coverage" option which produces code-coverage results.
-# The required version is 0.3.3, because that is the latest version that only
-# depends on a version of pycoverage for which binary packages are available.
 if "--reporter=bwverbose-coverage" in sys.argv:
     tests_require.append('trialcoverage >= 0.3.3')
     tests_require.append('twisted >= 2.4.0')
+    tests_require.extend(['setuptools_trial >= 0.5'])
 
 # stdeb is required to build Debian dsc files.
 if "sdist_dsc" in sys.argv:
