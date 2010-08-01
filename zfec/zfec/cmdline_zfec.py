@@ -43,7 +43,7 @@ def main():
     if args.verbose and args.quiet:
         print "Please choose only one of --verbose and --quiet."
         sys.exit(1)
-        
+
     if args.totalshares > 256 or args.totalshares < 1:
         print "Invalid parameters, totalshares is required to be <= 256 and >= 1\nPlease see the accompanying documentation."
         sys.exit(1)
@@ -63,10 +63,10 @@ def main():
     return filefec.encode_to_files(args.inputfile, fsize, args.output_dir, args.prefix, args.requiredshares, args.totalshares, args.suffix, args.force, args.verbose)
 
 # zfec -- fast forward error correction library with Python interface
-# 
+#
 # Copyright (C) 2007 Allmydata, Inc.
 # Author: Zooko Wilcox-O'Hearn
-# 
+#
 # This file is part of zfec.
 #
 # See README.txt for licensing information.
