@@ -120,13 +120,14 @@ setup_requires.append('darcsver >= 1.2.0')
 # http://pypi.python.org/pypi/setuptools_darcs
 setup_requires.append('setuptools_darcs >= 1.1.0')
 
+setup_requires.append('setuptools_trial >= 0.5')
+
 # trialcoverage is required if you want the "trial" unit test runner to have a
 # "--reporter=bwverbose-coverage" option which produces code-coverage results.
 if "--reporter=bwverbose-coverage" in sys.argv:
     tests_require.append('trialcoverage >= 0.3.3')
     tests_require.append('twisted >= 2.4.0')
     tests_require.append('setuptools_trial >= 0.5')
-    setup_requires.append('setuptools_trial >= 0.5')
 
 # stdeb is required to build Debian dsc files.
 if "sdist_dsc" in sys.argv:
