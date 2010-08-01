@@ -96,6 +96,9 @@ else:
         raise RuntimeError("if %s.py exists, it is required to be well-formed" % (VERSIONFILE,))
 
 setup_requires = []
+tests_require = []
+
+tests_require.append("pyutil >= 1.3.19")
 
 # The darcsver command from the darcsver plugin is needed to initialize the
 # distribution's .version attribute correctly. (It does this either by
@@ -116,6 +119,14 @@ setup_requires.append('darcsver >= 1.2.0')
 # present which contains a complete list of files that should be included.
 # http://pypi.python.org/pypi/setuptools_darcs
 setup_requires.append('setuptools_darcs >= 1.1.0')
+
+# trialcoverage is required if you want the "trial" unit test runner to have a
+# "--reporter=bwverbose-coverage" option which produces code-coverage results.
+# The required version is 0.3.3, because that is the latest version that only
+# depends on a version of pycoverage for which binary packages are available.
+if "--reporter=bwverbose-coverage" in sys.argv:
+    tests_require.append('trialcoverage >= 0.3.3')
+    tests_require.append('twisted >= 2.4.0')
 
 # stdeb is required to build Debian dsc files.
 if "sdist_dsc" in sys.argv:
@@ -138,7 +149,7 @@ def _setup(test_suite):
           url='http://allmydata.org/trac/'+PKG,
           license='GNU GPL',
           install_requires=["argparse >= 0.8", "pyutil >= 1.3.19"],
-          tests_require=["pyutil >= 1.3.19"],
+          tests_require=tests_require,
           packages=find_packages(),
           include_package_data=True,
           data_files=data_files,
