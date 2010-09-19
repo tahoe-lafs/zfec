@@ -8,9 +8,10 @@ def print_platform():
         out = platform.platform()
         print
         print "platform:", out.replace("\n", " ")
-    except EnvironmentError, le:
-         sys.stderr.write("Got exception using 'platform': %s\n" % (le,))
-         pass
+    except EnvironmentError:
+        sys.stderr.write("Got exception using 'platform'. Exception follows\n")
+        traceback.print_exc(file=sys.stderr)
+        pass
 
 def print_python_ver():
     print "python:", sys.version.replace("\n", " ") + ', maxunicode: ' + str(sys.maxunicode)
@@ -23,8 +24,9 @@ def print_cmd_ver(cmdlist, label=None):
             label = cmdlist[0]
         print
         print label + ': ' + res.replace("\n", " ")
-    except EnvironmentError, le:
-        sys.stderr.write("Got exception invoking '%s': %s\n" % (cmdlist[0], le,))
+    except EnvironmentError:
+        sys.stderr.write("Got exception invoking '%s'. Exception follows.\n" % (cmdlist[0],))
+        traceback.print_exc(file=sys.stderr)
         pass
 
 def print_as_ver():
@@ -38,8 +40,9 @@ def print_as_ver():
         print
         print 'as: ' + res.replace("\n", " ")
         os.remove('a.out')
-    except EnvironmentError, le:
-        sys.stderr.write("Got exception invoking '%s': %s\n" % ('as', le,))
+    except EnvironmentError:
+        sys.stderr.write("Got exception invoking '%s'. Exception follows.\n" % ('as',))
+        traceback.print_exc(file=sys.stderr)
         pass
 
 def print_setuptools_ver():
@@ -48,8 +51,9 @@ def print_setuptools_ver():
         out = str(pkg_resources.require("setuptools"))
         print
         print "setuptools:", out.replace("\n", " ")
-    except (ImportError, EnvironmentError), le:
-        sys.stderr.write("Got exception using 'pkg_resources' to get the version of setuptools: %s\n" % (le,))
+    except (ImportError, EnvironmentError):
+        sys.stderr.write("Got exception using 'pkg_resources' to get the version of setuptools. Exception follows\n")
+        traceback.print_exc(file=sys.stderr)
         pass
 
 def print_py_pkg_ver(pkgname):
@@ -58,11 +62,13 @@ def print_py_pkg_ver(pkgname):
         out = str(pkg_resources.require(pkgname))
         print
         print pkgname + ': ' + out.replace("\n", " ")
-    except (ImportError, EnvironmentError), le:
-        sys.stderr.write("Got exception using 'pkg_resources' to get the version of %s: %s\n" % (pkgname, le,))
+    except (ImportError, EnvironmentError):
+        sys.stderr.write("Got exception using 'pkg_resources' to get the version of %s. Exception follows.\n" % (pkgname,))
+        traceback.print_exc(file=sys.stderr)
         pass
-    except pkg_resources.DistributionNotFound, le:
-        sys.stderr.write("pkg_resources reported no %s package installed: %s\n" % (pkgname, le,))
+    except pkg_resources.DistributionNotFound:
+        sys.stderr.write("pkg_resources reported no %s package installed. Exception follows.\n" % (pkgname,))
+        traceback.print_exc(file=sys.stderr)
         pass
 
 print_platform()
