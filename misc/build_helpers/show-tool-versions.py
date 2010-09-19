@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-import os, subprocess, sys
+import os, subprocess, sys, traceback
 
 def print_platform():
     try:
