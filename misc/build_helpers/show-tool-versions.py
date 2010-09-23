@@ -93,6 +93,7 @@ print_stdout(['gcc', '--version'])
 print_stdout(['darcs', '--version'])
 print_stdout(['darcs', '--exact-version'], label='darcs-exact-version')
 print_stdout(['7za'])
+print_stdout(['flappclient', '--version'])
 
 print_setuptools_ver()
 
