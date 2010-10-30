@@ -82,6 +82,17 @@ def print_py_pkg_ver(pkgname):
         traceback.print_exc(file=sys.stderr)
         sys.stderr.flush()
         pass
+    try:
+        __import__(pkgname)
+    except ImportError:
+        pass
+    else:
+        modobj = sys.modules.get(pkgname)
+        print pkgname + ' module: ' + str(modobj)
+        try:
+            print pkgname + ' __version__: ' + str(modobj.__version__)
+        except AttributeError:
+            pass
 
 print_platform()
 
@@ -102,3 +113,5 @@ print_py_pkg_ver('trialcoverage')
 print_py_pkg_ver('setuptools_trial')
 print_py_pkg_ver('setuptools_darcs')
 print_py_pkg_ver('darcsver')
+print_py_pkg_ver('twisted')
+print_py_pkg_ver('TwistedCore')
