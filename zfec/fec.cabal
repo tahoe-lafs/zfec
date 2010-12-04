@@ -1,7 +1,7 @@
 name:            fec
 version:         0.1.1
 license:         GPL
-license-file:    README.txt
+license-file:    README.rst
 author:          Adam Langley <agl@imperialviolet.org>
 maintainer:      Adam Langley <agl@imperialviolet.org>
 description:     This code, based on zfec by Zooko, based on code by Luigi

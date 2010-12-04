@@ -28,4 +28,4 @@ quiet_pyflakes=[__version__, Error, Encoder, Decoder, cmdline_zunfec, filefec, c
 #
 # This file is part of zfec.
 #
-# See README.txt for licensing information.
+# See README.rst for licensing information.

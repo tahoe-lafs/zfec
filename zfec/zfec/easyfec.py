@@ -61,4 +61,4 @@ class Decoder(object):
 # 
 # This file is part of zfec.
 # 
-# See README.txt for licensing information.
+# See README.rst for licensing information.

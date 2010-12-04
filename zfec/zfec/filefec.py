@@ -501,4 +501,4 @@ def encode_file_stringy_easyfec(inf, cb, k, m, chunksize=4096):
 #
 # This file is part of zfec.
 #
-# See README.txt for licensing information.
+# See README.rst for licensing information.

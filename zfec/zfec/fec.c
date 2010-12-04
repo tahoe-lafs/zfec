@@ -529,7 +529,7 @@ fec_decode(const fec_t* code, const gf*restrict const*restrict const inpkts, gf*
  *
  * This file is part of zfec.
  *
- * See README.txt for licensing information.
+ * See README.rst for licensing information.
  */
 
 /*

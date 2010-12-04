@@ -1,4 +1,15 @@
- * Intro and Licence
+zfec
+====
+
+Efficient, portable, programmable erasure coding a.k.a. forward error
+correction. Generate redundant blocks of information such that if some
+of the blocks are lost then the original data can be recovered from
+the remaining blocks. This package includes command-line tools, C API,
+Python API, and Haskell API.
+
+
+Intro and Licence
+-----------------
 
 This package implements an "erasure code", or "forward error correction code".
 
@@ -8,10 +19,7 @@ Grace Period Public Licence, version 1.0 or, at your option, any later version.
 (You may choose to use this package under the terms of either licence, at your
 option.)  See the file COPYING.GPL for the terms of the GNU General Public
 License, version 2.  See the file COPYING.TGPPL.html for the terms of the
-Transitive Grace Period Public Licence, version 1.0.  In addition, Allmydata,
-Inc. offers other licensing terms.  If you would like to inquire about a
-commercial relationship with Allmydata, Inc., please contact
-partnerships@allmydata.com and visit http://allmydata.com .
+Transitive Grace Period Public Licence, version 1.0.
 
 The most widely known example of an erasure code is the RAID-5 algorithm which
 makes it so that in the event of the loss of any one hard drive, the stored data
@@ -28,7 +36,8 @@ operation, a few clean-ups and optimizations of the core code itself, and the
 addition of a command-line tool named "zfec".
 
 
- * Installation
+Installation
+------------
 
 This package is managed with the "setuptools" package management tool.  To build
 and install the package directly into your system, just run "python ./setup.py
@@ -44,14 +53,15 @@ This will run the tests of the C API, the Python API, and the command-line
 tools.
 
 To run the tests of the Haskell API:
-  % runhaskell haskell/test/FECTest.hs
+    % runhaskell haskell/test/FECTest.hs
 
 Note that in order to run the Haskell API tests you must have installed the
 library first due to the fact that the interpreter cannot process FEC.hs as it
 takes a reference to an FFI function.
 
 
- * Community
+Community
+---------
 
 The source is currently available via darcs on the web with the command:
 
@@ -64,7 +74,8 @@ Please join the zfec mailing list and submit patches:
 <http://allmydata.org/cgi-bin/mailman/listinfo/zfec-dev>
 
 
- * Overview
+Overview
+--------
 
 This package performs two operations, encoding and decoding.  Encoding takes
 some input data and expands its size by producing extra "check blocks", also
@@ -101,7 +112,8 @@ encoding step.  The decoding step produces as output the data that was earlier
 input to the encoding step.
 
 
- * Command-Line Tool
+Command-Line Tool
+-----------------
 
 The bin/ directory contains two Unix-style, command-line tools "zfec" and
 "zunfec".  Execute "zfec --help" or "zunfec --help" for usage instructions.
@@ -118,7 +130,8 @@ Note that if 7z is used for archiving then it also does compression, so you
 don't need a separate compressor in that case.
 
 
- * Performance
+Performance
+-----------
 
 On my Athlon 64 2.4 GHz workstation (running Linux), the "zfec" command-line
 tool encoded a 160 MB file with m=100, k=94 (about 6% redundancy) in 3.9
@@ -148,7 +161,8 @@ Zfec shows good performance on different machines and with different values of
 K and M. It also has a nice small memory footprint.
 
 
- * API
+API
+---
 
 Each block is associated with "blocknum".  The blocknum of each primary block is
 its index (starting from zero), so the 0'th block is the first primary block,
@@ -159,98 +173,112 @@ integer between k and 255 inclusive.  (When using the Python API, if you don't
 specify which secondary blocks you want when invoking encode(), then it will by
 default provide the blocks with ids from k to m-1 inclusive.)
 
- ** C API
+- C API
 
-fec_encode() takes as input an array of k pointers, where each pointer points to
-a memory buffer containing the input data (i.e., the i'th buffer contains the
-i'th primary block).  There is also a second parameter which is an array of the
-blocknums of the secondary blocks which are to be produced.  (Each element in
-that array is required to be the blocknum of a secondary block, i.e. it is
-required to be >= k and < m.)
+  fec_encode() takes as input an array of k pointers, where each
+  pointer points to a memory buffer containing the input data (i.e.,
+  the i'th buffer contains the i'th primary block).  There is also a
+  second parameter which is an array of the blocknums of the secondary
+  blocks which are to be produced.  (Each element in that array is
+  required to be the blocknum of a secondary block, i.e. it is
+  required to be >= k and < m.)
 
-The output from fec_encode() is the requested set of secondary blocks which are
-written into output buffers provided by the caller.
+  The output from fec_encode() is the requested set of secondary
+  blocks which are written into output buffers provided by the caller.
 
-Note that this fec_encode() is a "low-level" API in that it requires the input
-data to be provided in a set of memory buffers of exactly the right sizes.  If
-you are starting instead with a single buffer containing all of the data then
-please see easyfec.py's "class Encoder" as an example of how to split a single
-large buffer into the appropriate set of input buffers for fec_encode().  If you
-are starting with a file on disk, then please see filefec.py's
-encode_file_stringy_easyfec() for an example of how to read the data from a file
-and pass it to "class Encoder".  The Python interface provides these
-higher-level operations, as does the Haskell interface.  If you implement
-functions to do these higher-level tasks in other languages than Python or
-Haskell, then please send a patch to zfec-dev@allmydata.org so that your API can
-be included in future releases of zfec.
+  Note that this fec_encode() is a "low-level" API in that it requires
+  the input data to be provided in a set of memory buffers of exactly
+  the right sizes.  If you are starting instead with a single buffer
+  containing all of the data then please see easyfec.py's "class
+  Encoder" as an example of how to split a single large buffer into
+  the appropriate set of input buffers for fec_encode().  If you are
+  starting with a file on disk, then please see filefec.py's
+  encode_file_stringy_easyfec() for an example of how to read the data
+  from a file and pass it to "class Encoder".  The Python interface
+  provides these higher-level operations, as does the Haskell
+  interface.  If you implement functions to do these higher-level
+  tasks in other languages than Python or Haskell, then please send a
+  patch to zfec-dev@allmydata.org so that your API can be included in
+  future releases of zfec.
 
+  fec_decode() takes as input an array of k pointers, where each
+  pointer points to a buffer containing a block.  There is also a
+  separate input parameter which is an array of blocknums, indicating
+  the blocknum of each of the blocks which is being passed in.
 
-fec_decode() takes as input an array of k pointers, where each pointer points to
-a buffer containing a block.  There is also a separate input parameter which is
-an array of blocknums, indicating the blocknum of each of the blocks which is
-being passed in.
-
-The output from fec_decode() is the set of primary blocks which were missing
-from the input and had to be reconstructed.  These reconstructed blocks are
-written into output buffers provided by the caller.
-
-
- ** Python API
-
-encode() and decode() take as input a sequence of k buffers, where a "sequence"
-is any object that implements the Python sequence protocol (such as a list or
-tuple) and a "buffer" is any object that implements the Python buffer protocol
-(such as a string or array).  The contents that are required to be present in
-these buffers are the same as for the C API.
-
-encode() also takes a list of desired blocknums.  Unlike the C API, the Python
-API accepts blocknums of primary blocks as well as secondary blocks in its list
-of desired blocknums.  encode() returns a list of buffer objects which contain
-the blocks requested.  For each requested block which is a primary block, the
-resulting list contains a reference to the apppropriate primary block from the
-input list.  For each requested block which is a secondary block, the list
-contains a newly created string object containing that block.
-
-decode() also takes a list of integers indicating the blocknums of the blocks
-being passed int.  decode() returns a list of buffer objects which contain all
-of the primary blocks of the original data (in order).  For each primary block
-which was present in the input list, then the result list simply contains a
-reference to the object that was passed in the input list.  For each primary
-block which was not present in the input, the result list contains a newly
-created string object containing that primary block.
-
-Beware of a "gotcha" that can result from the combination of mutable data and
-the fact that the Python API returns references to inputs when possible.
-
-Returning references to its inputs is efficient since it avoids making an
-unnecessary copy of the data, but if the object which was passed as input is
-mutable and if that object is mutated after the call to zfec returns, then the
-result from zfec -- which is just a reference to that same object -- will also
-be mutated.  This subtlety is the price you pay for avoiding data copying.  If
-you don't want to have to worry about this then you can simply use immutable
-objects (e.g. Python strings) to hold the data that you pass to zfec.
-
- ** Haskell API
-
-The Haskell code is fully Haddocked, to generate the documentation, run
-  % runhaskell Setup.lhs haddock
+  The output from fec_decode() is the set of primary blocks which were
+  missing from the input and had to be reconstructed.  These
+  reconstructed blocks are written into output buffers provided by the
+  caller.
 
 
- * Utilities
+- Python API
+
+  encode() and decode() take as input a sequence of k buffers, where a
+  "sequence" is any object that implements the Python sequence
+  protocol (such as a list or tuple) and a "buffer" is any object that
+  implements the Python buffer protocol (such as a string or array).
+  The contents that are required to be present in these buffers are
+  the same as for the C API.
+
+  encode() also takes a list of desired blocknums.  Unlike the C API,
+  the Python API accepts blocknums of primary blocks as well as
+  secondary blocks in its list of desired blocknums.  encode() returns
+  a list of buffer objects which contain the blocks requested.  For
+  each requested block which is a primary block, the resulting list
+  contains a reference to the apppropriate primary block from the
+  input list.  For each requested block which is a secondary block,
+  the list contains a newly created string object containing that
+  block.
+
+  decode() also takes a list of integers indicating the blocknums of
+  the blocks being passed int.  decode() returns a list of buffer
+  objects which contain all of the primary blocks of the original data
+  (in order).  For each primary block which was present in the input
+  list, then the result list simply contains a reference to the object
+  that was passed in the input list.  For each primary block which was
+  not present in the input, the result list contains a newly created
+  string object containing that primary block.
+
+  Beware of a "gotcha" that can result from the combination of mutable
+  data and the fact that the Python API returns references to inputs
+  when possible.
+
+  Returning references to its inputs is efficient since it avoids
+  making an unnecessary copy of the data, but if the object which was
+  passed as input is mutable and if that object is mutated after the
+  call to zfec returns, then the result from zfec -- which is just a
+  reference to that same object -- will also be mutated.  This
+  subtlety is the price you pay for avoiding data copying.  If you
+  don't want to have to worry about this then you can simply use
+  immutable objects (e.g. Python strings) to hold the data that you
+  pass to zfec.
+
+- Haskell API
+
+  The Haskell code is fully Haddocked, to generate the documentation, run
+    % runhaskell Setup.lhs haddock
+
+
+Utilities
+---------
 
 The filefec.py module has a utility function for efficiently reading a file and
 encoding it piece by piece.  This module is used by the "zfec" and "zunfec"
 command-line tools from the bin/ directory.
 
 
- * Dependencies
+Dependencies
+------------
 
-A C compiler is required.  To use the Python API or the command-line tools a
-Python interpreter is also required.  We have tested it with Python v2.4 and
-v2.5.  For the Haskell interface, GHC >= 6.8.1 is required.
+A C compiler is required.  To use the Python API or the command-line
+tools a Python interpreter is also required.  We have tested it with
+Python v2.4, v2.5, v2.6, and v2.7.  For the Haskell interface, GHC >=
+6.8.1 is required.
 
 
- * Acknowledgements
+Acknowledgements
+----------------
 
 Thanks to the author of the original fec lib, Luigi Rizzo, and the folks that
 contributed to it: Phil Karn, Robert Morelos-Zaragoza, Hari Thirumoorthy, and
@@ -269,5 +297,7 @@ Software licence. Thanks to Jack Lloyd, Samuel Neves, and David-Sarah Hopwood.
 Enjoy!
 
 Zooko Wilcox-O'Hearn
-2010-05-24
+
+2010-12-04
+
 Boulder, Colorado

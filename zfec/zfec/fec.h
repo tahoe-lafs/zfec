@@ -1,7 +1,7 @@
 /**
  * zfec -- fast forward error correction library with Python interface
  *
- * See README.txt for documentation.
+ * See README.rst for documentation.
  */
 
 #include <stddef.h>
@@ -64,7 +64,7 @@ void fec_decode(const fec_t* code, const gf*restrict const*restrict const inpkts
  * 
  * This file is part of zfec.
  * 
- * See README.txt for licensing information.
+ * See README.rst for licensing information.
  */
 
 /*
