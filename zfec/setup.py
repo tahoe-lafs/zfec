@@ -114,11 +114,18 @@ tests_require.append("pyutil >= 1.3.19")
 # http://pypi.python.org/pypi/darcsver
 setup_requires.append('darcsver >= 1.2.0')
 
-# setuptools_darcs is required to produce complete distributions (such as with
-# "sdist" or "bdist_egg"), unless there is a zfec.egg-info/SOURCE.txt file
-# present which contains a complete list of files that should be included.
-# http://pypi.python.org/pypi/setuptools_darcs
-setup_requires.append('setuptools_darcs >= 1.1.0')
+# setuptools_darcs is required to produce complete distributions (such
+# as with "sdist" or "bdist_egg"), unless there is a
+# zfec.egg-info/SOURCE.txt file present which contains a complete
+# list of files that should be included.
+# http://pypi.python.org/pypi/setuptools_darcs However, requiring it
+# runs afoul of a bug in Distribute, which was shipped in Ubuntu
+# Lucid, so for now you have to manually install it before building
+# sdists or eggs:
+# http://bitbucket.org/tarek/distribute/issue/55/revision-control-plugin-automatically-installed-as-a-build-dependency-is-not-present-when-another-build-dependency-is-being
+if False:
+    setup_requires.append('setuptools_darcs >= 1.1.0')
+
 
 setup_requires.append('setuptools_trial >= 0.5')
 
