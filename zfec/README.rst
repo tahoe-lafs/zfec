@@ -1,10 +1,9 @@
-zfec
-====
+﻿zfec -- efficient, portable erasure coding tool
+===============================================
 
-Efficient, portable, programmable erasure coding a.k.a. forward error
-correction. Generate redundant blocks of information such that if some
-of the blocks are lost then the original data can be recovered from
-the remaining blocks. This package includes command-line tools, C API,
+Generate redundant blocks of information such that if some of the
+blocks are lost then the original data can be recovered from the
+remaining blocks. This package includes command-line tools, C API,
 Python API, and Haskell API.
 
 
@@ -40,20 +39,16 @@ Installation
 ------------
 
 This package is managed with the "setuptools" package management tool.  To build
-and install the package directly into your system, just run "python ./setup.py
-install".  If you prefer to keep the package limited to a specific directory so
+and install the package directly into your system, just run ``python ./setup.py install``.  If you prefer to keep the package limited to a specific directory so
 that you can manage it yourself (perhaps by using the "GNU stow") tool, then
-give it these arguments: "python ./setup.py install
---single-version-externally-managed
---record=${specificdirectory}/zfec-install.log --prefix=${specificdirectory}"
+give it these arguments: ``python ./setup.py install --single-version-externally-managed --record=${specificdirectory}/zfec-install.log --prefix=${specificdirectory}``
 
-To run the self-tests, execute "python ./setup.py test" (or if you have Twisted
-Python installed, you can run "trial zfec" for nicer output and test options.)
+To run the self-tests, execute ``python ./setup.py test`` (or if you have Twisted
+Python installed, you can run ``trial zfec`` for nicer output and test options.)
 This will run the tests of the C API, the Python API, and the command-line
 tools.
 
-To run the tests of the Haskell API:
-    % runhaskell haskell/test/FECTest.hs
+To run the tests of the Haskell API: ``runhaskell haskell/test/FECTest.hs``
 
 Note that in order to run the Haskell API tests you must have installed the
 library first due to the fact that the interpreter cannot process FEC.hs as it
@@ -65,13 +60,13 @@ Community
 
 The source is currently available via darcs on the web with the command:
 
-darcs get http://allmydata.org/source/zfec/trunk
+darcs get http://tahoe-lafs.org/source/zfec/trunk
 
 More information on darcs is available at http://darcs.net
 
 Please join the zfec mailing list and submit patches:
 
-<http://allmydata.org/cgi-bin/mailman/listinfo/zfec-dev>
+<http://tahoe-lafs.org/cgi-bin/mailman/listinfo/zfec-dev>
 
 
 Overview
@@ -115,19 +110,37 @@ input to the encoding step.
 Command-Line Tool
 -----------------
 
-The bin/ directory contains two Unix-style, command-line tools "zfec" and
-"zunfec".  Execute "zfec --help" or "zunfec --help" for usage instructions.
+The bin/ directory contains two Unix-style, command-line tools "zfec"
+and "zunfec".  Execute ``zfec --help`` or ``zunfec --help`` for usage
+instructions.
 
-Note: a Unix-style tool like "zfec" does only one thing -- in this case erasure
-coding -- and leaves other tasks to other tools.  Other Unix-style tools that go
-well with zfec include "GNU tar" or "7z" a.k.a. "p7zip" for archiving multiple
-files and directories into one file, "7z" or "rzip" for compression, and "GNU Privacy
-Guard" for encryption or "sha256sum" for integrity.  It is important to do
-things in order: first archive, then compress, then either encrypt or sha256sum,
-then erasure code.  Note that if GNU Privacy Guard is used for privacy, then it
-will also ensure integrity, so the use of sha256sum is unnecessary in that case.
-Note that if 7z is used for archiving then it also does compression, so you
-don't need a separate compressor in that case.
+Note: a Unix-style tool like "zfec" does only one thing -- in this
+case erasure coding -- and leaves other tasks to other tools.  Other
+Unix-style tools that go well with zfec include `GNU tar`_ for
+archiving multiple files and directories into one file, `lzip`_ for
+compression, and `GNU Privacy Guard`_ for encryption or `sha256sum`_
+for integrity.  It is important to do things in order: first archive,
+then compress, then either encrypt or integrity-check, then erasure
+code.  Note that if GNU Privacy Guard is used for privacy, then it
+will also ensure integrity, so the use of sha256sum is unnecessary in
+that case. Note also that you also need to do integrity checking (such
+as with sha256sum) on the blocks that result from the erasure coding
+in *addition* to doing it on the file contents! (There are two
+different subtle failure modes—see "more than one file can match an
+immutable file cap" on the `Hack Tahoe-LAFS!`_ Hall of Fame.)
+
+The `Tahoe-LAFS`_ project uses zfec as part of a complete distributed
+filesystem with integrated encryption, integrity, remote distribution
+of the blocks, directory structure, backup of changed files or
+directories, access control, immutable files and directories,
+proof-of-retrievability, and repair of damaged files and directories.
+
+.. _GNU tar: http://directory.fsf.org/project/tar/
+.. _lzip: http://www.nongnu.org/lzip/lzip.html
+.. _GNU Privacy Guard: http://www.gnupg.org/
+.. _sha256sum: http://www.gnu.org/software/coreutils/
+.. _Tahoe-LAFS: http://tahoe-lafs.org
+.. _Hack Tahoe-LAFS!: http://tahoe-lafs.org/hacktahoelafs/
 
 
 Performance
@@ -198,7 +211,7 @@ default provide the blocks with ids from k to m-1 inclusive.)
   provides these higher-level operations, as does the Haskell
   interface.  If you implement functions to do these higher-level
   tasks in other languages than Python or Haskell, then please send a
-  patch to zfec-dev@allmydata.org so that your API can be included in
+  patch to zfec-dev@tahoe-lafs.org so that your API can be included in
   future releases of zfec.
 
   fec_decode() takes as input an array of k pointers, where each
@@ -256,8 +269,7 @@ default provide the blocks with ids from k to m-1 inclusive.)
 
 - Haskell API
 
-  The Haskell code is fully Haddocked, to generate the documentation, run
-    % runhaskell Setup.lhs haddock
+  The Haskell code is fully Haddocked, to generate the documentation, run ``runhaskell Setup.lhs haddock``.
 
 
 Utilities
