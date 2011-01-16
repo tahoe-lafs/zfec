@@ -148,7 +148,7 @@ if readmetext[:3] == '\xef\xbb\xbf':
 setup(name=PKG,
       version=verstr,
       description='a fast erasure codec which can be used with the command-line, C, Python, or Haskell',
-      long_description=open('README.rst').read(),
+      long_description=readmetext,
       author='Zooko O\'Whielacronx',
       author_email='zooko@zooko.com',
       url='http://tahoe-lafs.org/trac/'+PKG,
