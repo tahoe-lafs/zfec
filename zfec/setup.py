@@ -140,6 +140,11 @@ data_fnames=[ 'COPYING.GPL', 'changelog', 'COPYING.TGPPL.html', 'TODO', 'README.
 doc_loc = "share/doc/" + PKG
 data_files = [(doc_loc, data_fnames)]
 
+readmetext = open('README.rst').read()
+if readmetext[:3] == '\xef\xbb\xbf':
+    # utf-8 "BOM"
+    readmetext = readmetext[3:]
+
 setup(name=PKG,
       version=verstr,
       description='a fast erasure codec which can be used with the command-line, C, Python, or Haskell',
