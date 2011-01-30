@@ -1,4 +1,4 @@
-﻿zfec -- efficient, portable erasure coding tool
+zfec -- efficient, portable erasure coding tool
 ===============================================
 
 Generate redundant blocks of information such that if some of the
@@ -126,7 +126,7 @@ will also ensure integrity, so the use of sha256sum is unnecessary in
 that case. Note also that you also need to do integrity checking (such
 as with sha256sum) on the blocks that result from the erasure coding
 in *addition* to doing it on the file contents! (There are two
-different subtle failure modes—see "more than one file can match an
+different subtle failure modes -- see "more than one file can match an
 immutable file cap" on the `Hack Tahoe-LAFS!`_ Hall of Fame.)
 
 The `Tahoe-LAFS`_ project uses zfec as part of a complete distributed
