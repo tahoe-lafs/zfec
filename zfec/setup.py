@@ -120,7 +120,11 @@ if False:
     setup_requires.append('setuptools_darcs >= 1.1.0')
 
 
-setup_requires.append('setuptools_trial >= 0.5')
+# setuptools_trial is needed if you want "./setup.py trial" or
+# "./setup.py test" to execute the tests.
+# http://pypi.python.org/pypi/setuptools_trial
+if 'trial' in sys.argv[1:]:
+    setup_requires.extend(['setuptools_trial >= 0.5'])
 
 # trialcoverage is required if you want the "trial" unit test runner to have a
 # "--reporter=bwverbose-coverage" option which produces code-coverage results.
