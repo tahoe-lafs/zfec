@@ -21,7 +21,9 @@ ds = []
 easyfecenc = None
 fecenc = None
 def _make_new_rand_data(size, k, m):
-    global d, easyfecenc, fecenc
+    global d, easyfecenc, fecenc, K, M
+    K = k
+    M = m
     d = os.urandom(size)
     del ds[:]
     ds.extend([None]*k)
@@ -57,11 +59,15 @@ def _encode_file_and_hash(N):
     filefec.encode_file(open(FNAME, "rb"), hashem, K, M)
 
 def _encode_data_not_really(N):
-    i = 0
-    for c in d:
-        i += 1
-    assert len(d) == N == i
-    pass
+    # This function is to see how long it takes to run the Python code
+    # that does this benchmarking and accounting and so on but not
+    # actually do any erasure-coding, in order to get an idea of how
+    # much overhead there is in using Python.  This exercises the
+    # basic behavior of allocating buffers to hold the secondary
+    # shares.
+    sz = N // K
+    for i in range(M-K):
+        x = '\x00' * sz
 
 def _encode_data_easyfec(N):
     easyfecenc.encode(d)
@@ -77,7 +83,8 @@ def bench(k, m):
     # for f in [_encode_file_not_really, _encode_file_not_really_and_hash, _encode_file, _encode_file_and_hash,]:
     # for f in [_encode_data_not_really, _encode_data_easyfec, _encode_data_fec,]:
     print "measuring encoding of data with K=%d, M=%d, reporting results in nanoseconds per byte after encoding %d bytes %d times in a row..." % (k, m, SIZE, MAXREPS)
-    for f in [_encode_data_fec,]:
+    # for f in [_encode_data_fec, _encode_data_not_really]:
+    for f in [_encode_data_fec]:
         def _init_func(size):
             return _make_new_rand_data(size, k, m)
         for BSIZE in [SIZE]:

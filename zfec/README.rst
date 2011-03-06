@@ -146,6 +146,9 @@ proof-of-retrievability, and repair of damaged files and directories.
 Performance
 -----------
 
+To run the benchmarks, execute the included bench/bench_zfec.py script
+with optional --k= and --m= arguments.
+
 On my Athlon 64 2.4 GHz workstation (running Linux), the "zfec" command-line
 tool encoded a 160 MB file with m=100, k=94 (about 6% redundancy) in 3.9
 seconds, where the "par2" tool encoded the file with about 6% redundancy in 27
