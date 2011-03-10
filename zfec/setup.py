@@ -2,7 +2,7 @@
 
 # zfec -- fast forward error correction library with Python interface
 #
-# Copyright (C) 2007-2010 Allmydata, Inc.
+# Copyright (C) 2007-2011 Allmydata, Inc.
 # Author: Zooko Wilcox-O'Hearn
 #
 # This file is part of zfec.
@@ -48,7 +48,7 @@ if DEBUGMODE:
 trove_classifiers=[
     "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
-    "License :: OSI Approved :: GNU General Public License (GPL)",
+    "License :: OSI Approved :: GNU General Public License (GPL)", # See README.rst for alternative licensing.
     "License :: DFSG approved",
     "License :: Other/Proprietary License",
     "Intended Audience :: Developers",
@@ -68,6 +68,8 @@ trove_classifiers=[
     "Programming Language :: Python :: 2",
     "Programming Language :: Python :: 2.4",
     "Programming Language :: Python :: 2.5",
+    "Programming Language :: Python :: 2.6",
+    "Programming Language :: Python :: 2.7",
     "Topic :: Utilities",
     "Topic :: System :: Systems Administration",
     "Topic :: System :: Filesystems",
@@ -149,6 +151,11 @@ if readmetext[:3] == '\xef\xbb\xbf':
     # utf-8 "BOM"
     readmetext = readmetext[3:].decode('utf-8')
 
+install_requires=["pyutil >= 1.3.19"]
+
+if sys.version_info < (2, 7):
+    install_requires.append("argparse >= 0.8")
+
 setup(name=PKG,
       version=verstr,
       description='a fast erasure codec which can be used with the command-line, C, Python, or Haskell',
@@ -156,8 +163,8 @@ setup(name=PKG,
       author='Zooko O\'Whielacronx',
       author_email='zooko@zooko.com',
       url='http://tahoe-lafs.org/trac/'+PKG,
-      license='GNU GPL',
-      install_requires=["argparse >= 0.8", "pyutil >= 1.3.19"],
+      license='GNU GPL', # See README.rst for alternative licensing.
+      install_requires=install_requires,
       tests_require=tests_require,
       packages=find_packages(),
       include_package_data=True,
