@@ -13,7 +13,7 @@ The package resource API is designed to work with normal filesystem packages,
 method.
 """
 
-import sys, os, zipimport, time, re, imp, new, pkgutil  # XXX
+import sys, os, zipimport, time, re, imp
 
 try:
     frozenset
@@ -524,6 +524,16 @@ class WorkingSet(object):
         if dist.key in self.by_key:
             return      # ignore hidden distros
 
+        # If we have a __requires__ then we can already tell if this
+        # dist is unsatisfactory, in which case we won't add it.
+        if __requires__ is not None:
+            for thisreqstr in __requires__:
+                for thisreq in parse_requirements(thisreqstr):
+                    if thisreq.key == dist.key:
+                        if dist not in thisreq:
+                            return
+
+
         self.by_key[dist.key] = dist
         if dist.key not in keys:
             keys.append(dist.key)
@@ -783,19 +793,33 @@ class Environment(object):
         This calls the ``find(req)`` method of the `working_set` to see if a
         suitable distribution is already active.  (This may raise
         ``VersionConflict`` if an unsuitable version of the project is already
-        active in the specified `working_set`.)  If a suitable distribution
-        isn't active, this method returns the newest distribution in the
-        environment that meets the ``Requirement`` in `req`.  If no suitable
-        distribution is found, and `installer` is supplied, then the result of
-        calling the environment's ``obtain(req, installer)`` method will be
-        returned.
+        active in the specified `working_set`.)
+
+        If a suitable distribution isn't active, this method returns the
+        newest platform-dependent distribution in the environment that meets
+        the ``Requirement`` in `req`. If no suitable platform-dependent
+        distribution is found, then the newest platform-independent
+        distribution that meets the requirement is returned. (A platform-
+        dependent distribution will typically have code compiled or
+        specialized for that platform.)
+
+        Otherwise, if `installer` is supplied, then the result of calling the
+        environment's ``obtain(req, installer)`` method will be returned.
         """
         dist = working_set.find(req)
         if dist is not None:
             return dist
+
+        # first try to find a platform-dependent dist
+        for dist in self[req.key]:
+            if dist in req and dist.platform is not None:
+                return dist
+
+        # then try any other dist
         for dist in self[req.key]:
             if dist in req:
                 return dist
+
         return self.obtain(req, installer) # try and download/install
 
     def obtain(self, requirement, installer=None):
@@ -2591,6 +2615,7 @@ def _initialize(g):
 _initialize(globals())
 
 # Prepare the master working set and make the ``require()`` API available
+__requires__ = None
 _declare_state('object', working_set = WorkingSet())
 try:
     # Does the main program list any requirements?
@@ -2601,12 +2626,15 @@ else:
     # Yes: ensure the requirements are met, by prefixing sys.path if necessary
     try:
         working_set.require(__requires__)
-    except VersionConflict:     # try it without defaults already on sys.path
+    except (VersionConflict, DistributionNotFound):     # try it without defaults already on sys.path
         working_set = WorkingSet([])    # by starting with an empty path
-        for dist in working_set.resolve(
-            parse_requirements(__requires__), Environment()
-        ):
-            working_set.add(dist)
+        try:
+            for dist in working_set.resolve(
+                parse_requirements(__requires__), Environment()
+                ):
+                working_set.add(dist)
+        except DistributionNotFound:
+            pass
         for entry in sys.path:  # add any missing entries from sys.path
             if entry not in working_set.entries:
                 working_set.add_entry(entry)
