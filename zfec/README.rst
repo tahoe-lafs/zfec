@@ -65,13 +65,13 @@ Community
 
 The source is currently available via darcs on the web with the command:
 
-darcs get http://tahoe-lafs.org/source/zfec/trunk
+darcs get https://tahoe-lafs.org/source/zfec/trunk
 
 More information on darcs is available at http://darcs.net
 
-Please join the zfec mailing list and submit patches:
+Please post about zfec to the Tahoe-LAFS mailing list and contribute patches:
 
-<http://tahoe-lafs.org/cgi-bin/mailman/listinfo/zfec-dev>
+<https://tahoe-lafs.org/cgi-bin/mailman/listinfo/tahoe-dev>
 
 
 Overview
@@ -141,10 +141,10 @@ of damaged files and directories.
 
 .. _GNU tar: http://directory.fsf.org/project/tar/
 .. _lzip: http://www.nongnu.org/lzip/lzip.html
-.. _GNU Privacy Guard: http://www.gnupg.org/
+.. _GNU Privacy Guard: http://gnupg.org/
 .. _sha256sum: http://www.gnu.org/software/coreutils/
-.. _Tahoe-LAFS: http://tahoe-lafs.org
-.. _Hack Tahoe-LAFS!: http://tahoe-lafs.org/hacktahoelafs/
+.. _Tahoe-LAFS: https://tahoe-lafs.org
+.. _Hack Tahoe-LAFS!: https://tahoe-lafs.org/hacktahoelafs/
 
 
 Performance
@@ -214,9 +214,9 @@ then it will by default provide the blocks with ids from k to m-1 inclusive.)
   filefec.py's encode_file_stringy_easyfec() for an example of how to read
   the data from a file and pass it to "class Encoder".  The Python interface
   provides these higher-level operations, as does the Haskell interface.  If
-  you implement functions to do these higher-level tasks in other languages
-  than Python or Haskell, then please send a patch to zfec-dev@tahoe-lafs.org
-  so that your API can be included in future releases of zfec.
+  you implement functions to do these higher-level tasks in other languages,
+  please send a patch to tahoe-dev@tahoe-lafs.org so that your API can be
+  included in future releases of zfec.
 
   fec_decode() takes as input an array of k pointers, where each pointer
   points to a buffer containing a block.  There is also a separate input
