@@ -141,6 +141,7 @@ if 'windows' in platform.system().lower():
 print_stdout(['cc', '--version'], numlines=1)
 print_stdout(['gcc', '--version'], numlines=1)
 print_stdout(['git', '--version'])
+print_stdout(['openssl', 'version'])
 print_stdout(['darcs', '--version'])
 print_stdout(['darcs', '--exact-version'], label='darcs-exact-version')
 print_stdout(['flappclient', '--version'])
