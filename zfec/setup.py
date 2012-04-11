@@ -159,23 +159,33 @@ try:
 except ImportError:
     install_requires.append("argparse >= 0.8")
 
-setup(name=PKG,
-      version=verstr,
-      description='a fast erasure codec which can be used with the command-line, C, Python, or Haskell',
-      long_description=readmetext,
-      author='Zooko O\'Whielacronx',
-      author_email='zooko@zooko.com',
-      url='http://tahoe-lafs.org/trac/'+PKG,
-      license='GNU GPL', # See README.rst for alternative licensing.
-      install_requires=install_requires,
-      tests_require=tests_require,
-      packages=find_packages(),
-      include_package_data=True,
-      data_files=data_files,
-      setup_requires=setup_requires,
-      classifiers=trove_classifiers,
-      entry_points = { 'console_scripts': [ 'zfec = %s.cmdline_zfec:main' % PKG, 'zunfec = %s.cmdline_zunfec:main' % PKG ] },
-      ext_modules=[Extension(PKG+'._fec', [PKG+'/fec.c', PKG+'/_fecmodule.c',], extra_link_args=extra_link_args, extra_compile_args=extra_compile_args, undef_macros=undef_macros, define_macros=define_macros),],
-      test_suite=PKG+".test",
-      zip_safe=False, # I prefer unzipped for easier access.
-      )
+# distutils in Python 2.4 has a bug in that it tries to encode the long
+# description into ascii. We detect the resulting exception and try again
+# after squashing the long description (lossily) into ascii.
+
+def _setup(longdescription):
+    setup(name=PKG,
+          version=verstr,
+          description='a fast erasure codec which can be used with the command-line, C, Python, or Haskell',
+          long_description=longdescription,
+          author='Zooko O\'Whielacronx',
+          author_email='zooko@zooko.com',
+          url='http://tahoe-lafs.org/trac/'+PKG,
+          license='GNU GPL', # See README.rst for alternative licensing.
+          install_requires=install_requires,
+          tests_require=tests_require,
+          packages=find_packages(),
+          include_package_data=True,
+          data_files=data_files,
+          setup_requires=setup_requires,
+          classifiers=trove_classifiers,
+          entry_points = { 'console_scripts': [ 'zfec = %s.cmdline_zfec:main' % PKG, 'zunfec = %s.cmdline_zunfec:main' % PKG ] },
+          ext_modules=[Extension(PKG+'._fec', [PKG+'/fec.c', PKG+'/_fecmodule.c',], extra_link_args=extra_link_args, extra_compile_args=extra_compile_args, undef_macros=undef_macros, define_macros=define_macros),],
+          test_suite=PKG+".test",
+          zip_safe=False, # I prefer unzipped for easier access.
+          )
+
+try:
+    _setup(readmetext)
+except UnicodeEncodeError:
+    _setup(repr(readmetext))
