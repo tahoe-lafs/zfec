@@ -1,9 +1,7 @@
-#!/usr/bin/env python
-
+﻿
 # zfec -- fast forward error correction library with Python interface
 #
-# Copyright (C) 2007-2011 Allmydata, Inc.
-# Author: Zooko Wilcox-O'Hearn
+# copyright © 2007-2012 Zooko Wilcox-O'Hearn
 #
 # This file is part of zfec.
 #
@@ -153,7 +151,12 @@ if readmetext[:3] == '\xef\xbb\xbf':
 
 install_requires=["pyutil >= 1.3.19"]
 
-if sys.version_info < (2, 7):
+# argparse comes built into Python >= 2.7, and is provided by the "argparse"
+# distribution for earlier versions of Python.
+try:
+    import argparse
+    argparse # hush pyflakes
+except ImportError:
     install_requires.append("argparse >= 0.8")
 
 setup(name=PKG,
