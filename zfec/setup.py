@@ -170,7 +170,7 @@ def _setup(longdescription):
           long_description=longdescription,
           author='Zooko O\'Whielacronx',
           author_email='zooko@zooko.com',
-          url='http://tahoe-lafs.org/trac/'+PKG,
+          url='https://tahoe-lafs.org/trac/'+PKG,
           license='GNU GPL', # See README.rst for alternative licensing.
           install_requires=install_requires,
           tests_require=tests_require,
