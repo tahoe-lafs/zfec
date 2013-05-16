@@ -1,7 +1,7 @@
 ﻿
 # zfec -- fast forward error correction library with Python interface
 #
-# copyright © 2007-2012 Zooko Wilcox-O'Hearn
+# copyright © 2007-2013 Zooko Wilcox-O'Hearn
 #
 # This file is part of zfec.
 #
@@ -137,7 +137,7 @@ if "--reporter=bwverbose-coverage" in sys.argv:
 if "sdist_dsc" in sys.argv:
     setup_requires.append('stdeb')
 
-data_fnames=[ 'COPYING.GPL', 'changelog', 'COPYING.TGPPL.html', 'TODO', 'README.rst' ]
+data_fnames=[ 'COPYING.GPL', 'changelog', 'COPYING.TGPPL.rst', 'TODO', 'README.rst' ]
 
 # In case we are building for a .deb with stdeb's sdist_dsc command, we put the
 # docs in "share/doc/$PKG".
@@ -147,7 +147,12 @@ data_files = [(doc_loc, data_fnames)]
 readmetext = open('README.rst').read()
 if readmetext[:3] == '\xef\xbb\xbf':
     # utf-8 "BOM"
-    readmetext = readmetext[3:].decode('utf-8')
+    readmetext = readmetext[3:]
+
+try:
+    readmetext = readmetext.decode('utf-8')
+except UnicodeDecodeError:
+    pass
 
 install_requires=["pyutil >= 1.3.19"]
 
@@ -183,6 +188,9 @@ def _setup(longdescription):
           ext_modules=[Extension(PKG+'._fec', [PKG+'/fec.c', PKG+'/_fecmodule.c',], extra_link_args=extra_link_args, extra_compile_args=extra_compile_args, undef_macros=undef_macros, define_macros=define_macros),],
           test_suite=PKG+".test",
           zip_safe=False, # I prefer unzipped for easier access.
+          extras_require={
+            'ed25519=ba95497adf4db8e17f688c0979003c48c76897d60e2d2193f938b9ab62115f59':[],
+            },
           )
 
 try:

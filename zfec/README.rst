@@ -19,7 +19,7 @@ at your option, any later version.  You may use this package under the
 Transitive Grace Period Public Licence, version 1.0 or, at your option, any
 later version.  (You may choose to use this package under the terms of either
 licence, at your option.)  See the file COPYING.GPL for the terms of the GNU
-General Public License, version 2.  See the file COPYING.TGPPL.html for the
+General Public License, version 2.  See the file COPYING.TGPPL.rst for the
 terms of the Transitive Grace Period Public Licence, version 1.0.
 
 The most widely known example of an erasure code is the RAID-5 algorithm
@@ -119,33 +119,6 @@ Command-Line Tool
 The bin/ directory contains two Unix-style, command-line tools "zfec" and
 "zunfec".  Execute ``zfec --help`` or ``zunfec --help`` for usage
 instructions.
-
-Note: a Unix-style tool like "zfec" does only one thing -- in this case
-erasure coding -- and leaves other tasks to other tools.  Other Unix-style
-tools that go well with zfec include `GNU tar`_ for archiving multiple files
-and directories into one file, `lzip`_ for compression, and `GNU Privacy
-Guard`_ for encryption or `sha256sum`_ for integrity.  It is important to do
-things in order: first archive, then compress, then either encrypt or
-integrity-check, then erasure code.  Note that if GNU Privacy Guard is used
-for privacy, then it will also ensure integrity, so the use of sha256sum is
-unnecessary in that case. Note also that you also need to do integrity
-checking (such as with sha256sum) on the blocks that result from the erasure
-coding in *addition* to doing it on the file contents! (There are two
-different subtle failure modes -- see "more than one file can match an
-immutable file cap" on the `Hack Tahoe-LAFS!`_ Hall of Fame.)
-
-The `Tahoe-LAFS`_ project uses zfec as part of a complete distributed
-filesystem with integrated encryption, integrity, remote distribution of the
-blocks, directory structure, backup of changed files or directories, access
-control, immutable files and directories, proof-of-retrievability, and repair
-of damaged files and directories.
-
-.. _GNU tar: http://directory.fsf.org/project/tar/
-.. _lzip: http://www.nongnu.org/lzip/lzip.html
-.. _GNU Privacy Guard: http://gnupg.org/
-.. _sha256sum: http://www.gnu.org/software/coreutils/
-.. _Tahoe-LAFS: https://tahoe-lafs.org
-.. _Hack Tahoe-LAFS!: https://tahoe-lafs.org/hacktahoelafs/
 
 
 Performance
@@ -308,10 +281,45 @@ and releasing it under a Free Software licence. Thanks to Jack Lloyd, Samuel
 Neves, and David-Sarah Hopwood.
 
 
+Related Works
+-------------
+
+Note: a Unix-style tool like "zfec" does only one thing -- in this case
+erasure coding -- and leaves other tasks to other tools.  Other Unix-style
+tools that go well with zfec include `GNU tar`_ for archiving multiple files
+and directories into one file, `lzip`_ for compression, and `GNU Privacy
+Guard`_ for encryption or `b2sum`_ for integrity.  It is important to do
+things in order: first archive, then compress, then either encrypt or
+integrity-check, then erasure code.  Note that if GNU Privacy Guard is used
+for privacy, then it will also ensure integrity, so the use of b2sum is
+unnecessary in that case. Note also that you also need to do integrity
+checking (such as with b2sum) on the blocks that result from the erasure
+coding in *addition* to doing it on the file contents! (There are two
+different subtle failure modes -- see "more than one file can match an
+immutable file cap" on the `Hack Tahoe-LAFS!`_ Hall of Fame.)
+
+The `Tahoe-LAFS`_ project uses zfec as part of a complete distributed
+filesystem with integrated encryption, integrity, remote distribution of the
+blocks, directory structure, backup of changed files or directories, access
+control, immutable files and directories, proof-of-retrievability, and repair
+of damaged files and directories.
+
+`fecpp`_ is an alternative to zfec. It implements a bitwise-compatible
+algorithm to zfec and is BSD-licensed.
+
+.. _GNU tar: http://directory.fsf.org/project/tar/
+.. _lzip: http://www.nongnu.org/lzip/lzip.html
+.. _GNU Privacy Guard: http://gnupg.org/
+.. _b2sum: https://blake2.net/
+.. _Tahoe-LAFS: https://tahoe-lafs.org
+.. _Hack Tahoe-LAFS!: https://tahoe-lafs.org/hacktahoelafs/
+.. _fecpp: http://www.randombit.net/code/fecpp/
+
+
 Enjoy!
 
 Zooko Wilcox-O'Hearn
 
-2012-03-31
+2013-05-15
 
 Boulder, Colorado
