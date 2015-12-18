@@ -1,0 +1,7 @@
+*.so
+*.o
+*.pyc
+*.pyo
+*.DS_Store
+/zfec/build/*
+/zfec/zfec.egg-info
