@@ -229,11 +229,10 @@ _matmul(gf * a, gf * b, gf * c, unsigned n, unsigned k, unsigned m) {
  * Return non-zero if singular.
  */
 static void
-_invert_mat(gf* src, unsigned k) {
-    gf c, *p;
-    unsigned irow = 0;
-    unsigned icol = 0;
-    unsigned row, col, i, ix;
+_invert_mat(gf* src, size_t k) {
+    gf c;
+    size_t irow = 0;
+    size_t icol = 0;
 
     unsigned* indxc = (unsigned*) malloc (k * sizeof(unsigned));
     unsigned* indxr = (unsigned*) malloc (k * sizeof(unsigned));
@@ -244,10 +243,10 @@ _invert_mat(gf* src, unsigned k) {
     /*
      * ipiv marks elements already used as pivots.
      */
-    for (i = 0; i < k; i++)
+    for (size_t i = 0; i < k; i++)
         ipiv[i] = 0;
 
-    for (col = 0; col < k; col++) {
+    for (size_t col = 0; col < k; col++) {
         gf *pivot_row;
         /*
          * Zeroing column 'col', look for a non-zero element.
@@ -258,9 +257,9 @@ _invert_mat(gf* src, unsigned k) {
             icol = col;
             goto found_piv;
         }
-        for (row = 0; row < k; row++) {
+        for (size_t row = 0; row < k; row++) {
             if (ipiv[row] != 1) {
-                for (ix = 0; ix < k; ix++) {
+                for (size_t ix = 0; ix < k; ix++) {
                     if (ipiv[ix] == 0) {
                         if (src[row * k + ix] != 0) {
                             irow = row;
@@ -280,7 +279,7 @@ _invert_mat(gf* src, unsigned k) {
          * optimizing.
          */
         if (irow != icol)
-            for (ix = 0; ix < k; ix++)
+            for (size_t ix = 0; ix < k; ix++)
                 SWAP (src[irow * k + ix], src[icol * k + ix], gf);
         indxr[col] = irow;
         indxc[col] = icol;
@@ -294,7 +293,7 @@ _invert_mat(gf* src, unsigned k) {
              */
             c = inverse[c];
             pivot_row[icol] = 1;
-            for (ix = 0; ix < k; ix++)
+            for (size_t ix = 0; ix < k; ix++)
                 pivot_row[ix] = gf_mul (c, pivot_row[ix]);
         }
         /*
@@ -306,7 +305,8 @@ _invert_mat(gf* src, unsigned k) {
          */
         id_row[icol] = 1;
         if (memcmp (pivot_row, id_row, k * sizeof (gf)) != 0) {
-            for (p = src, ix = 0; ix < k; ix++, p += k) {
+            gf *p = src;
+            for (size_t ix = 0; ix < k; ix++, p += k) {
                 if (ix != icol) {
                     c = p[icol];
                     p[icol] = 0;
@@ -316,9 +316,9 @@ _invert_mat(gf* src, unsigned k) {
         }
         id_row[icol] = 0;
     }                           /* done all columns */
-    for (col = k; col > 0; col--)
+    for (size_t col = k; col > 0; col--)
         if (indxr[col-1] != indxc[col-1])
-            for (row = 0; row < k; row++)
+            for (size_t row = 0; row < k; row++)
                 SWAP (src[row * k + indxr[col-1]], src[row * k + indxc[col-1]], gf);
 }
 
