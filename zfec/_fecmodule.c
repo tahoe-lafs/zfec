@@ -104,12 +104,11 @@ Encoder_encode(Encoder *self, PyObject *args) {
     PyObject** pystrs_produced = (PyObject**)alloca((self->mm - self->kk) * sizeof(PyObject*)); /* This is an upper bound -- we will actually use only num_check_blocks_produced of these elements (see below). */
     unsigned num_check_blocks_produced = 0; /* The first num_check_blocks_produced elements of the check_blocks_produced array and of the pystrs_produced array will be used. */
     const gf** incblocks = (const gf**)alloca(self->kk * sizeof(const gf*));
-    unsigned num_desired_blocks;
+    size_t num_desired_blocks;
     PyObject* fast_desired_blocks_nums = NULL;
     PyObject** fast_desired_blocks_nums_items;
-    unsigned* c_desired_blocks_nums = (unsigned*)alloca(self->mm * sizeof(unsigned));
+    size_t * c_desired_blocks_nums = (size_t*)alloca(self->mm * sizeof(size_t));
     unsigned* c_desired_checkblocks_ids = (unsigned*)alloca((self->mm - self->kk) * sizeof(unsigned));
-    unsigned i;
     PyObject* fastinblocks = NULL;
     PyObject** fastinblocksitems;
     Py_ssize_t sz, oldsz = 0;
@@ -118,15 +117,19 @@ Encoder_encode(Encoder *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "O|O:Encoder.encode", &inblocks, &desired_blocks_nums))
         return NULL;
 
-    for (i=0; i<self->mm - self->kk; i++)
+    for (size_t i = 0; i < self->mm - self->kk; i++)
         pystrs_produced[i] = NULL;
+
     if (desired_blocks_nums) {
         fast_desired_blocks_nums = PySequence_Fast(desired_blocks_nums, "Second argument (optional) was not a sequence.");
+
         if (!fast_desired_blocks_nums)
             goto err;
+
         num_desired_blocks = PySequence_Fast_GET_SIZE(fast_desired_blocks_nums);
         fast_desired_blocks_nums_items = PySequence_Fast_ITEMS(fast_desired_blocks_nums);
-        for (i=0; i<num_desired_blocks; i++) {
+
+        for (size_t i = 0; i < num_desired_blocks; i++) {
             if (!PyInt_Check(fast_desired_blocks_nums_items[i])) {
                 PyErr_Format(py_fec_error, "Precondition violation: second argument is required to contain int.");
                 goto err;
@@ -137,7 +140,7 @@ Encoder_encode(Encoder *self, PyObject *args) {
         }
     } else {
         num_desired_blocks = self->mm;
-        for (i=0; i<num_desired_blocks; i++)
+        for (size_t i = 0; i<num_desired_blocks; i++)
             c_desired_blocks_nums[i] = i;
         num_check_blocks_produced = self->mm - self->kk;
     }
@@ -156,9 +159,9 @@ Encoder_encode(Encoder *self, PyObject *args) {
     if (!fastinblocksitems)
         goto err;
 
-    for (i=0; i<self->kk; i++) {
+    for (size_t i = 0; i < self->kk; i++) {
         if (!PyObject_CheckReadBuffer(fastinblocksitems[i])) {
-            PyErr_Format(py_fec_error, "Precondition violation: %u'th item is required to offer the single-segment read character buffer protocol, but it does not.", i);
+            PyErr_Format(py_fec_error, "Precondition violation: %zu'th item is required to offer the single-segment read character buffer protocol, but it does not.", i);
             goto err;
         }
         if (PyObject_AsReadBuffer(fastinblocksitems[i], (const void**)&(incblocks[i]), &sz))
@@ -172,7 +175,7 @@ Encoder_encode(Encoder *self, PyObject *args) {
 
     /* Allocate space for all of the check blocks. */
 
-    for (i=0; i<num_desired_blocks; i++) {
+    for (size_t i = 0; i < num_desired_blocks; i++) {
         if (c_desired_blocks_nums[i] >= self->kk) {
             c_desired_checkblocks_ids[check_block_index] = c_desired_blocks_nums[i];
             pystrs_produced[check_block_index] = PyString_FromStringAndSize(NULL, sz);
@@ -194,7 +197,7 @@ Encoder_encode(Encoder *self, PyObject *args) {
     if (result == NULL)
         goto err;
     check_block_index = 0;
-    for (i=0; i<num_desired_blocks; i++) {
+    for (size_t i = 0; i < num_desired_blocks; i++) {
         if (c_desired_blocks_nums[i] < self->kk) {
             Py_INCREF(fastinblocksitems[c_desired_blocks_nums[i]]);
             if (PyList_SetItem(result, i, fastinblocksitems[c_desired_blocks_nums[i]]) == -1) {
@@ -211,7 +214,7 @@ Encoder_encode(Encoder *self, PyObject *args) {
 
     goto cleanup;
   err:
-    for (i=0; i<num_check_blocks_produced; i++)
+    for (size_t i = 0; i < num_check_blocks_produced; i++)
         Py_XDECREF(pystrs_produced[i]);
     Py_XDECREF(result); result = NULL;
   cleanup:
