@@ -418,6 +418,11 @@ fec_new(unsigned short k, unsigned short n) {
 
     fec_t *retval;
 
+    assert(k >= 1);
+    assert(n >= 1);
+    assert(n <= 256);
+    assert(k <= n);
+
     if (fec_initialized == 0)
         init_fec ();
 
