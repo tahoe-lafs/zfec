@@ -271,8 +271,7 @@ def decode_from_files(outf, infiles, verbose=False):
         if [ch for ch in chunks if len(ch) != len(chunks[-1])]:
             raise CorruptedShareFilesError("Share files were corrupted -- all share files are required to be the same length, but they weren't.")
 
-        if len(chunks[-1]) == CHUNKSIZE:
-            # Then this was a full read, so we're still in the sharefiles.
+        if len(chunks[-1]) > 0:
             resultdata = dec.decode(chunks, shnums, padlen=0)
             outf.write(resultdata)
             byteswritten += len(resultdata)
@@ -280,9 +279,8 @@ def decode_from_files(outf, infiles, verbose=False):
                 if ((byteswritten - len(resultdata)) / (10*MILLION_BYTES)) != (byteswritten / (10*MILLION_BYTES)):
                     print str(byteswritten / MILLION_BYTES) + " MB ...",
         else:
-            # Then this was a short read, so we've reached the end of the sharefiles.
-            resultdata = dec.decode(chunks, shnums, padlen)
-            outf.write(resultdata)
+            if padlen > 0:
+                outf.truncate(byteswritten - padlen)
             return # Done.
     if verbose:
         print

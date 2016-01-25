@@ -321,6 +321,8 @@ class FileFec(unittest.TestCase):
     def test_filefec_min_shares_with_crcrlflf(self, noisy=VERBOSE):
         return self._help_test_filefec("Yellow Whirled!A\r\r\n\n", 3, 8, numshs=3)
 
+    def test_filefec_mul_chunk_size(self):
+        return self._help_test_filefec(randstr(6176761), 13, 16)
 
 class Cmdline(unittest.TestCase):
     def test_basic(self, noisy=VERBOSE):
