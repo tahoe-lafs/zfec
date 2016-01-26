@@ -8,10 +8,7 @@
 # See README.rst for licensing information.
 
 import glob, os, re, sys
-
-egg = os.path.realpath(glob.glob('setuptools-*.egg')[0])
-sys.path.insert(0, egg)
-import setuptools; setuptools.bootstrap_install_from = egg
+import setuptools
 
 from setuptools import Extension, find_packages, setup
 
