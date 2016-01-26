@@ -40,6 +40,7 @@ if DEBUGMODE:
     extra_compile_args.append("-O0")
     extra_compile_args.append("-g")
     extra_compile_args.append("-Wall")
+    extra_compile_args.append("-Wextra")
     extra_link_args.append("-g")
     undef_macros.append('NDEBUG')
 
