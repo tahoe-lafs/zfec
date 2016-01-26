@@ -3,5 +3,6 @@
 *.pyc
 *.pyo
 *.DS_Store
-/zfec/build/*
-/zfec/zfec.egg-info
+build/*
+zfec.egg-info
+
