@@ -9,6 +9,7 @@
 
 import glob, os, re, sys
 import setuptools
+import versioneer
 
 from setuptools import Extension, find_packages, setup
 
@@ -79,19 +80,6 @@ trove_classifiers=[
 
 PKG = "zfec"
 VERSIONFILE = os.path.join(PKG, "_version.py")
-verstr = "unknown"
-try:
-    verstrline = open(VERSIONFILE, "rt").read()
-except EnvironmentError:
-    pass # Okay, there is no version file.
-else:
-    VSRE = r"^verstr = ['\"]([^'\"]*)['\"]"
-    mo = re.search(VSRE, verstrline, re.M)
-    if mo:
-        verstr = mo.group(1)
-    else:
-        print "unable to find version in %s" % (VERSIONFILE,)
-        raise RuntimeError("if %s.py exists, it is required to be well-formed" % (VERSIONFILE,))
 
 setup_requires = []
 tests_require = []
@@ -168,7 +156,6 @@ except ImportError:
 
 def _setup(longdescription):
     setup(name=PKG,
-          version=verstr,
           description='a fast erasure codec which can be used with the command-line, C, Python, or Haskell',
           long_description=longdescription,
           author='Zooko O\'Whielacronx',
@@ -189,7 +176,9 @@ def _setup(longdescription):
           extras_require={
             'ed25519=ba95497adf4db8e17f688c0979003c48c76897d60e2d2193f938b9ab62115f59':[],
             },
-          )
+          version=versioneer.get_version(),
+          cmdclass=versioneer.get_cmdclass(),
+         )
 
 try:
     _setup(readmetext)
