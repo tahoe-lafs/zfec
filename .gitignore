@@ -5,4 +5,7 @@
 *.DS_Store
 build/*
 zfec.egg-info
+dist/*
+.cabal-sandbox/
+cabal.sandbox.config
 
