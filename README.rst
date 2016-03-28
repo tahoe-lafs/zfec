@@ -64,16 +64,17 @@ it takes a reference to an FFI function.
 Community
 ---------
 
-The source is currently available via darcs on the web with the command:
+The source is currently available via git on the web with the command:
 
-darcs get https://tahoe-lafs.org/source/zfec/trunk
-
-More information on darcs is available at http://darcs.net
+git clone https://github.com/vu3rdd/zfec
 
 Please post about zfec to the Tahoe-LAFS mailing list and contribute patches:
 
 <https://tahoe-lafs.org/cgi-bin/mailman/listinfo/tahoe-dev>
 
+If you find a bug in zfec, please create a ticket:
+
+<https://tahoe-lafs.org/trac/zfec/>
 
 Overview
 --------
