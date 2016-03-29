@@ -66,15 +66,15 @@ Community
 
 The source is currently available via git on the web with the command:
 
-git clone https://github.com/vu3rdd/zfec
+git clone https://github.com/tahoe-lafs/zfec
 
 Please post about zfec to the Tahoe-LAFS mailing list and contribute patches:
 
 <https://tahoe-lafs.org/cgi-bin/mailman/listinfo/tahoe-dev>
 
-If you find a bug in zfec, please create a ticket:
+If you find a bug in zfec, please open an issue on github:
 
-<https://tahoe-lafs.org/trac/zfec/>
+<https://github.com/tahoe-lafs/zfec/issues>
 
 Overview
 --------
