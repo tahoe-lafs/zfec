@@ -1,2 +1,6 @@
 include versioneer.py
 include zfec/_version.py
+include COPYING.*
+include changelog
+include TODO
+graft zfec/

@@ -82,22 +82,6 @@ PKG = "zfec"
 VERSIONFILE = os.path.join(PKG, "_version.py")
 
 setup_requires = []
-tests_require = []
-
-tests_require.append("pyutil >= 1.3.19")
-
-# setuptools_trial is needed if you want "./setup.py trial" or
-# "./setup.py test" to execute the tests.
-# http://pypi.python.org/pypi/setuptools_trial
-if 'trial' in sys.argv[1:]:
-    setup_requires.extend(['setuptools_trial >= 0.5'])
-
-# trialcoverage is required if you want the "trial" unit test runner to have a
-# "--reporter=bwverbose-coverage" option which produces code-coverage results.
-if "--reporter=bwverbose-coverage" in sys.argv:
-    tests_require.append('trialcoverage >= 0.3.3')
-    tests_require.append('twisted >= 2.4.0')
-    tests_require.append('setuptools_trial >= 0.5')
 
 # stdeb is required to build Debian dsc files.
 if "sdist_dsc" in sys.argv:
@@ -143,7 +127,6 @@ def _setup(longdescription):
           url='https://tahoe-lafs.org/trac/'+PKG,
           license='GNU GPL', # See README.rst for alternative licensing.
           install_requires=install_requires,
-          tests_require=tests_require,
           packages=find_packages(),
           include_package_data=True,
           data_files=data_files,
