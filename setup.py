@@ -133,7 +133,7 @@ def _setup(longdescription):
           setup_requires=setup_requires,
           classifiers=trove_classifiers,
           entry_points = { 'console_scripts': [ 'zfec = %s.cmdline_zfec:main' % PKG, 'zunfec = %s.cmdline_zunfec:main' % PKG ] },
-          ext_modules=[Extension(PKG+'._fec', [PKG+'/fec.c', PKG+'/_fecmodule.c',], extra_link_args=extra_link_args, extra_compile_args=extra_compile_args, undef_macros=undef_macros, define_macros=define_macros),],
+          ext_modules=[Extension(PKG+'._fec', [PKG+'/fec.c', PKG+'/_fecmodule.c',], extra_link_args=extra_link_args, extra_compile_args=extra_compile_args, undef_macros=undef_macros, define_macros=define_macros, include_dirs=[PKG+'/']),],
           test_suite=PKG+".test",
           zip_safe=False, # I prefer unzipped for easier access.
           extras_require={

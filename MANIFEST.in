@@ -3,4 +3,5 @@ include zfec/_version.py
 include COPYING.*
 include changelog
 include TODO
-graft zfec/
+graft zfec
+
