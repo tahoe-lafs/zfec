@@ -100,7 +100,7 @@ if readmetext[:3] == '\xef\xbb\xbf':
     readmetext = readmetext[3:]
 
 try:
-    readmetext = readmetext.decode('utf-8')
+    readmetext = readmetext
 except UnicodeDecodeError:
     pass
 
