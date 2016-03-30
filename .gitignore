@@ -8,4 +8,5 @@ zfec.egg-info
 dist/*
 .cabal-sandbox/
 cabal.sandbox.config
+.tox/
 
