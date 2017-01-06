@@ -261,7 +261,8 @@ Dependencies
 
 A C compiler is required.  To use the Python API or the command-line tools a
 Python interpreter is also required.  We have tested it with Python v2.4,
-v2.5, v2.6, and v2.7.  For the Haskell interface, GHC >= 6.8.1 is required.
+v2.5, v2.6, v2.7, v3.5 and v3.6.  For the Haskell interface, GHC >= 6.8.1 is
+required.
 
 
 Acknowledgements
