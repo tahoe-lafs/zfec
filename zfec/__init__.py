@@ -8,15 +8,15 @@ zfec web site: U{http://tahoe-lafs.org/source/zfec}
 
 __version__ = "unknown"
 try:
-    from _version import __version__
+    from ._version import __version__
 except ImportError:
     # We're running in a tree that didn't come with a _version.py, 
     # so we don't know what our version is. This should not happen
     # very often.
     pass
 
-from _fec import Encoder, Decoder, Error
-import easyfec, filefec, cmdline_zfec, cmdline_zunfec
+from ._fec import Encoder, Decoder, Error
+from . import easyfec, filefec, cmdline_zfec, cmdline_zunfec
 
 quiet_pyflakes=[__version__, Error, Encoder, Decoder, cmdline_zunfec, filefec, cmdline_zfec, easyfec]
 

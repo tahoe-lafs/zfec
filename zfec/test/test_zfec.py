@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 
-import cStringIO, os, random, re
+from __future__ import print_function
+
+import os, random, re
+
+try:
+    from cStringIO import StringIO as BytesIO
+except ImportError:
+    from io import BytesIO
 
 import unittest
 
@@ -23,7 +30,7 @@ def ab(x): # debuggery
         return "%s:%s" % (len(x), "--empty--",)
 
 def randstr(n):
-    return ''.join(map(chr, map(random.randrange, [0]*n, [256]*n)))
+    return bytes(bytearray(map(random.randrange, [0]*n, [256]*n)))
 
 def _h(k, m, ss):
     encer = zfec.Encoder(k, m)
@@ -42,13 +49,13 @@ def _help_test_random():
     m = random.randrange(1, 257)
     k = random.randrange(1, m+1)
     l = random.randrange(0, 2**9)
-    ss = [ randstr(l/k) for x in range(k) ]
+    ss = [ randstr(l//k) for x in range(k) ]
     _h(k, m, ss)
 
 def _help_test_random_with_l(l):
     m = random.randrange(1, 257)
     k = random.randrange(1, m+1)
-    ss = [ randstr(l/k) for x in range(k) ]
+    ss = [ randstr(l//k) for x in range(k) ]
     _h(k, m, ss)
 
 def _h_easy(k, m, s):
@@ -104,7 +111,7 @@ class ZFecTest(unittest.TestCase):
             
     def test_from_agl_py(self):
         e = zfec.Encoder(3, 5)
-        b0 = '\x01'*8 ; b1 = '\x02'*8 ; b2 = '\x03'*8
+        b0 = b'\x01'*8 ; b1 = b'\x02'*8 ; b2 = b'\x03'*8
         # print "_from_py before encoding:"
         # print "b0: %s, b1: %s, b2: %s" % tuple(base64.b16encode(x) for x in [b0, b1, b2])
 
@@ -122,32 +129,32 @@ class ZFecTest(unittest.TestCase):
         for i in range(16):
             _help_test_random_with_l(i)
         if VERBOSE:
-            print "%d randomized tests pass." % (i+1)
+            print("%d randomized tests pass." % (i+1))
 
     def test_random(self):
         for i in range(3):
             _help_test_random()
         if VERBOSE:
-            print "%d randomized tests pass." % (i+1)
+            print("%d randomized tests pass." % (i+1))
 
     def test_bad_args_construct_decoder(self):
         try:
             zfec.Decoder(-1, -1)
-        except zfec.Error, e:
+        except zfec.Error as e:
             assert "argument is required to be greater than or equal to 1" in str(e), e
         else:
             self.fail("Should have gotten an exception from out-of-range arguments.")
 
         try:
             zfec.Decoder(1, 257)
-        except zfec.Error, e:
+        except zfec.Error as e:
             assert "argument is required to be less than or equal to 256" in str(e), e
         else:
             self.fail("Should have gotten an exception from out-of-range arguments.")
 
         try:
             zfec.Decoder(3, 2)
-        except zfec.Error, e:
+        except zfec.Error as e:
             assert "first argument is required to be less than or equal to the second argument" in str(e), e
         else:
             self.fail("Should have gotten an exception from out-of-range arguments.")
@@ -155,14 +162,14 @@ class ZFecTest(unittest.TestCase):
     def test_bad_args_construct_encoder(self):
         try:
             zfec.Encoder(-1, -1)
-        except zfec.Error, e:
+        except zfec.Error as e:
             assert "argument is required to be greater than or equal to 1" in str(e), e
         else:
             self.fail("Should have gotten an exception from out-of-range arguments.")
 
         try:
             zfec.Encoder(1, 257)
-        except zfec.Error, e:
+        except zfec.Error as e:
             assert "argument is required to be less than or equal to 256" in str(e), e
         else:
             self.fail("Should have gotten an exception from out-of-range arguments.")
@@ -172,21 +179,21 @@ class ZFecTest(unittest.TestCase):
 
         try:
             decer.decode(98, []) # first argument is not a sequence
-        except TypeError, e:
+        except TypeError as e:
             assert "First argument was not a sequence" in str(e), e
         else:
             self.fail("Should have gotten TypeError for wrong type of second argument.")
 
         try:
             decer.decode(["a", "b", ], ["c", "d",])
-        except zfec.Error, e:
+        except zfec.Error as e:
             assert "Precondition violation: second argument is required to contain int" in str(e), e
         else:
             self.fail("Should have gotten zfec.Error for wrong type of second argument.")
 
         try:
             decer.decode(["a", "b", ], 98) # not a sequence at all
-        except TypeError, e:
+        except TypeError as e:
             assert "Second argument was not a sequence" in str(e), e
         else:
             self.fail("Should have gotten TypeError for wrong type of second argument.")
@@ -196,34 +203,34 @@ class EasyFecTest(unittest.TestCase):
         for i in range(16):
             _help_test_random_with_l_easy(i)
         if VERBOSE:
-            print "%d randomized tests pass." % (i+1)
+            print("%d randomized tests pass." % (i+1))
 
     def test_random(self):
         for i in range(3):
             _help_test_random_easy()
         if VERBOSE:
-            print "%d randomized tests pass." % (i+1)
+            print("%d randomized tests pass." % (i+1))
 
     def test_bad_args_dec(self):
         decer = zfec.easyfec.Decoder(2, 4)
 
         try:
             decer.decode(98, [0, 1], 0) # first argument is not a sequence
-        except TypeError, e:
+        except TypeError as e:
             assert "First argument was not a sequence" in str(e), e
         else:
             self.fail("Should have gotten TypeError for wrong type of second argument.")
 
         try:
             decer.decode("ab", ["c", "d",], 0)
-        except zfec.Error, e:
+        except zfec.Error as e:
             assert "Precondition violation: second argument is required to contain int" in str(e), e
         else:
             self.fail("Should have gotten zfec.Error for wrong type of second argument.")
 
         try:
             decer.decode("ab", 98, 0) # not a sequence at all
-        except TypeError, e:
+        except TypeError as e:
             assert "Second argument was not a sequence" in str(e), e
         else:
             self.fail("Should have gotten TypeError for wrong type of second argument.")
@@ -241,7 +248,7 @@ class FileFec(unittest.TestCase):
                         if sh >= m:
                             continue
                         h = zfec.filefec._build_header(m, k, pad, sh)
-                        hio = cStringIO.StringIO(h)
+                        hio = BytesIO(h)
                         (rm, rk, rpad, rsh,) = zfec.filefec._parse_header(hio)
                         assert (rm, rk, rpad, rsh,) == (m, k, pad, sh,), h
 
@@ -286,40 +293,40 @@ class FileFec(unittest.TestCase):
             tempdir.shutdown()
 
     def test_filefec_all_shares(self):
-        return self._help_test_filefec("Yellow Whirled!", 3, 8)
+        return self._help_test_filefec(b"Yellow Whirled!", 3, 8)
 
     def test_filefec_all_shares_1_b(self):
-        return self._help_test_filefec("Yellow Whirled!", 4, 16)
+        return self._help_test_filefec(b"Yellow Whirled!", 4, 16)
 
     def test_filefec_all_shares_2(self):
-        return self._help_test_filefec("Yellow Whirled", 3, 8)
+        return self._help_test_filefec(b"Yellow Whirled", 3, 8)
 
     def test_filefec_all_shares_2_b(self):
-        return self._help_test_filefec("Yellow Whirled", 4, 16)
+        return self._help_test_filefec(b"Yellow Whirled", 4, 16)
 
     def test_filefec_all_shares_3(self):
-        return self._help_test_filefec("Yellow Whirle", 3, 8)
+        return self._help_test_filefec(b"Yellow Whirle", 3, 8)
 
     def test_filefec_all_shares_3_b(self):
-        return self._help_test_filefec("Yellow Whirle", 4, 16)
+        return self._help_test_filefec(b"Yellow Whirle", 4, 16)
 
     def test_filefec_all_shares_with_padding(self, noisy=VERBOSE):
-        return self._help_test_filefec("Yellow Whirled!A", 3, 8)
+        return self._help_test_filefec(b"Yellow Whirled!A", 3, 8)
 
     def test_filefec_min_shares_with_padding(self, noisy=VERBOSE):
-        return self._help_test_filefec("Yellow Whirled!A", 3, 8, numshs=3)
+        return self._help_test_filefec(b"Yellow Whirled!A", 3, 8, numshs=3)
 
     def test_filefec_min_shares_with_crlf(self, noisy=VERBOSE):
-        return self._help_test_filefec("llow Whirled!A\r\n", 3, 8, numshs=3)
+        return self._help_test_filefec(b"llow Whirled!A\r\n", 3, 8, numshs=3)
 
     def test_filefec_min_shares_with_lf(self, noisy=VERBOSE):
-        return self._help_test_filefec("Yellow Whirled!A\n", 3, 8, numshs=3)
+        return self._help_test_filefec(b"Yellow Whirled!A\n", 3, 8, numshs=3)
 
     def test_filefec_min_shares_with_lflf(self, noisy=VERBOSE):
-        return self._help_test_filefec("Yellow Whirled!A\n\n", 3, 8, numshs=3)
+        return self._help_test_filefec(b"Yellow Whirled!A\n\n", 3, 8, numshs=3)
 
     def test_filefec_min_shares_with_crcrlflf(self, noisy=VERBOSE):
-        return self._help_test_filefec("Yellow Whirled!A\r\r\n\n", 3, 8, numshs=3)
+        return self._help_test_filefec(b"Yellow Whirled!A\r\r\n\n", 3, 8, numshs=3)
 
     def test_filefec_mul_chunk_size(self):
         return self._help_test_filefec(randstr(6176761), 13, 16)
@@ -328,7 +335,7 @@ class Cmdline(unittest.TestCase):
     def test_basic(self, noisy=VERBOSE):
         tempdir = fileutil.NamedTemporaryDirectory(cleanup=True)
         fo = tempdir.file("test.data", "w+b")
-        fo.write("WHEHWHJEKWAHDLJAWDHWALKDHA")
+        fo.write(b"WHEHWHJEKWAHDLJAWDHWALKDHA")
 
         import sys
         realargv = sys.argv
