@@ -30,7 +30,7 @@ def ab(x): # debuggery
         return "%s:%s" % (len(x), "--empty--",)
 
 def randstr(n):
-    return bytes(bytearray(map(random.randrange, [0]*n, [256]*n)))
+    return os.urandom(n)
 
 def _h(k, m, ss):
     encer = zfec.Encoder(k, m)
