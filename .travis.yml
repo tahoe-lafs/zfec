@@ -6,7 +6,6 @@ before_install:
   - pip install -U pip setuptools wheel pbr
 install:
   - travis_wait pip install -r requirements.txt
-  - travis_wait pip install -r test-requirements.txt
 
 script:
   - python setup.py test -s zfec.test
