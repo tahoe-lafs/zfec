@@ -5,10 +5,12 @@ python:
 before_install:
   - pip install -U pip setuptools wheel pbr
 install:
-  - travis_wait pip install -r requirements.txt
-
+  - pip list
+  - pip install --user codecov tox
 script:
-  - python setup.py test -s zfec.test
+  - tox
+after_success:
+  - codecov
 notifications:
   email: false
   irc:
