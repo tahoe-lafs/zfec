@@ -6,11 +6,9 @@ before_install:
   - pip install -U pip setuptools wheel pbr
 install:
   - pip list
-  - pip install --user codecov tox
+  - pip install tox
 script:
   - tox
-after_success:
-  - codecov
 notifications:
   email: false
   irc:
