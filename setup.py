@@ -2,6 +2,8 @@ from setuptools import setup
 from setuptools.extension import Extension
 
 import sys
+import os
+import versioneer
 
 DEBUGMODE = False
 
@@ -44,6 +46,10 @@ extensions = [
         undef_macros=undef_macros
     )
 ]
+
+# Hack to override value detected by pbr which does not look at tags with zfec-
+# prefix.
+os.environ['PBR_VERSION'] = versioneer.get_version()
 
 setup(
     setup_requires=['pbr'],
