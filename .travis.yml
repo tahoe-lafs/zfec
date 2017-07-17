@@ -3,9 +3,12 @@ python:
   - "2.7"
   - "2.6"
 before_install:
-  - sh -c set
-install: true
-script: python setup.py test
+  - pip install -U pip setuptools wheel pbr
+install:
+  - pip list
+  - pip install tox
+script:
+  - tox
 notifications:
   email: false
   irc:
