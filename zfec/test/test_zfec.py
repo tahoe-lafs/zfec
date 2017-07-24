@@ -361,5 +361,28 @@ class Cmdline(unittest.TestCase):
                            os.path.join(self.tempdir.name,
                                         'test.data-recovered'))
 
+    def test_stdin(self, noisy=VERBOSE):
+        sys.stdin = open(os.path.join(self.tempdir.name, "test.data"))
+        sys.argv = ["zfec", "-"]
+        retcode = zfec.cmdline_zfec.main()
+
+        RE=re.compile(zfec.filefec.RE_FORMAT % ('test.data', ".fec",))
+        fns = os.listdir(self.tempdir.name)
+        assert len(fns) >= self.DEFAULT_M, (fns, self.DEFAULT_M, self.tempdir, self.tempdir.name,)
+        sharefns = [ os.path.join(self.tempdir.name, fn) for fn in fns if self.RE.match(fn) ]
+        random.shuffle(sharefns)
+        del sharefns[self.DEFAULT_K:]
+
+        sys.argv = ["zunfec",]
+        sys.argv.extend(sharefns)
+        sys.argv.extend(['-o', os.path.join(self.tempdir.name, 'test.data-recovered'),])
+
+        retcode = zfec.cmdline_zunfec.main()
+        assert retcode == 0, retcode
+        import filecmp
+        assert filecmp.cmp(os.path.join(self.tempdir.name, 'test.data'),
+                           os.path.join(self.tempdir.name,
+                                        'test.data-recovered'))
+
 if __name__ == "__main__":
     unittest.main()
