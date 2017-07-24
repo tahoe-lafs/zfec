@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import cStringIO, os, random, re
+import cStringIO, os, random, re, sys
 
 import unittest
 
@@ -325,38 +325,41 @@ class FileFec(unittest.TestCase):
         return self._help_test_filefec(randstr(6176761), 13, 16)
 
 class Cmdline(unittest.TestCase):
+    def setUp(self):
+        self.tempdir = fileutil.NamedTemporaryDirectory(cleanup=True)
+        self.fo = self.tempdir.file("test.data", "w+b")
+        self.fo.write("WHEHWHJEKWAHDLJAWDHWALKDHA")
+        self.realargv = sys.argv
+
+        self.DEFAULT_M = 8
+        self.DEFAULT_K = 3
+        self.RE = re.compile(zfec.filefec.RE_FORMAT % ('test.data', ".fec",))
+
+    def tearDown(self):
+        sys.argv = self.realargv
+
     def test_basic(self, noisy=VERBOSE):
-        tempdir = fileutil.NamedTemporaryDirectory(cleanup=True)
-        fo = tempdir.file("test.data", "w+b")
-        fo.write("WHEHWHJEKWAHDLJAWDHWALKDHA")
+        sys.argv = ["zfec", os.path.join(self.tempdir.name, "test.data"),]
 
-        import sys
-        realargv = sys.argv
-        try:
-            DEFAULT_M=8
-            DEFAULT_K=3
-            sys.argv = ["zfec", os.path.join(tempdir.name, "test.data"),]
+        retcode = zfec.cmdline_zfec.main()
+        assert retcode == 0, retcode
 
-            retcode = zfec.cmdline_zfec.main()
-            assert retcode == 0, retcode
+        fns = os.listdir(self.tempdir.name)
+        assert len(fns) >= self.DEFAULT_M, (fns, self.DEFAULT_M, self.tempdir, self.tempdir.name,)
+        sharefns = [ os.path.join(self.tempdir.name, fn) for fn in fns if self.RE.match(fn) ]
+        random.shuffle(sharefns)
+        del sharefns[self.DEFAULT_K:]
 
-            RE=re.compile(zfec.filefec.RE_FORMAT % ('test.data', ".fec",))
-            fns = os.listdir(tempdir.name)
-            assert len(fns) >= DEFAULT_M, (fns, DEFAULT_M, tempdir, tempdir.name,)
-            sharefns = [ os.path.join(tempdir.name, fn) for fn in fns if RE.match(fn) ]
-            random.shuffle(sharefns)
-            del sharefns[DEFAULT_K:]
+        sys.argv = ["zunfec",]
+        sys.argv.extend(sharefns)
+        sys.argv.extend(['-o', os.path.join(self.tempdir.name, 'test.data-recovered'),])
 
-            sys.argv = ["zunfec",]
-            sys.argv.extend(sharefns)
-            sys.argv.extend(['-o', os.path.join(tempdir.name, 'test.data-recovered'),])
-
-            retcode = zfec.cmdline_zunfec.main()
-            assert retcode == 0, retcode
-            import filecmp
-            assert filecmp.cmp(os.path.join(tempdir.name, 'test.data'), os.path.join(tempdir.name, 'test.data-recovered'))
-        finally:
-            sys.argv = realargv
+        retcode = zfec.cmdline_zunfec.main()
+        assert retcode == 0, retcode
+        import filecmp
+        assert filecmp.cmp(os.path.join(self.tempdir.name, 'test.data'),
+                           os.path.join(self.tempdir.name,
+                                        'test.data-recovered'))
 
 if __name__ == "__main__":
     unittest.main()
