@@ -251,7 +251,7 @@ def decode_from_files(outf, infiles, verbose=False):
         m = nm
         if not (k is None or k == nk):
             raise CorruptedShareFilesError("Share files were corrupted -- share file %r said that k was %s but another share file previously said that k was %s" % (f.name, nk, k,))
-        if k > len(infiles):
+        if not (k is None or k <= len(infiles)):
             raise InsufficientShareFilesError(k, len(infiles))
         k = nk
         if not (padlen is None or padlen == npadlen):
