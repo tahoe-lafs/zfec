@@ -7,6 +7,7 @@ Generate redundant blocks of information such that if some of the blocks are
 lost then the original data can be recovered from the remaining blocks. This
 package includes command-line tools, C API, Python API, and Haskell API.
 
+|pypi| |travis|
 
 Intro and Licence
 -----------------
@@ -324,3 +325,13 @@ Zooko Wilcox-O'Hearn
 2013-05-15
 
 Boulder, Colorado
+
+----
+
+.. |pypi| image:: http://img.shields.io/pypi/v/zfec.svg
+   :alt: PyPI release status
+   :target: https://pypi.python.org/pypi/zfec
+
+.. |travis| image:: https://travis-ci.org/tahoe-lafs/zfec.png?branch=master
+    :alt: build status
+    :target: https://travis-ci.org/tahoe-lafs/zfec
