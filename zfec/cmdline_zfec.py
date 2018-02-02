@@ -3,10 +3,11 @@
 # zfec -- a fast C implementation of Reed-Solomon erasure coding with
 # command-line, C, and Python interfaces
 
-import sys
+from __future__ import print_function
 
-import argparse
-import filefec
+import sys, argparse
+
+from zfec import filefec
 
 from zfec import __version__ as libversion
 __version__ = libversion
@@ -17,8 +18,8 @@ DEFAULT_M=8
 def main():
 
     if '-V' in sys.argv or '--version' in sys.argv:
-        print "zfec library version: ", libversion
-        print "zfec command-line tool version: ", __version__
+        print("zfec library version: ", libversion)
+        print("zfec command-line tool version: ", __version__)
         sys.exit(0)
 
     parser = argparse.ArgumentParser(description="Encode a file into a set of share files, a subset of which can later be used to recover the original file.")
@@ -41,21 +42,21 @@ def main():
             args.prefix = ""
 
     if args.verbose and args.quiet:
-        print "Please choose only one of --verbose and --quiet."
+        print("Please choose only one of --verbose and --quiet.")
         sys.exit(1)
 
     if args.totalshares > 256 or args.totalshares < 1:
-        print "Invalid parameters, totalshares is required to be <= 256 and >= 1\nPlease see the accompanying documentation."
+        print("Invalid parameters, totalshares is required to be <= 256 and >= 1\nPlease see the accompanying documentation.")
         sys.exit(1)
     if args.requiredshares > args.totalshares or args.requiredshares < 1:
-        print "Invalid parameters, requiredshares is required to be <= totalshares and >= 1\nPlease see the accompanying documentation."
+        print("Invalid parameters, requiredshares is required to be <= totalshares and >= 1\nPlease see the accompanying documentation.")
         sys.exit(1)
 
     if not args.quiet:
         if args.requiredshares == 1:
-            print "warning: silly parameters: requiredshares == 1, which means that every share will be a complete copy of the file.  You could use \"cp\" for the same effect.  But proceeding to do it anyway..."
+            print("warning: silly parameters: requiredshares == 1, which means that every share will be a complete copy of the file.  You could use \"cp\" for the same effect.  But proceeding to do it anyway...")
         if args.requiredshares == args.totalshares:
-            print "warning: silly parameters: requiredshares == totalshares, which means that all shares will be required in order to reconstruct the file.  You could use \"split\" for the same effect.  But proceeding to do it anyway..."
+            print("warning: silly parameters: requiredshares == totalshares, which means that all shares will be required in order to reconstruct the file.  You could use \"split\" for the same effect.  But proceeding to do it anyway...")
 
     args.inputfile.seek(0, 2)
     fsize = args.inputfile.tell()

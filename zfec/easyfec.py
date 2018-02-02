@@ -8,7 +8,7 @@ def div_ceil(n, d):
     """
     The smallest integer k such that k*d >= n.
     """
-    return (n/d) + (n%d != 0)
+    return (n//d) + (n%d != 0)
 
 from base64 import b32encode
 def ab(x): # debuggery
@@ -33,7 +33,7 @@ class Encoder(object):
             reconstruct the input data
         """
         chunksize = div_ceil(len(data), self.fec.k)
-        l = [ data[i*chunksize:(i+1)*chunksize] + "\x00" * min(chunksize, (((i+1)*chunksize)-len(data))) for i in range(self.fec.k) ]
+        l = [ data[i*chunksize:(i+1)*chunksize] + b"\x00" * min(chunksize, (((i+1)*chunksize)-len(data))) for i in range(self.fec.k) ]
         assert len(l) == self.fec.k, (len(l), self.fec.k,)
         assert (not l) or (not [ x for x in l if len(x) != len(l[0]) ], (len(l), [ ab(x) for x in l ], chunksize, self.fec.k, len(data),))
         return self.fec.encode(l)
@@ -48,7 +48,7 @@ class Decoder(object):
             the padlen is always equal to (blocksize times k) minus the length
             of data.  (Therefore, padlen can be 0.)
         """
-        data = ''.join(self.fec.decode(blocks, sharenums))
+        data = b''.join(self.fec.decode(blocks, sharenums))
         if padlen:
             return data[:-padlen]
         else:

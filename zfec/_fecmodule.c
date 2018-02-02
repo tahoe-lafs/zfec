@@ -11,6 +11,22 @@
 typedef int Py_ssize_t;
 #endif
 
+#ifndef PyVarObject_HEAD_INIT
+#define PyVarObject_HEAD_INIT(type, size) PyObject_HEAD_INIT(type) size,
+#endif
+
+#ifndef PyInt_Check
+#define PyInt_Check     PyLong_Check
+#define PyInt_FromLong  PyLong_FromLong
+#define PyInt_AsLong    PyLong_AsLong
+#define PyInt_Type      PyLong_Type
+#endif
+
+#ifndef PyString_FromStringAndSize
+#define PyString_FromStringAndSize  PyBytes_FromStringAndSize
+#define PyString_AsString           PyBytes_AsString
+#endif
+
 #include "fec.h"
 
 #include "stdarg.h"
@@ -227,7 +243,7 @@ static void
 Encoder_dealloc(Encoder * self) {
     if (self->fec_matrix)
         fec_free(self->fec_matrix);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyMethodDef Encoder_methods[] = {
@@ -242,8 +258,7 @@ static PyMemberDef Encoder_members[] = {
 };
 
 static PyTypeObject Encoder_type = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_fec.Encoder", /*tp_name*/
     sizeof(Encoder),             /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -500,7 +515,7 @@ static void
 Decoder_dealloc(Decoder * self) {
     if (self->fec_matrix)
         fec_free(self->fec_matrix);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyMethodDef Decoder_methods[] = {
@@ -515,8 +530,7 @@ static PyMemberDef Decoder_members[] = {
 };
 
 static PyTypeObject Decoder_type = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_fec.Decoder", /*tp_name*/
     sizeof(Decoder),             /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -621,18 +635,29 @@ static PyMethodDef fec_functions[] = {
 #define PyMODINIT_FUNC void
 #endif
 PyMODINIT_FUNC
+#if PY_MAJOR_VERSION >= 3
+#define MOD_ERROR_VAL NULL
+PyInit__fec(void) {
+#else
+#define MOD_ERROR_VAL
 init_fec(void) {
+#endif
     PyObject *module;
     PyObject *module_dict;
 
     if (PyType_Ready(&Encoder_type) < 0)
-        return;
+        return MOD_ERROR_VAL;
     if (PyType_Ready(&Decoder_type) < 0)
-        return;
+        return MOD_ERROR_VAL;
 
+#if PY_MAJOR_VERSION >= 3
+    static struct PyModuleDef moduledef = { PyModuleDef_HEAD_INIT, "_fec", fec__doc__, -1, fec_functions, };
+    module = PyModule_Create(&moduledef);
+#else
     module = Py_InitModule3("_fec", fec_functions, fec__doc__);
     if (module == NULL)
       return;
+#endif
 
     Py_INCREF(&Encoder_type);
     Py_INCREF(&Decoder_type);
@@ -643,6 +668,10 @@ init_fec(void) {
     module_dict = PyModule_GetDict(module);
     py_fec_error = PyErr_NewException("_fec.Error", NULL, NULL);
     PyDict_SetItemString(module_dict, "Error", py_fec_error);
+
+#if PY_MAJOR_VERSION >= 3
+    return module;
+#endif
 }
 
 /**

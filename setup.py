@@ -61,12 +61,13 @@ trove_classifiers=[
     "Operating System :: OS Independent",
     "Natural Language :: English",
     "Programming Language :: C",
-    "Programming Language :: Python", 
+    "Programming Language :: Python",
     "Programming Language :: Python :: 2",
-    "Programming Language :: Python :: 2.4",
-    "Programming Language :: Python :: 2.5",
-    "Programming Language :: Python :: 2.6",
     "Programming Language :: Python :: 2.7",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
     "Topic :: Utilities",
     "Topic :: System :: Systems Administration",
     "Topic :: System :: Filesystems",
@@ -104,7 +105,7 @@ try:
 except UnicodeDecodeError:
     pass
 
-install_requires=["pyutil >= 1.3.19"]
+install_requires=["pyutil >= 3.0.0"]
 
 # argparse comes built into Python >= 2.7, and is provided by the "argparse"
 # distribution for earlier versions of Python.

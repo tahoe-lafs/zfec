@@ -1,12 +1,14 @@
-import easyfec, zfec
+from __future__ import print_function
+import array, os, struct
+from base64 import b32encode
 from pyutil import fileutil
 from pyutil.mathutil import pad_size, log_ceil
 
-import array, os, struct
+import zfec
+from zfec import easyfec
 
 CHUNKSIZE = 4096
 
-from base64 import b32encode
 def ab(x): # debuggery
     if len(x) >= 3:
         return "%s:%s" % (len(x), b32encode(x[-3:]),)
@@ -81,17 +83,17 @@ def _build_header(m, k, pad, sh):
     if bitsused <= 16:
         val <<= (16-bitsused)
         cs = struct.pack('>H', val)
-        assert cs[:-2] == '\x00' * (len(cs)-2)
+        assert cs[:-2] == b'\x00' * (len(cs)-2)
         return cs[-2:]
     if bitsused <= 24:
         val <<= (24-bitsused)
         cs = struct.pack('>I', val)
-        assert cs[:-3] == '\x00' * (len(cs)-3)
+        assert cs[:-3] == b'\x00' * (len(cs)-3)
         return cs[-3:]
     else:
         val <<= (32-bitsused)
         cs = struct.pack('>I', val)
-        assert cs[:-4] == '\x00' * (len(cs)-4)
+        assert cs[:-4] == b'\x00' * (len(cs)-4)
         return cs[-4:]
 
 def MASK(bits):
@@ -181,7 +183,7 @@ def encode_to_files(inf, fsize, dirname, prefix, k, m, suffix=".fec", overwrite=
 
             fn = os.path.join(dirname, format % (prefix, shnum, m, suffix,))
             if verbose:
-                print "Creating share file %r..." % (fn,)
+                print("Creating share file %r..." % (fn,))
             if overwrite:
                 f = open(fn, "wb")
             else:
@@ -198,7 +200,7 @@ def encode_to_files(inf, fsize, dirname, prefix, k, m, suffix=".fec", overwrite=
             sumlen[0] += length
             if verbose:
                 if int((float(oldsumlen) / fsize) * 10) != int((float(sumlen[0]) / fsize) * 10):
-                    print str(int((float(sumlen[0]) / fsize) * 10) * 10) + "% ...",
+                    print(str(int((float(sumlen[0]) / fsize) * 10) * 10) + "% ...", end=" ")
 
             if sumlen[0] > fsize:
                 raise IOError("Wrong file size -- possibly the size of the file changed during encoding.  Original size: %d, observed size at least: %s" % (fsize, sumlen[0],))
@@ -208,22 +210,22 @@ def encode_to_files(inf, fsize, dirname, prefix, k, m, suffix=".fec", overwrite=
                 length -= len(data)
 
         encode_file_stringy_easyfec(inf, cb, k, m, chunksize=4096)
-    except EnvironmentError, le:
-        print "Cannot complete because of exception: "
-        print le
-        print "Cleaning up..."
+    except EnvironmentError as le:
+        print("Cannot complete because of exception: ")
+        print(le)
+        print("Cleaning up...")
         # clean up
         while fs:
             f = fs.pop()
             f.close() ; del f
             fn = fns.pop()
             if verbose:
-                print "Cleaning up: trying to remove %r..." % (fn,)
+                print("Cleaning up: trying to remove %r..." % (fn,))
             fileutil.remove_if_possible(fn)
         return 1
     if verbose:
-        print
-        print "Done!"
+        print()
+        print("Done!")
     return 0
 
 # Note: if you really prefer base-2 and you change this code, then please
@@ -251,7 +253,7 @@ def decode_from_files(outf, infiles, verbose=False):
         m = nm
         if not (k is None or k == nk):
             raise CorruptedShareFilesError("Share files were corrupted -- share file %r said that k was %s but another share file previously said that k was %s" % (f.name, nk, k,))
-        if k > len(infiles):
+        if not (k is None or k <= len(infiles)):
             raise InsufficientShareFilesError(k, len(infiles))
         k = nk
         if not (padlen is None or padlen == npadlen):
@@ -277,14 +279,14 @@ def decode_from_files(outf, infiles, verbose=False):
             byteswritten += len(resultdata)
             if verbose:
                 if ((byteswritten - len(resultdata)) / (10*MILLION_BYTES)) != (byteswritten / (10*MILLION_BYTES)):
-                    print str(byteswritten / MILLION_BYTES) + " MB ...",
+                    print(str(byteswritten / MILLION_BYTES) + " MB ...", end=" ")
         else:
             if padlen > 0:
                 outf.truncate(byteswritten - padlen)
             return # Done.
     if verbose:
-        print
-        print "Done!"
+        print()
+        print("Done!")
 
 def encode_file(inf, cb, k, m, chunksize=4096):
     """
@@ -445,7 +447,7 @@ def encode_file_stringy(inf, cb, k, m, chunksize=4096):
         # This loop body executes once per segment.
         i = 0
         l = []
-        ZEROES = '\x00'*chunksize
+        ZEROES = b'\x00'*chunksize
         while i<k:
             # This loop body executes once per chunk.
             i += 1
@@ -454,7 +456,7 @@ def encode_file_stringy(inf, cb, k, m, chunksize=4096):
                 indatasize = i*chunksize + len(l[-1])
 
                 # padding
-                l[-1] = l[-1] + "\x00" * (chunksize-len(l[-1]))
+                l[-1] = l[-1] + b"\x00" * (chunksize-len(l[-1]))
                 while i<k:
                     l.append(ZEROES)
                     i += 1
