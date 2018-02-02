@@ -41,19 +41,9 @@ addition of a command-line tool named "zfec".
 Installation
 ------------
 
-This package is managed with the "setuptools" package management tool.  To
-build and install the package directly into your system, just run ``python
-./setup.py install``.  If you prefer to keep the package limited to a
-specific directory so that you can manage it yourself (perhaps by using the
-"GNU stow") tool, then give it these arguments: ``python ./setup.py install
---single-version-externally-managed
---record=${specificdirectory}/zfec-install.log
---prefix=${specificdirectory}``
+``pip install zfec``
 
-To run the self-tests, execute ``python ./setup.py test`` (or if you have
-Twisted Python installed, you can run ``trial zfec`` for nicer output and
-test options.)  This will run the tests of the C API, the Python API, and the
-command-line tools.
+To run the self-tests, execute ``tox`` from an unpacked source tree or git checkout.
 
 To run the tests of the Haskell API: ``runhaskell haskell/test/FECTest.hs``
 
@@ -67,7 +57,7 @@ Community
 
 The source is currently available via git on the web with the command:
 
-git clone https://github.com/tahoe-lafs/zfec
+``git clone https://github.com/tahoe-lafs/zfec``
 
 Please post about zfec to the Tahoe-LAFS mailing list and contribute patches:
 
