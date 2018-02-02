@@ -177,6 +177,7 @@ def encode_to_files(inf, fsize, dirname, prefix, k, m, suffix=".fec", overwrite=
 
     fns = []
     fs = []
+    got_error = False
     try:
         for shnum in range(m):
             hdr = _build_header(m, k, padbytes, shnum)
@@ -190,9 +191,9 @@ def encode_to_files(inf, fsize, dirname, prefix, k, m, suffix=".fec", overwrite=
                 flags = os.O_WRONLY|os.O_CREAT|os.O_EXCL | (hasattr(os, 'O_BINARY') and os.O_BINARY)
                 fd = os.open(fn, flags)
                 f = os.fdopen(fd, "wb")
-            f.write(hdr)
             fs.append(f)
             fns.append(fn)
+            f.write(hdr)
         sumlen = [0]
         def cb(blocks, length):
             assert len(blocks) == len(fs)
@@ -213,16 +214,18 @@ def encode_to_files(inf, fsize, dirname, prefix, k, m, suffix=".fec", overwrite=
     except EnvironmentError as le:
         print("Cannot complete because of exception: ")
         print(le)
-        print("Cleaning up...")
-        # clean up
-        while fs:
-            f = fs.pop()
-            f.close() ; del f
-            fn = fns.pop()
-            if verbose:
-                print("Cleaning up: trying to remove %r..." % (fn,))
-            fileutil.remove_if_possible(fn)
-        return 1
+        got_error = True
+    finally:
+        for f in fs:
+            f.close()
+        if got_error:
+            print("Cleaning up...")
+            # clean up
+            for fn in fns:
+                if verbose:
+                    print("Cleaning up: trying to remove %r..." % (fn,))
+                fileutil.remove_if_possible(fn)
+            return 1
     if verbose:
         print()
         print("Done!")

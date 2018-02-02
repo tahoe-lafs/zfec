@@ -73,10 +73,13 @@ def main():
             raise Exception("zfec - needs a real (Seekable) file handle to"
                             " measure file size upfront.")
 
-    return filefec.encode_to_files(in_file, fsize, args.output_dir,
-                                   args.prefix, args.requiredshares,
-                                   args.totalshares, args.suffix,
-                                   args.force, args.verbose)
+    try:
+        return filefec.encode_to_files(in_file, fsize, args.output_dir,
+                                    args.prefix, args.requiredshares,
+                                    args.totalshares, args.suffix,
+                                    args.force, args.verbose)
+    finally:
+        args.inputfile.close()
 
 # zfec -- fast forward error correction library with Python interface
 #

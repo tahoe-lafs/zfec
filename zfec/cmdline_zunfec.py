@@ -54,6 +54,10 @@ def main():
     except filefec.InsufficientShareFilesError as e:
         print(str(e))
         return 3
+    finally:
+        outf.close()
+        for f in sharefs:
+            f.close()
 
     return 0
 
