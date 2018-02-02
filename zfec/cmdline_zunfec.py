@@ -50,7 +50,7 @@ def main():
     for fn in args.sharefiles:
         sharefs.append(open(fn, 'rb'))
     try:
-        ret = filefec.decode_from_files(outf, sharefs, args.verbose)
+        filefec.decode_from_files(outf, sharefs, args.verbose)
     except filefec.InsufficientShareFilesError as e:
         print(str(e))
         return 3

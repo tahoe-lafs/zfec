@@ -89,6 +89,7 @@ class ZFecTest(unittest.TestCase):
     def test_instantiate_encoder_no_args(self):
         try:
             e = zfec.Encoder()
+            del e
         except TypeError:
             # Okay, so that's because we're required to pass constructor args.
             pass
@@ -99,6 +100,7 @@ class ZFecTest(unittest.TestCase):
     def test_instantiate_decoder_no_args(self):
         try:
             e = zfec.Decoder()
+            del e
         except TypeError:
             # Okay, so that's because we're required to pass constructor args.
             pass
@@ -107,8 +109,8 @@ class ZFecTest(unittest.TestCase):
             self.fail("Should have raised exception from incorrect arguments to constructor.")
 
     def test_from_agl_c(self):
-        self.failUnless(zfec._fec.test_from_agl())
-            
+        self.assertTrue(zfec._fec.test_from_agl())
+
     def test_from_agl_py(self):
         e = zfec.Encoder(3, 5)
         b0 = b'\x01'*8 ; b1 = b'\x02'*8 ; b2 = b'\x03'*8
@@ -373,7 +375,6 @@ class Cmdline(unittest.TestCase):
         sys.argv = ["zfec", "-"]
         retcode = zfec.cmdline_zfec.main()
 
-        RE=re.compile(zfec.filefec.RE_FORMAT % ('test.data', ".fec",))
         fns = os.listdir(self.tempdir.name)
         assert len(fns) >= self.DEFAULT_M, (fns, self.DEFAULT_M, self.tempdir, self.tempdir.name,)
         sharefns = [ os.path.join(self.tempdir.name, fn) for fn in fns if self.RE.match(fn) ]
