@@ -36,10 +36,12 @@ def main():
     parser.add_argument('-V', '--version', help='print out version number and exit', action='store_true')
     args = parser.parse_args()
 
+    is_infile_stdin = False
     if args.prefix is None:
         args.prefix = args.inputfile.name
         if args.prefix == "<stdin>":
             args.prefix = ""
+            is_infile_stdin = True
 
     if args.verbose and args.quiet:
         print("Please choose only one of --verbose and --quiet.")
@@ -58,10 +60,23 @@ def main():
         if args.requiredshares == args.totalshares:
             print("warning: silly parameters: requiredshares == totalshares, which means that all shares will be required in order to reconstruct the file.  You could use \"split\" for the same effect.  But proceeding to do it anyway...")
 
-    args.inputfile.seek(0, 2)
-    fsize = args.inputfile.tell()
-    args.inputfile.seek(0, 0)
-    return filefec.encode_to_files(args.inputfile, fsize, args.output_dir, args.prefix, args.requiredshares, args.totalshares, args.suffix, args.force, args.verbose)
+    in_file = args.inputfile
+    try:
+        args.inputfile.seek(0, 2)
+        fsize = args.inputfile.tell()
+        args.inputfile.seek(0, 0)
+    except IOError:
+        if is_infile_stdin:
+            contents = args.inputfile.read()
+            fsize = len(contents)
+        else:
+            raise Exception("zfec - needs a real (Seekable) file handle to"
+                            " measure file size upfront.")
+
+    return filefec.encode_to_files(in_file, fsize, args.output_dir,
+                                   args.prefix, args.requiredshares,
+                                   args.totalshares, args.suffix,
+                                   args.force, args.verbose)
 
 # zfec -- fast forward error correction library with Python interface
 #
