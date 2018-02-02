@@ -6,7 +6,7 @@ python:
   - "3.6"
   - "3.7-dev"
 install: pip install -U pip tox virtualenv
-script: tox
+script: tox -e py
 notifications:
   email: false
   irc:
