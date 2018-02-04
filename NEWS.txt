@@ -1,5 +1,11 @@
 User visible changes in zfec.           -*- outline -*-
 
+* Release 1.5.1 (2018-02-04)
+
+** stop using PBR, it interacts badly with Versioneer, causing bad version
+   strings like "0+unknown" after pip install (#11)
+
+
 * Release 1.5.0 (2018-02-02)
 
 ** Add support for python3.5/3.6/3.7 (#1, #4, #9)
