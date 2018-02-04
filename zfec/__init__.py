@@ -6,14 +6,9 @@ maintainer web site: U{http://tahoe-lafs.org/source/zfec}
 zfec web site: U{http://tahoe-lafs.org/source/zfec}
 """
 
-__version__ = "unknown"
-try:
-    from ._version import __version__
-except ImportError:
-    # We're running in a tree that didn't come with a _version.py, 
-    # so we don't know what our version is. This should not happen
-    # very often.
-    pass
+from ._version import get_versions
+__version__ = get_versions()['version']
+del get_versions
 
 from ._fec import Encoder, Decoder, Error
 from . import easyfec, filefec, cmdline_zfec, cmdline_zunfec
@@ -29,7 +24,3 @@ quiet_pyflakes=[__version__, Error, Encoder, Decoder, cmdline_zunfec, filefec, c
 # This file is part of zfec.
 #
 # See README.rst for licensing information.
-
-from ._version import get_versions
-__version__ = get_versions()['version']
-del get_versions

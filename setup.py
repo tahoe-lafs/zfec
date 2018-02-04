@@ -47,16 +47,12 @@ extensions = [
     )
 ]
 
-# Hack to override value detected by pbr which does not look at tags with zfec-
-# prefix.
-os.environ['PBR_VERSION'] = versioneer.get_version()
-
-# Do not generate the ChangeLog and AUTHORS file
-os.environ['SKIP_GENERATE_AUTHORS'] = "1"
-os.environ['SKIP_WRITE_GIT_CHANGELOG'] = "1"
-
 setup(
-    setup_requires=['pbr'],
-    pbr=True,
-    ext_modules=extensions
+    version=versioneer.get_version(),
+    install_requires=[
+        "pyutil >= 3.0.0",
+        "argparse >= 0.8 ; python_version <= '2.7'",
+],
+    ext_modules=extensions,
+    cmdclass=versioneer.get_cmdclass(),
 )
