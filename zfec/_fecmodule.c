@@ -632,6 +632,10 @@ static PyMethodDef fec_functions[] = {
     {NULL}
 };
 
+#if PY_MAJOR_VERSION >= 3
+static struct PyModuleDef moduledef = { PyModuleDef_HEAD_INIT, "_fec", fec__doc__, -1, fec_functions, };
+#endif
+
 #ifndef PyMODINIT_FUNC	/* declarations for DLL import/export */
 #define PyMODINIT_FUNC void
 #endif
@@ -652,7 +656,6 @@ init_fec(void) {
         return MOD_ERROR_VAL;
 
 #if PY_MAJOR_VERSION >= 3
-    static struct PyModuleDef moduledef = { PyModuleDef_HEAD_INIT, "_fec", fec__doc__, -1, fec_functions, };
     module = PyModule_Create(&moduledef);
 #else
     module = Py_InitModule3("_fec", fec_functions, fec__doc__);
