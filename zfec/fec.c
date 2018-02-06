@@ -233,6 +233,7 @@ _invert_mat(gf* src, size_t k) {
     gf c;
     size_t irow = 0;
     size_t icol = 0;
+    size_t row, col, i, ix;
 
     unsigned* indxc = (unsigned*) malloc (k * sizeof(unsigned));
     unsigned* indxr = (unsigned*) malloc (k * sizeof(unsigned));
@@ -243,10 +244,10 @@ _invert_mat(gf* src, size_t k) {
     /*
      * ipiv marks elements already used as pivots.
      */
-    for (size_t i = 0; i < k; i++)
+    for (i = 0; i < k; i++)
         ipiv[i] = 0;
 
-    for (size_t col = 0; col < k; col++) {
+    for (col = 0; col < k; col++) {
         gf *pivot_row;
         /*
          * Zeroing column 'col', look for a non-zero element.
@@ -257,9 +258,9 @@ _invert_mat(gf* src, size_t k) {
             icol = col;
             goto found_piv;
         }
-        for (size_t row = 0; row < k; row++) {
+        for (row = 0; row < k; row++) {
             if (ipiv[row] != 1) {
-                for (size_t ix = 0; ix < k; ix++) {
+                for (ix = 0; ix < k; ix++) {
                     if (ipiv[ix] == 0) {
                         if (src[row * k + ix] != 0) {
                             irow = row;
@@ -279,7 +280,7 @@ _invert_mat(gf* src, size_t k) {
          * optimizing.
          */
         if (irow != icol)
-            for (size_t ix = 0; ix < k; ix++)
+            for (ix = 0; ix < k; ix++)
                 SWAP (src[irow * k + ix], src[icol * k + ix], gf);
         indxr[col] = irow;
         indxc[col] = icol;
@@ -293,7 +294,7 @@ _invert_mat(gf* src, size_t k) {
              */
             c = inverse[c];
             pivot_row[icol] = 1;
-            for (size_t ix = 0; ix < k; ix++)
+            for (ix = 0; ix < k; ix++)
                 pivot_row[ix] = gf_mul (c, pivot_row[ix]);
         }
         /*
@@ -306,7 +307,7 @@ _invert_mat(gf* src, size_t k) {
         id_row[icol] = 1;
         if (memcmp (pivot_row, id_row, k * sizeof (gf)) != 0) {
             gf *p = src;
-            for (size_t ix = 0; ix < k; ix++, p += k) {
+            for (ix = 0; ix < k; ix++, p += k) {
                 if (ix != icol) {
                     c = p[icol];
                     p[icol] = 0;
@@ -316,9 +317,9 @@ _invert_mat(gf* src, size_t k) {
         }
         id_row[icol] = 0;
     }                           /* done all columns */
-    for (size_t col = k; col > 0; col--)
+    for (col = k; col > 0; col--)
         if (indxr[col-1] != indxc[col-1])
-            for (size_t row = 0; row < k; row++)
+            for (row = 0; row < k; row++)
                 SWAP (src[row * k + indxr[col-1]], src[row * k + indxc[col-1]], gf);
     free(indxc);
     free(indxr);

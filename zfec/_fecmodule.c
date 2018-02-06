@@ -125,6 +125,7 @@ Encoder_encode(Encoder *self, PyObject *args) {
     PyObject** fast_desired_blocks_nums_items;
     size_t * c_desired_blocks_nums = (size_t*)alloca(self->mm * sizeof(size_t));
     unsigned* c_desired_checkblocks_ids = (unsigned*)alloca((self->mm - self->kk) * sizeof(unsigned));
+    size_t i;
     PyObject* fastinblocks = NULL;
     PyObject** fastinblocksitems;
     Py_ssize_t sz, oldsz = 0;
@@ -133,7 +134,7 @@ Encoder_encode(Encoder *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "O|O:Encoder.encode", &inblocks, &desired_blocks_nums))
         return NULL;
 
-    for (size_t i = 0; i < self->mm - self->kk; i++)
+    for (i = 0; i < self->mm - self->kk; i++)
         pystrs_produced[i] = NULL;
 
     if (desired_blocks_nums) {
@@ -145,7 +146,7 @@ Encoder_encode(Encoder *self, PyObject *args) {
         num_desired_blocks = PySequence_Fast_GET_SIZE(fast_desired_blocks_nums);
         fast_desired_blocks_nums_items = PySequence_Fast_ITEMS(fast_desired_blocks_nums);
 
-        for (size_t i = 0; i < num_desired_blocks; i++) {
+        for (i = 0; i < num_desired_blocks; i++) {
             if (!PyInt_Check(fast_desired_blocks_nums_items[i])) {
                 PyErr_Format(py_fec_error, "Precondition violation: second argument is required to contain int.");
                 goto err;
@@ -156,7 +157,7 @@ Encoder_encode(Encoder *self, PyObject *args) {
         }
     } else {
         num_desired_blocks = self->mm;
-        for (size_t i = 0; i<num_desired_blocks; i++)
+        for (i = 0; i<num_desired_blocks; i++)
             c_desired_blocks_nums[i] = i;
         num_check_blocks_produced = self->mm - self->kk;
     }
@@ -175,7 +176,7 @@ Encoder_encode(Encoder *self, PyObject *args) {
     if (!fastinblocksitems)
         goto err;
 
-    for (size_t i = 0; i < self->kk; i++) {
+    for (i = 0; i < self->kk; i++) {
         if (!PyObject_CheckReadBuffer(fastinblocksitems[i])) {
             PyErr_Format(py_fec_error, "Precondition violation: %zu'th item is required to offer the single-segment read character buffer protocol, but it does not.", i);
             goto err;
@@ -191,7 +192,7 @@ Encoder_encode(Encoder *self, PyObject *args) {
 
     /* Allocate space for all of the check blocks. */
 
-    for (size_t i = 0; i < num_desired_blocks; i++) {
+    for (i = 0; i < num_desired_blocks; i++) {
         if (c_desired_blocks_nums[i] >= self->kk) {
             c_desired_checkblocks_ids[check_block_index] = c_desired_blocks_nums[i];
             pystrs_produced[check_block_index] = PyString_FromStringAndSize(NULL, sz);
@@ -213,7 +214,7 @@ Encoder_encode(Encoder *self, PyObject *args) {
     if (result == NULL)
         goto err;
     check_block_index = 0;
-    for (size_t i = 0; i < num_desired_blocks; i++) {
+    for (i = 0; i < num_desired_blocks; i++) {
         if (c_desired_blocks_nums[i] < self->kk) {
             Py_INCREF(fastinblocksitems[c_desired_blocks_nums[i]]);
             if (PyList_SetItem(result, i, fastinblocksitems[c_desired_blocks_nums[i]]) == -1) {
@@ -230,7 +231,7 @@ Encoder_encode(Encoder *self, PyObject *args) {
 
     goto cleanup;
   err:
-    for (size_t i = 0; i < num_check_blocks_produced; i++)
+    for (i = 0; i < num_check_blocks_produced; i++)
         Py_XDECREF(pystrs_produced[i]);
     Py_XDECREF(result); result = NULL;
   cleanup:
@@ -631,6 +632,10 @@ static PyMethodDef fec_functions[] = {
     {NULL}
 };
 
+#if PY_MAJOR_VERSION >= 3
+static struct PyModuleDef moduledef = { PyModuleDef_HEAD_INIT, "_fec", fec__doc__, -1, fec_functions, };
+#endif
+
 #ifndef PyMODINIT_FUNC	/* declarations for DLL import/export */
 #define PyMODINIT_FUNC void
 #endif
@@ -651,7 +656,6 @@ init_fec(void) {
         return MOD_ERROR_VAL;
 
 #if PY_MAJOR_VERSION >= 3
-    static struct PyModuleDef moduledef = { PyModuleDef_HEAD_INIT, "_fec", fec__doc__, -1, fec_functions, };
     module = PyModule_Create(&moduledef);
 #else
     module = Py_InitModule3("_fec", fec_functions, fec__doc__);
