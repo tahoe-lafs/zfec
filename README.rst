@@ -327,4 +327,5 @@ Boulder, Colorado
     :target: https://travis-ci.org/tahoe-lafs/zfec
 
 .. |appveyor| image:: https://ci.appveyor.com/api/projects/status/uamocktx0h84ahqa/branch/master
-.. _appveyor: https://ci.appveyor.com/project/tahoe-lafs/zfec
+   :alt: Appveyor (windows) build status
+   :target: https://ci.appveyor.com/project/tahoe-lafs/zfec
