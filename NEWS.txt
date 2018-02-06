@@ -1,5 +1,12 @@
 User visible changes in zfec.           -*- outline -*-
 
+* Release 1.5.2 (2018-02-06)
+
+** Add Appveyor (CI for Windows)
+** Use older C syntax to appease the Windows compilers we use on Appveyor.
+   The previous release just didn't compile there, which broke Tahoe builds.
+
+
 * Release 1.5.1 (2018-02-04)
 
 ** stop using PBR, it interacts badly with Versioneer, causing bad version
