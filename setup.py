@@ -47,7 +47,14 @@ extensions = [
     )
 ]
 
+# Most of our metadata lives in setup.cfg [metadata]. We put "name" here
+# because the setuptools-22.0.5 on slackware can't find it there, which breaks
+# packaging. We put "version" here so that Versioneer works correctly, and
+# "install_requires" because I don't know how to express the python_version
+# clause within the setup.cfg syntax.
+
 setup(
+    name="zfec",
     version=versioneer.get_version(),
     install_requires=[
         "pyutil >= 3.0.0",
