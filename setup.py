@@ -59,6 +59,8 @@ setup(
     install_requires=[
         "pyutil >= 3.0.0",
         "argparse >= 0.8 ; python_version <= '2.7'",
+        # note to self: single-quotes on the '2.7' are ok:
+        # https://github.com/pypa/packaging/blob/16.8/packaging/markers.py#L121
 ],
     ext_modules=extensions,
     cmdclass=versioneer.get_cmdclass(),
