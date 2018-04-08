@@ -56,6 +56,9 @@ extensions = [
 setup(
     name="zfec",
     version=versioneer.get_version(),
+    description="An efficient, portable erasure coding tool",
+    long_description=open('README.rst', 'rU').read(),
+    url="https://github.com/tahoe-lafs/zfec",
     install_requires=[
         "pyutil >= 3.0.0",
         "argparse >= 0.8 ; python_version <= '2.7'",
