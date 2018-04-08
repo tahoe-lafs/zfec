@@ -1,5 +1,12 @@
 User visible changes in zfec.           -*- outline -*-
 
+* Release 1.5.3 (2018-04-07)
+
+** Fix setup.py problem that broke builds on slackware (or other systems with
+   setuptools-22.0.5, which is too old to know that "name" might come from
+   the setup.cfg metadata section)
+
+
 * Release 1.5.2 (2018-02-06)
 
 ** Add Appveyor (CI for Windows)
