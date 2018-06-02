@@ -1,4 +1,4 @@
-﻿
+
 
 zfec -- efficient, portable erasure coding tool
 ===============================================
