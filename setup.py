@@ -65,7 +65,8 @@ setup(
         # https://github.com/pypa/packaging/blob/16.8/packaging/markers.py#L121
 ],
     extras_require={
-        "bench": "pyutil >= 3.0.0",
+        "bench": ["pyutil >= 3.0.0"],
+        "test": ["twisted", "setuptools_trial", "pyutil >= 3.0.0"],
     },
     ext_modules=extensions,
     cmdclass=versioneer.get_cmdclass(),
