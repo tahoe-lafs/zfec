@@ -27,14 +27,6 @@ jobs:
         run: |
           choco install vcpython27 -f -y
 
-      - name: Install Python packages
-        run: |
-          pip install -U pip tox virtualenv
-
-      - name: Run tests
-        run: |
-          tox -e py
-
       - name: Build wheels
         run: |
           python -m cibuildwheel --output-dir wheelhouse
