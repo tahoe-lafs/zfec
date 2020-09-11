@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 env:
   CIBW_TEST_REQUIRES: tox
-  CIBW_TEST_COMMAND: "tox -e py"
+  CIBW_TEST_COMMAND: "tox -e py -c {project}/tox.ini"
 
 jobs:
   build_wheels:
