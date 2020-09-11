@@ -21,6 +21,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        name: Check out zfec sources
 
       - uses: actions/setup-python@v2
         name: Install Python
@@ -41,14 +42,17 @@ jobs:
           python -m cibuildwheel --output-dir wheelhouse
 
       - uses: actions/upload-artifact@v2
+        name: Upload artifacts
         with:
           path: ./wheelhouse/*.whl
 
   build_sdist:
     name: Build source distribution
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
+        name: Check out zfec sources
 
       - uses: actions/setup-python@v2
         name: Install Python
@@ -59,5 +63,6 @@ jobs:
         run: python setup.py sdist
 
       - uses: actions/upload-artifact@v2
+        name: Upload artifacts
         with:
           path: dist/*.tar.gz
