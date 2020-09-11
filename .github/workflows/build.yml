@@ -1,7 +1,7 @@
 # Build sdist+wheel packages using GitHub Actions.  Mostly adopted
 # from https://cibuildwheel.readthedocs.io/en/stable/setup/
 
-name: Build
+name: Build Python packages
 
 on: [push, pull_request]
 
