@@ -1,3 +1,6 @@
+# Build sdist+wheel packages using GitHub Actions.  Mostly adopted
+# from https://cibuildwheel.readthedocs.io/en/stable/setup/
+
 name: Build
 
 on: [push, pull_request]
