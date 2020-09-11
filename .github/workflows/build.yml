@@ -5,6 +5,8 @@ on: [push, pull_request]
 env:
   CIBW_TEST_REQUIRES: tox
   CIBW_TEST_COMMAND: "tox -e py -c {project}/tox.ini"
+  # Twisted isn't quite ready on Windows Python 3.9
+  CIBW_SKIP: cp39-win*
 
 jobs:
   build_wheels:
