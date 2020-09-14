@@ -15,7 +15,7 @@ environment:
 
 install:
   - |
-    %PYTHON%\python.exe -m pip install -U wheel tox setuptools
+    %PYTHON%\python.exe -m pip install -U wheel tox setuptools pip
 
 # note:
 # %PYTHON% has: python.exe
