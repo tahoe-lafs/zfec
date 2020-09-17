@@ -60,10 +60,8 @@ setup(
     long_description=open('README.rst', 'r').read(),
     url="https://github.com/tahoe-lafs/zfec",
     install_requires=[
-        "argparse >= 0.8 ; python_version <= '2.7'",
-        # note to self: single-quotes on the '2.7' are ok:
-        # https://github.com/pypa/packaging/blob/16.8/packaging/markers.py#L121
-],
+        "argparse >= 0.8",
+    ],
     extras_require={
         "bench": ["pyutil >= 3.0.0"],
         "test": ["twisted", "setuptools_trial", "pyutil >= 3.0.0"],
