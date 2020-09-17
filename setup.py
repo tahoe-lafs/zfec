@@ -57,7 +57,7 @@ setup(
     name="zfec",
     version=versioneer.get_version(),
     description="An efficient, portable erasure coding tool",
-    long_description=open('README.rst', 'rU').read(),
+    long_description=open('README.rst', 'r').read(),
     url="https://github.com/tahoe-lafs/zfec",
     install_requires=[
         "argparse >= 0.8 ; python_version <= '2.7'",
