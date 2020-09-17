@@ -3,7 +3,10 @@
 
 name: Build Python packages
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - "master"
 
 env:
   CIBW_TEST_REQUIRES: tox
