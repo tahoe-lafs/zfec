@@ -6,7 +6,6 @@ name: Build Python packages
 on:
   push:
     tags:
-      - '*'
   release:
     types: [published, created, edited]
 
