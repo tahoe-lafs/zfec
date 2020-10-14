@@ -70,3 +70,19 @@ jobs:
         name: Upload artifacts
         with:
           path: dist/*.tar.gz
+
+  upload_pypi:
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    # upload to PyPI on every tag starting with 'zfec-'
+    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/zfec-')
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: artifact
+          path: dist
+
+      - uses: pypa/gh-action-pypi-publish@master
+        with:
+          user: __token__
+          password: ${{ secrets.pypi_password }}
