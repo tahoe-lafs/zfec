@@ -5,8 +5,8 @@ name: Build Python packages
 
 on:
   push:
-    tags:
-      - zfec-*
+    # tags:
+    #   - zfec-*
 
 env:
   CIBW_TEST_REQUIRES: tox
