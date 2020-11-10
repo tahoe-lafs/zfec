@@ -9,8 +9,8 @@ on:
     #   - zfec-*
 
 env:
-  CIBW_TEST_REQUIRES: tox
-  CIBW_TEST_COMMAND: "tox -e py -c {project}/tox.ini"
+  # CIBW_TEST_REQUIRES: tox
+  CIBW_TEST_COMMAND: python -c 'import zfec; print("zfec version {}".format(zfec.__version__))'
   # Twisted isn't quite ready on Windows Python 3.9
   CIBW_SKIP: cp39-win*
 
