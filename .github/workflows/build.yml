@@ -9,7 +9,6 @@ on:
       - zfec-*
 
 env:
-  CIBW_TEST_REQUIRES: tox
   CIBW_TEST_COMMAND: "python -c 'import zfec'"
   # Twisted isn't quite ready on Windows Python 3.9
   CIBW_SKIP: cp39-win*
