@@ -11,7 +11,9 @@ on:
 
 env:
   CIBW_TEST_REQUIRES: tox
-  CIBW_TEST_COMMAND: "tox -e py -c {project}/tox.ini"
+  # Just make sure that Python can use zfec package
+  CIBW_TEST_COMMAND: python -c "import zfec; print(zfec.__version__)"
+
   # Twisted isn't quite ready on Windows Python 3.9
   CIBW_SKIP: cp39-win*
 
