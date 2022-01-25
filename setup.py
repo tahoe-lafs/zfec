@@ -58,7 +58,7 @@ setup(
     url="https://github.com/tahoe-lafs/zfec",
     extras_require={
         "bench": ["pyutil >= 3.0.0"],
-        "test": ["twisted", "setuptools_trial", "pyutil >= 3.0.0"],
+        "test": ["twisted", "pyutil >= 3.0.0"],
     },
     ext_modules=extensions,
     cmdclass=versioneer.get_cmdclass(),
