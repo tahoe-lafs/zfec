@@ -49,19 +49,13 @@ extensions = [
 
 # Most of our metadata lives in setup.cfg [metadata]. We put "name" here
 # because the setuptools-22.0.5 on slackware can't find it there, which breaks
-# packaging. We put "version" here so that Versioneer works correctly, and
-# "install_requires" because I don't know how to express the python_version
-# clause within the setup.cfg syntax.
-
+# packaging. We put "version" here so that Versioneer works correctly.
 setup(
     name="zfec",
     version=versioneer.get_version(),
     description="An efficient, portable erasure coding tool",
     long_description=open('README.rst', 'r').read(),
     url="https://github.com/tahoe-lafs/zfec",
-    install_requires=[
-        "argparse >= 0.8",
-    ],
     extras_require={
         "bench": ["pyutil >= 3.0.0"],
         "test": ["twisted", "setuptools_trial", "pyutil >= 3.0.0"],
