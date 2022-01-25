@@ -34,10 +34,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install Python packages
+      - name: "Run unit tests"
         run: |
-          pip install --upgrade tox setuptools
-          pip list
-
-      - name: Run "tox -e py"
-        run: tox -e py
+          pip install .[test]
+          python -m twisted.trial zfec
