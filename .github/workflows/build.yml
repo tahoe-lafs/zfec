@@ -5,13 +5,12 @@ name: Build Python packages
 
 on:
   push:
-    # Don't build on pushes to arbitrary branches
     branches:
-      # The ! prefix makes this an exclusion.  Exclude everything.
-      - "!.*"
+      # Do build on pushes to master.
+      - "master"
 
-    # Do build on pushes to any release tag
     tags:
+      # Do build on pushes to any release tag
       - "zfec-.*"
 
   # Do build on pushes to any branch with an open pull request.
