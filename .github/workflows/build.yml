@@ -1,7 +1,7 @@
 # Build sdist+wheel packages using GitHub Actions.  Mostly adopted
 # from https://cibuildwheel.readthedocs.io/en/stable/setup/
 
-name: Build Python packages
+name: "Packages"
 
 on:
   push:
@@ -25,17 +25,22 @@ env:
   # Just make sure that Python can use zfec package
   CIBW_TEST_COMMAND: python -c "import zfec; print(zfec.__version__)"
 
-  # Twisted isn't quite ready on Windows Python 3.9
-  CIBW_SKIP: cp39-win*
-
 jobs:
   build_wheels:
-    name: Build wheels on ${{ matrix.os }}
+    name: "${{ matrix.wheel-selector }} wheel on ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-18.04, windows-latest, macos-11]
+        os:
+          - "ubuntu-18.04"
+          - "windows-latest"
+          - "macos-11"
+        wheel-selector:
+          - "cp37-*"
+          - "cp38-*"
+          - "cp39-*"
+          - "cp310-*"
 
     steps:
       - uses: actions/checkout@v2
@@ -48,11 +53,17 @@ jobs:
 
       - name: Install cibuildwheel
         run: |
-          python -m pip install cibuildwheel==1.6.4
+          python3 -m pip install cibuildwheel==2.3.1
 
-      - name: Build wheels
+      - name: "Run cibuildwheel"
+        env:
+          # Configure cibuildwheel to build just some of the total wheels we
+          # could build for this architecture.  This yields better parallelism
+          # on GitHub Actions execution.
+          CIBW_BUILD: "${{ matrix.wheel-selector }}"
+
         run: |
-          python -m cibuildwheel --output-dir wheelhouse
+          python3 -m cibuildwheel --output-dir wheelhouse
 
       - uses: actions/upload-artifact@v2
         name: Upload artifacts
@@ -73,7 +84,8 @@ jobs:
           python-version: '3.7'
 
       - name: Build sdist
-        run: python setup.py sdist
+        run: |
+          python3 setup.py sdist
 
       - uses: actions/upload-artifact@v2
         name: Upload artifacts
