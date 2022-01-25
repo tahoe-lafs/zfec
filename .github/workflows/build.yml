@@ -32,6 +32,7 @@ jobs:
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    fast-fail: false
     strategy:
       matrix:
         os: [ubuntu-18.04, windows-latest, macos-11]
