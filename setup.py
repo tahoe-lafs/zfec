@@ -59,9 +59,6 @@ setup(
     description="An efficient, portable erasure coding tool",
     long_description=open('README.rst', 'r').read(),
     url="https://github.com/tahoe-lafs/zfec",
-    install_requires=[
-        "argparse >= 0.8",
-    ],
     extras_require={
         "bench": ["pyutil >= 3.0.0"],
         "test": ["twisted", "setuptools_trial", "pyutil >= 3.0.0"],
