@@ -5,7 +5,19 @@ name: Build Python packages
 
 on:
   push:
+    branches:
+      # Do build on pushes to master.
+      - "master"
+
     tags:
+      # Do build on pushes to any release tag
+      - "zfec-.*"
+
+  # Do build on pushes to any branch with an open pull request.
+  pull_request:
+
+  # Do build on different release events
+  # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#release
   release:
     types: [published, created, edited]
 
@@ -22,7 +34,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-18.04, windows-latest, macos-latest]
+        os: [ubuntu-18.04, windows-latest, macos-11]
 
     steps:
       - uses: actions/checkout@v2
