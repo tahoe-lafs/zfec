@@ -7,7 +7,7 @@ Generate redundant blocks of information such that if some of the blocks are
 lost then the original data can be recovered from the remaining blocks. This
 package includes command-line tools, C API, Python API, and Haskell API.
 
-|pypi| |travis| |appveyor|
+|build| |test| |pypi|
 
 Intro and Licence
 -----------------
@@ -322,10 +322,10 @@ Boulder, Colorado
    :alt: PyPI release status
    :target: https://pypi.python.org/pypi/zfec
 
-.. |travis| image:: https://travis-ci.org/tahoe-lafs/zfec.png?branch=master
-    :alt: build status
-    :target: https://travis-ci.org/tahoe-lafs/zfec
+.. |build| image:: https://github.com/tahoe-lafs/zfec/actions/workflows/build.yml/badge.svg
+   :alt: Package Build
+   :target: https://github.com/tahoe-lafs/zfec/actions/workflows/build.yml
 
-.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/uamocktx0h84ahqa/branch/master
-   :alt: Appveyor (windows) build status
-   :target: https://ci.appveyor.com/project/tahoe-lafs/zfec
+.. |test| image:: https://github.com/tahoe-lafs/zfec/actions/workflows/test.yml/badge.svg
+   :alt: Tests
+   :target: https://github.com/tahoe-lafs/zfec/actions/workflows/test.yml
