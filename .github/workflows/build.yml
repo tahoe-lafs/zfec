@@ -55,7 +55,7 @@ jobs:
         run: |
           python3 -m pip install cibuildwheel==2.3.1
 
-      - name: "Build wheels for ${{ matrix.wheel-selector }}"
+      - name: "Build wheel ${{ matrix.wheel-selector }}"
         env:
           # Configure cibuildwheel to build just some of the total wheels we
           # could build for this architecture.  This yields better parallelism
