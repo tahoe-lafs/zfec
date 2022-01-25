@@ -33,6 +33,7 @@ jobs:
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-18.04, windows-latest, macos-11]
 
@@ -48,11 +49,6 @@ jobs:
       - name: Install cibuildwheel
         run: |
           python -m pip install cibuildwheel==1.6.4
-
-      - name: Install Visual C++ for Python 2.7
-        if: runner.os == 'Windows'
-        run: |
-          choco install vcpython27 -f -y
 
       - name: Build wheels
         run: |
