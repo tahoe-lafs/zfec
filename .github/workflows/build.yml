@@ -15,6 +15,8 @@ on:
   # Do build on pushes to any branch with an open pull request.
   pull_request:
 
+  # Do build on different release events
+  # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#release
   release:
     types: [published, created, edited]
 
