@@ -25,9 +25,6 @@ env:
   # Just make sure that Python can use zfec package
   CIBW_TEST_COMMAND: python -c "import zfec; print(zfec.__version__)"
 
-  # Twisted isn't quite ready on Windows Python 3.9
-  CIBW_SKIP: cp39-win*
-
 jobs:
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
@@ -35,7 +32,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-18.04, windows-latest, macos-11]
+        os:
+          - "ubuntu-18.04"
+          - "windows-latest"
+          - "macos-11"
+        wheel-selector:
+          - "cp37-*"
+          - "cp38-*"
+          - "cp39-*"
+          - "cp310-*"
 
     steps:
       - uses: actions/checkout@v2
@@ -51,6 +56,12 @@ jobs:
           python3 -m pip install cibuildwheel==2.3.1
 
       - name: Build wheels
+        env:
+          # Configure cibuildwheel to build just some of the total wheels we
+          # could build for this architecture.  This yields better parallelism
+          # on GitHub Actions execution.
+          CIBW_BUILD: "${{ matrix.wheel-selector }}"
+
         run: |
           python3 -m cibuildwheel --output-dir wheelhouse
 
