@@ -1,4 +1,4 @@
-name: Run tests
+name: "Tests"
 
 on:
   push:
@@ -18,22 +18,13 @@ jobs:
           - ubuntu-latest
           - windows-latest
         python-version:
-          - 2.7
-          - 3.6
-          - 3.7
-          - 3.8
-          - pypy2
+          - "3.7"
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "pypy3"
 
     steps:
-
-      # Get vcpython27 on Windows + Python 2.7, to build zfec.  See
-      # https://chocolatey.org/packages/vcpython27 and
-      # https://github.com/crazy-max/ghaction-chocolatey
-      - name: Install MSVC 9.0 for Python 2.7 [Windows]
-        if: matrix.os == 'windows-latest' && matrix.python-version == '2.7'
-        uses: crazy-max/ghaction-chocolatey@v1
-        with:
-          args: install vcpython27
 
       - name: Check out zfec sources
         uses: actions/checkout@v2
