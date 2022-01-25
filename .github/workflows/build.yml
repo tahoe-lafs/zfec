@@ -5,7 +5,11 @@ name: Build Python packages
 
 on:
   push:
+    # Don't build on pushes to arbitrary branches
+    branches:
+    # Do build on pushes to any release tag
     tags:
+      - "zfec-.*"
   release:
     types: [published, created, edited]
 
