@@ -1,5 +1,12 @@
 User visible changes in zfec.           -*- outline -*-
 
+* Release 1.5.5 (2020-11-12)
+
+** Upload wheel packages to the Python Package Index.
+   Wheel packages for Python 2.7/Windows turned out to be broken
+   (issue #34).  Version 1.5.5 is simply an update to address this.
+   No changes to zfec itself.
+
 * Release 1.5.4 (2020-09-17)
 
 ** Upload wheel packages to the Python Package Index.
