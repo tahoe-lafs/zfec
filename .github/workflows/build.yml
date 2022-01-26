@@ -43,8 +43,12 @@ jobs:
           - "cp310-*"
 
     steps:
-      - uses: actions/checkout@v2
-        name: Check out zfec sources
+      - name: Check out zfec sources
+        uses: actions/checkout@v2
+        with:
+          # Check out the full history, including tags.  This is necessary to
+          # construct non-release version numbers.
+          fetch-depth: 0
 
       - uses: actions/setup-python@v2
         name: Install Python
