@@ -115,14 +115,15 @@ jobs:
           name: artifact
           path: dist
 
+      # Define a conditional step to upload packages to the testing instance
+      # of PyPI.
+      #
       # The overall workflow is already restricted so that it runs for:
       # 1) pushes to master
       # 2) pushes to release tags
       # 3) pushes to branches with associated PRs
       #
-      # For testing purposes, it's great to have (3) publish a release to
-      # test.pypi.org.  Define a step which will do just that and restrict it
-      # to case (3).
+      # The conditional in this step should cause it to run only for case (3).
       - uses: "pypa/gh-action-pypi-publish@master"
         if: >-
           github.event_name == 'pull_request'
