@@ -132,3 +132,18 @@ jobs:
           user: "__token__"
           password: "${{ secrets.testpypi_token }}"
           repository_url: "https://test.pypi.org/legacy/"
+
+      # Now define a conditional step to upload packages to the production
+      # instance of PyPI.
+      #
+      # The cases to consider are the same as for the upload to the testing
+      # instance.  This time, we have a conditional that runs only for case
+      # (2).
+      - uses: "pypa/gh-action-pypi-publish@master"
+        if: >-
+          github.event_name == 'push' &&
+          startsWith(github.event.ref, 'refs/tags/zfec-')
+
+        with:
+          user: "__token__"
+          password: "${{ secrets.pypi_token }}"
