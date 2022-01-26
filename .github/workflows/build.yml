@@ -121,9 +121,7 @@ jobs:
       # to case (3).
       - uses: "pypa/gh-action-pypi-publish@master"
         if: >-
-          github.event_name == 'push' &&
-          ! startsWith(github.event.ref, 'refs/tags/zfec-') &&
-          ! github.event.ref == 'master'
+          github.event_name == 'pull_request'
 
         with:
           user: "__token__"
