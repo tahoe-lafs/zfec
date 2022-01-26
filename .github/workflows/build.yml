@@ -93,8 +93,6 @@ jobs:
           path: dist/*.tar.gz
 
   upload_pypi:
-    # upload to PyPI on every tag starting with 'zfec-'
-    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/zfec-')
     needs:
       - "build_wheels"
       - "build_sdist"
@@ -109,7 +107,15 @@ jobs:
           name: artifact
           path: dist
 
-      - uses: pypa/gh-action-pypi-publish@master
+      # On a push to any tag starting with ``test-zfec-``, publish a release
+      # to the test PyPI servers to demonstrate the packaging/publishing logic
+      # works.
+      - uses: "pypa/gh-action-pypi-publish@master"
+        if: >-
+          github.event_name == 'push' &&
+          startsWith(github.event.ref, 'refs/tags/test-zfec-')
+
         with:
-          user: __token__
-          password: ${{ secrets.pypi_password }}
+          user: "__token__"
+          password: "${{ secrets.testpypi_token }}"
+          repository_url: "https://test.pypi.org/legacy/"
