@@ -110,10 +110,13 @@ jobs:
     environment: "release"
 
     steps:
-      - uses: actions/download-artifact@v2
+      # Download all previously artifacts previously built by this workflow to
+      # the dist direction where the publish step can find them.  These are
+      # the sdist and all of the wheels build by the other jobs.
+      - uses: "actions/download-artifact@v2"
         with:
-          name: artifact
-          path: dist
+          name: "artifact"
+          path: "dist"
 
       # Define a conditional step to upload packages to the testing instance
       # of PyPI.
