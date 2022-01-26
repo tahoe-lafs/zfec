@@ -132,8 +132,14 @@ jobs:
           github.event_name == 'pull_request'
 
         with:
+          # Authenticate using a token from a PyPI account with upload
+          # permission to the project.  See https://pypi.org/help/#apitoken
           user: "__token__"
+          # Read it from a GitHub Actions "environment" secret.  See
+          # https://docs.github.com/en/actions/security-guides/encrypted-secrets
           password: "${{ secrets.testpypi_token }}"
+          # Override the default in order to upload it to the testing
+          # deployment.
           repository_url: "https://test.pypi.org/legacy/"
 
       # Now define a conditional step to upload packages to the production
