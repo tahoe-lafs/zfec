@@ -101,6 +101,10 @@ jobs:
     # artifacts created by the other jobs and then upload them.
     runs-on: "ubuntu-latest"
 
+    # Select the GitHub Actions environment that contains the PyPI tokens
+    # necessary to perform uploads.
+    environment: "release"
+
     steps:
       - uses: actions/download-artifact@v2
         with:
