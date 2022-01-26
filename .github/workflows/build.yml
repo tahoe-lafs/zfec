@@ -12,8 +12,6 @@ on:
     tags:
       # Do build on pushes to any release tag
       - "zfec-.*"
-      # Do build on pushes to any testing release tag
-      - "test-zfec-.*"
 
   # Do build on pushes to any branch with an open pull request.
   pull_request:
@@ -109,13 +107,19 @@ jobs:
           name: artifact
           path: dist
 
-      # On a push to any tag starting with ``test-zfec-``, publish a release
-      # to the test PyPI servers to demonstrate the packaging/publishing logic
-      # works.
+      # The overall workflow is already restricted so that it runs for:
+      # 1) pushes to master
+      # 2) pushes to release tags
+      # 3) pushes to branches with associated PRs
+      #
+      # For testing purposes, it's great to have (3) publish a release to
+      # test.pypi.org.  Define a step which will do just that and restrict it
+      # to case (3).
       - uses: "pypa/gh-action-pypi-publish@master"
         if: >-
           github.event_name == 'push' &&
-          startsWith(github.event.ref, 'refs/tags/test-zfec-')
+          ! startsWith(github.event.ref, 'refs/tags/zfec-') &&
+          ! github.event.ref == 'master'
 
         with:
           user: "__token__"
