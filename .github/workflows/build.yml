@@ -106,7 +106,8 @@ jobs:
     runs-on: "ubuntu-latest"
 
     # Select the GitHub Actions environment that contains the PyPI tokens
-    # necessary to perform uploads.
+    # necessary to perform uploads.  This was configured manually using the
+    # GitHub web interface.
     environment: "release"
 
     steps:
