@@ -111,9 +111,9 @@ jobs:
     environment: "release"
 
     steps:
-      # Download all previously artifacts previously built by this workflow to
-      # the dist direction where the publish step can find them.  These are
-      # the sdist and all of the wheels build by the other jobs.
+      # Download all artifacts previously built by this workflow to the dist
+      # directory where the publish step can find them.  These are the sdist
+      # and all of the wheels build by the other jobs.
       - uses: "actions/download-artifact@v2"
         with:
           name: "artifact"
