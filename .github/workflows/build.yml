@@ -128,7 +128,8 @@ jobs:
       # 3) pushes to branches with associated PRs
       #
       # The conditional in this step should cause it to run only for case (3).
-      - uses: "pypa/gh-action-pypi-publish@master"
+      - name: "Publish to TEST PyPI"
+        uses: "pypa/gh-action-pypi-publish@master"
         if: >-
           github.event_name == 'pull_request'
 
@@ -149,7 +150,8 @@ jobs:
       # The cases to consider are the same as for the upload to the testing
       # instance.  This time, we have a conditional that runs only for case
       # (2).
-      - uses: "pypa/gh-action-pypi-publish@master"
+      - name: "Publish to LIVE PyPI"
+        uses: "pypa/gh-action-pypi-publish@master"
         if: >-
           github.event_name == 'push' &&
           startsWith(github.event.ref, 'refs/tags/zfec-')
