@@ -16,4 +16,4 @@ graft haskell
 include stack.yaml
 
 
-global-exclude *~ *.pyc *.so
+global-exclude *.pyc *.so
