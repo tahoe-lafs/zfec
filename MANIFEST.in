@@ -4,17 +4,12 @@ include COPYING.*
 include changelog
 include TODO
 graft   zfec
-include ChangeLog NEWS.txt copyright
+include changelog NEWS.txt copyright
 include stridetune-bench.ba.sh stridetune-bench.py stridetune-dat.bash stridetune-graph.py
 include bench/*.py
 
-include tox.ini .travis.yml
-include misc/build_helpers/*.py
+include tox.ini
 
 include fec.cabal Setup.lhs
 graft haskell
 include stack.yaml
-
-
-global-exclude *~ *.pyc *.so
-
