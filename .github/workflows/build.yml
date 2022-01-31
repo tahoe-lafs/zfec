@@ -81,6 +81,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         name: Check out zfec sources
+        with:
           # Check out the full history, including tags.  This is necessary to
           # construct non-release version numbers.
           fetch-depth: 0
