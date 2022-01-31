@@ -81,6 +81,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         name: Check out zfec sources
+          # Check out the full history, including tags.  This is necessary to
+          # construct non-release version numbers.
+          fetch-depth: 0
 
       - uses: actions/setup-python@v2
         name: Install Python
