@@ -134,7 +134,7 @@ Encoder_encode(Encoder *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "O|O:Encoder.encode", &inblocks, &desired_blocks_nums))
         return NULL;
 
-    for (i = 0; i < self->mm - self->kk; i++)
+    for (i = 0; i < (size_t)self->mm - (size_t)self->kk; i++)
         pystrs_produced[i] = NULL;
 
     if (desired_blocks_nums) {
