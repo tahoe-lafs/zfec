@@ -17,4 +17,3 @@ include stack.yaml
 
 
 global-exclude *~ *.pyc *.so
-
