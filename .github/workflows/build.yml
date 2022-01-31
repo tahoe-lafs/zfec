@@ -60,6 +60,7 @@ jobs:
       - name: Install cibuildwheel
         run: |
           python3 -m pip install cibuildwheel==2.3.1
+          python -m cibuildwheel --print-build-identifiers
 
       - name: "Run cibuildwheel"
         env:
