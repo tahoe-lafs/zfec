@@ -10,8 +10,10 @@ on:
       - "master"
 
     tags:
-      # Do build on pushes to any release tag
-      - "zfec-.*"
+      # Do build on pushes to any release tag See
+      # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#filter-pattern-cheat-sheet
+      # for documentation about how patterns are matched.
+      - "zfec-*"
 
   # Do build on pushes to any branch with an open pull request.
   pull_request:
