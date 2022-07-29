@@ -1,3 +1,6 @@
+#ifndef __FEC_H
+#define __FEC_H
+
 /**
  * zfec -- fast forward error correction library with Python interface
  *
@@ -109,3 +112,4 @@ void fec_decode(const fec_t* code, const gf*restrict const*restrict const inpkts
  * OF SUCH DAMAGE.
  */
 
+#endif /* __FEC_H */
