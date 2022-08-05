@@ -1,0 +1,34 @@
+name: "QEMU tests"
+
+on:
+  push:
+    branches:
+      - "simd"
+  pull_request:
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+
+    steps:
+
+      - name: Check out zfec sources
+        uses: actions/checkout@v2
+        with:
+          ref: simd
+
+      - name: "Run unit tests on QEMU (cortex-a8)"
+        uses: pguyot/arm-runner-action@v2
+        with:
+          base_image: raspios_lite:latest
+          cpu: cortex-a8
+          optimize_image: no
+          commands: |
+            sudo apt-get --yes update
+            sudo apt-get --yes install python3-pip
+            yes | pip install twisted pyutil
+            yes | pip install --verbose --install-option=--with-arm-neon .[test]
+            trial zfec
