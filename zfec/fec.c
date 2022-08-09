@@ -264,6 +264,97 @@ _addmul1(register gf*restrict dst, const register gf*restrict src, gf c, size_t 
 }
 
 /*
+ * dst[] = dst[] + c1*src1[] + c2*src2[]
+ */
+static void
+addmul2(register gf*restrict dst,
+        const register gf*restrict src1,
+        const register gf*restrict src2,
+        gf c1,
+        gf c2,
+        size_t sz) {
+#if !defined(ZFEC_USE_ARM_NEON)
+    _addmul1(dst, src1, c1, sz);
+    _addmul1(dst, src2, c2, sz);
+#else
+    const gf* lim = &dst[sz - 16 + 1];
+
+    const gf * const gf_mulc1 = gf_mul_table[c1];
+    const gf * const gf_mulc2 = gf_mul_table[c2];
+    const gf * const gf_mulc1_16 = gf_mul_table_16[c1];
+    const gf * const gf_mulc2_16 = gf_mul_table_16[c2];
+    
+    /* align dst to 16 bytes */
+    while(sz && (uintptr_t)dst % 16) {
+        *dst ^= gf_mulc1[*src1] ^ gf_mulc2[*src2];
+        src1++;
+        src2++;
+        dst++;
+        sz--;
+    }
+    /* 
+     * for (; dst < lim; dst += 16, src1 += 16, src2 += 16) {
+     *   // 16x parallel
+     *   for (int i = 0; i < 16; i++) {
+     *     dst[i] ^= gf_mulc1[src1[i] & 0x0f] ^ gf_mulc1_16[src1[i] >> 4];
+     *     dst[i] ^= gf_mulc2[src2[i] & 0x0f] ^ gf_mulc2_16[src2[i] >> 4];
+     *   }
+     * }
+     * dst should be aligned to 16 bytes
+     */
+    __asm__(
+        "vmov.i8  q0, #0x0f               \n\t"
+        "vld1.8   {q1}, [%[gf_mulc1]]     \n\t"
+        "vld1.8   {q2}, [%[gf_mulc2]]     \n\t"
+        "vld1.8   {q3}, [%[gf_mulc1_16]]  \n\t"
+        "vld1.8   {q8}, [%[gf_mulc2_16]]  \n\t"
+    "1:                                   \n\t"
+        "cmp      %[dst], %[lim]                                    \n\t"
+        "bhs      2f                                                \n\t"
+        /* scheduling could be improved... */
+        /*       c1*src1                        c2*src2                */
+        "vld1.8   {q9}, [%[src1]]!                                  \n\t"
+                                       "vld1.8   {q10}, [%[src2]]!  \n\t"
+        "vand.8   q12, q9, q0                                       \n\t"
+        "vld1.8   {q11}, [%[dst]:128]                               \n\t"
+        "vshr.u8  q13, q9, #4                                       \n\t"
+        "vtbl.8   d24, {q1}, d24                                    \n\t"
+                                       "vand.8   q14, q10, q0       \n\t"
+        "vtbl.8   d25, {q1}, d25                                    \n\t"
+                                       "vshr.u8  q15, q10, #4       \n\t"
+        "vtbl.8   d26, {q3}, d26                                    \n\t"
+        "vtbl.8   d27, {q3}, d27                                    \n\t"
+        "veorq.8  q11, q12                                          \n\t"
+                                       "vtbl.8   d28, {q2}, d28     \n\t"
+                                       "vtbl.8   d29, {q2}, d29     \n\t"
+                                       "vtbl.8   d30, {q8}, d30     \n\t"
+        "veorq.8  q11, q13                                          \n\t"
+                                       "vtbl.8   d31, {q8}, d31     \n\t"
+                                       "veorq.8  q11, q14           \n\t"
+                                       "veorq.8  q11, q15           \n\t"
+        "vst1.8   {q11}, [%[dst]:128]!                              \n\t"
+        "b        1b                                                \n\t"
+    "2:                                                             \n\t"
+        : [dst] "+r"(dst),
+          [src1]"+r"(src1),
+          [src2]"+r"(src2)
+        : [lim]        "r"(lim),
+          [gf_mulc1]   "r"(gf_mulc1),
+          [gf_mulc2]   "r"(gf_mulc2),
+          [gf_mulc1_16]"r"(gf_mulc1_16),
+          [gf_mulc2_16]"r"(gf_mulc2_16)
+        : "q0", "q1", "q2", "q3", "q8", "q9", "q10", "q11",
+          "q12", "q13", "q14", "q15", "memory", "cc"
+    );
+
+    lim += 16 - 1;
+    for (; dst < lim; dst++, src1++, src2++) {      /* final components */
+        *dst ^= gf_mulc1[*src1] ^ gf_mulc2[*src2];
+    }
+#endif
+}
+
+/*
  * computes C = AB where A is n*k, B is k*m, C is n*m
  */
 static void
@@ -546,8 +637,12 @@ fec_encode(const fec_t* code, const gf*restrict const*restrict const src, gf*res
             assert (fecnum >= code->k);
             memset(fecs[i]+k, 0, stride);
             p = &(code->enc_matrix[fecnum * code->k]);
-            for (j = 0; j < code->k; j++)
+            for (j = 0; j < (code->k & ~1); j += 2) {
+                addmul2(fecs[i]+k, src[j]+k, src[j+1]+k, p[j], p[j+1], stride);
+            }
+            for (; j < code->k; j++) {
                 addmul(fecs[i]+k, src[j]+k, p[j], stride);
+            }
         }
     }
 }
