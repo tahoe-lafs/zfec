@@ -125,7 +125,7 @@ jobs:
       # Download all artifacts previously built by this workflow to the dist
       # directory where the publish step can find them.  These are the sdist
       # and all of the wheels build by the other jobs.
-      - uses: "actions/download-artifact@v2"
+      - uses: "actions/download-artifact@v3"
         with:
           name: "artifact"
           path: "dist"
