@@ -54,7 +54,7 @@ jobs:
           # construct non-release version numbers.
           fetch-depth: 0
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         name: Install Python
         with:
           python-version: '3.7'
@@ -91,7 +91,7 @@ jobs:
           # construct non-release version numbers.
           fetch-depth: 0
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         name: Install Python
         with:
           python-version: '3.7'
