@@ -97,8 +97,6 @@ jobs:
         name: Install Python
         with:
           python-version: '3.7'
-          cache: 'pip' # caching pip dependencies
-          cache-dependency-path: 'setup.py'
 
       - name: Build sdist
         run: |
