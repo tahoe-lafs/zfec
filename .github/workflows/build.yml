@@ -76,7 +76,7 @@ jobs:
         run: |
           python3 -m cibuildwheel --output-dir wheelhouse
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         name: Upload artifacts
         with:
           path: ./wheelhouse/*.whl
@@ -104,7 +104,7 @@ jobs:
         run: |
           python3 setup.py sdist
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         name: Upload artifacts
         with:
           path: dist/*.tar.gz
