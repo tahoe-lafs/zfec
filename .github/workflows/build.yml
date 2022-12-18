@@ -48,7 +48,7 @@ jobs:
 
     steps:
       - name: Check out zfec sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           # Check out the full history, including tags.  This is necessary to
           # construct non-release version numbers.
@@ -84,7 +84,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         name: Check out zfec sources
         with:
           # Check out the full history, including tags.  This is necessary to
