@@ -1,11 +1,25 @@
 # Build sdist+wheel packages using GitHub Actions.  Mostly adopted
 # from https://cibuildwheel.readthedocs.io/en/stable/setup/
 
-name: Build Python packages
+name: "Packages"
 
 on:
   push:
+    branches:
+      # Do build on pushes to master.
+      - "master"
+
     tags:
+      # Do build on pushes to any release tag See
+      # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#filter-pattern-cheat-sheet
+      # for documentation about how patterns are matched.
+      - "zfec-*"
+
+  # Do build on pushes to any branch with an open pull request.
+  pull_request:
+
+  # Do build on different release events
+  # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#release
   release:
     types: [published, created, edited]
 
@@ -13,20 +27,32 @@ env:
   # Just make sure that Python can use zfec package
   CIBW_TEST_COMMAND: python -c "import zfec; print(zfec.__version__)"
 
-  # Twisted isn't quite ready on Windows Python 3.9
-  CIBW_SKIP: cp39-win*
-
 jobs:
   build_wheels:
-    name: Build wheels on ${{ matrix.os }}
+    name: "${{ matrix.wheel-selector }} wheel on ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-18.04, windows-latest, macos-latest]
+        os:
+          - "ubuntu-18.04"
+          - "windows-latest"
+          - "macos-11"
+        wheel-selector:
+          - "cp37-*"
+          - "cp38-*"
+          - "cp39-*"
+          - "cp310-*"
+          - "pp37-*"
+          - "pp38-*"
 
     steps:
-      - uses: actions/checkout@v2
-        name: Check out zfec sources
+      - name: Check out zfec sources
+        uses: actions/checkout@v2
+        with:
+          # Check out the full history, including tags.  This is necessary to
+          # construct non-release version numbers.
+          fetch-depth: 0
 
       - uses: actions/setup-python@v2
         name: Install Python
@@ -35,16 +61,18 @@ jobs:
 
       - name: Install cibuildwheel
         run: |
-          python -m pip install cibuildwheel==1.6.4
+          python3 -m pip install cibuildwheel==2.3.1
+          python -m cibuildwheel --print-build-identifiers
 
-      - name: Install Visual C++ for Python 2.7
-        if: runner.os == 'Windows'
-        run: |
-          choco install vcpython27 -f -y
+      - name: "Run cibuildwheel"
+        env:
+          # Configure cibuildwheel to build just some of the total wheels we
+          # could build for this architecture.  This yields better parallelism
+          # on GitHub Actions execution.
+          CIBW_BUILD: "${{ matrix.wheel-selector }}"
 
-      - name: Build wheels
         run: |
-          python -m cibuildwheel --output-dir wheelhouse
+          python3 -m cibuildwheel --output-dir wheelhouse
 
       - uses: actions/upload-artifact@v2
         name: Upload artifacts
@@ -58,6 +86,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         name: Check out zfec sources
+        with:
+          # Check out the full history, including tags.  This is necessary to
+          # construct non-release version numbers.
+          fetch-depth: 0
 
       - uses: actions/setup-python@v2
         name: Install Python
@@ -65,9 +97,74 @@ jobs:
           python-version: '3.7'
 
       - name: Build sdist
-        run: python setup.py sdist
+        run: |
+          python3 setup.py sdist
 
       - uses: actions/upload-artifact@v2
         name: Upload artifacts
         with:
           path: dist/*.tar.gz
+
+  upload_pypi:
+    needs:
+      - "build_wheels"
+      - "build_sdist"
+
+    # It only needs to run once.  It will fetch all of the other build
+    # artifacts created by the other jobs and then upload them.
+    runs-on: "ubuntu-latest"
+
+    # Select the GitHub Actions environment that contains the PyPI tokens
+    # necessary to perform uploads.  This was configured manually using the
+    # GitHub web interface.
+    environment: "release"
+
+    steps:
+      # Download all artifacts previously built by this workflow to the dist
+      # directory where the publish step can find them.  These are the sdist
+      # and all of the wheels build by the other jobs.
+      - uses: "actions/download-artifact@v2"
+        with:
+          name: "artifact"
+          path: "dist"
+
+      # Define a conditional step to upload packages to the testing instance
+      # of PyPI.
+      #
+      # The overall workflow is already restricted so that it runs for:
+      # 1) pushes to master
+      # 2) pushes to release tags
+      # 3) pushes to branches with associated PRs
+      #
+      # The conditional in this step should cause it to run only for case (3).
+      - name: "Publish to TEST PyPI"
+        uses: "pypa/gh-action-pypi-publish@master"
+        if: >-
+          github.event_name == 'pull_request'
+
+        with:
+          # Authenticate using a token from a PyPI account with upload
+          # permission to the project.  See https://pypi.org/help/#apitoken
+          user: "__token__"
+          # Read it from a GitHub Actions "environment" secret.  See
+          # https://docs.github.com/en/actions/security-guides/encrypted-secrets
+          password: "${{ secrets.testpypi_token }}"
+          # Override the default in order to upload it to the testing
+          # deployment.
+          repository_url: "https://test.pypi.org/legacy/"
+
+      # Now define a conditional step to upload packages to the production
+      # instance of PyPI.
+      #
+      # The cases to consider are the same as for the upload to the testing
+      # instance.  This time, we have a conditional that runs only for case
+      # (2).
+      - name: "Publish to LIVE PyPI"
+        uses: "pypa/gh-action-pypi-publish@master"
+        if: >-
+          github.event_name == 'push' &&
+          startsWith(github.event.ref, 'refs/tags/zfec-')
+
+        with:
+          user: "__token__"
+          password: "${{ secrets.pypi_token }}"
