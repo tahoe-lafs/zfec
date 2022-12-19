@@ -73,7 +73,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         name: Check out zfec sources
         with:
           # Check out the full history, including tags.  This is necessary to
