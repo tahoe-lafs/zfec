@@ -43,6 +43,7 @@ jobs:
           - "cp311-*"
           - "pp37-*"
           - "pp38-*"
+          - "pp39-*"
 
     steps:
       - name: Check out zfec sources
