@@ -10,3 +10,5 @@ dist/*
 cabal.sandbox.config
 .tox/
 .eggs/
+wheelhouse/
+venv/
