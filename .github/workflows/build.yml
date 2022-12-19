@@ -62,27 +62,15 @@ jobs:
           # construct non-release version numbers.
           fetch-depth: 0
 
-      - uses: actions/setup-python@v4
-        name: Install Python
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.11.3
         with:
-          python-version: '3.7'
-          cache: 'pip' # caching pip dependencies
-          cache-dependency-path: 'setup.py'
-
-      - name: Install cibuildwheel
-        run: |
-          python3 -m pip install cibuildwheel==2.11.3
-          python -m cibuildwheel --print-build-identifiers
-
-      - name: "Run cibuildwheel"
+          output-dir: wheelhouse
         env:
           # Configure cibuildwheel to build just some of the total wheels we
           # could build for this architecture.  This yields better parallelism
           # on GitHub Actions execution.
           CIBW_BUILD: "${{ matrix.wheel-selector }}"
-
-        run: |
-          python3 -m cibuildwheel --output-dir wheelhouse
 
       - uses: actions/upload-artifact@v3
         name: Upload artifacts
