@@ -23,9 +23,6 @@ on:
   release:
     types: [published, created, edited]
 
-env:
-  # Just make sure that Python can use zfec package
-  CIBW_TEST_COMMAND: python -c "import zfec; print(zfec.__version__)"
 
 jobs:
   build_wheels:
@@ -63,6 +60,8 @@ jobs:
           # could build for this architecture.  This yields better parallelism
           # on GitHub Actions execution.
           CIBW_BUILD: "${{ matrix.wheel-selector }}"
+          # Just make sure that Python can use zfec package.
+          CIBW_TEST_COMMAND: python -c "import zfec; print(zfec.__version__)"
 
       - uses: actions/upload-artifact@v3
         name: Upload artifacts
