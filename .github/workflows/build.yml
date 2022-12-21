@@ -28,8 +28,11 @@ jobs:
   build_wheels:
     name: "${{ matrix.wheel-selector }} wheel on ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
+
     strategy:
       fail-fast: false
+      # NOTE: when updating the matrix below, be sure to keep OS and
+      # Python versions in sync with the ones in test.yml.
       matrix:
         os:
           - "macos-11"
@@ -89,7 +92,7 @@ jobs:
       - uses: actions/setup-python@v4
         name: Install Python
         with:
-          python-version: '3.7'
+          python-version: '3.11'
 
       - name: Build sdist
         run: |
