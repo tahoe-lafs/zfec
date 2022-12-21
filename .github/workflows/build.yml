@@ -43,8 +43,10 @@ jobs:
           - "cp38-*"
           - "cp39-*"
           - "cp310-*"
+          - "cp311-*"
           - "pp37-*"
           - "pp38-*"
+          - "pp39-*"
 
     steps:
       - name: Check out zfec sources
@@ -55,7 +57,7 @@ jobs:
           fetch-depth: 0
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.3.1
+        uses: pypa/cibuildwheel@v2.11.3
         with:
           output-dir: wheelhouse
         env:
