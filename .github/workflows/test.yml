@@ -10,13 +10,16 @@ jobs:
 
   test:
     runs-on: ${{ matrix.os }}
+
     strategy:
       fail-fast: false
+      # NOTE: when updating the matrix below, be sure to keep OS and
+      # Python versions in sync with the ones in build.yml.
       matrix:
         os:
-          - macos-10.15
-          - ubuntu-latest
-          - windows-latest
+          - "macos-11"
+          - "ubuntu-22.04"
+          - "windows-2022"
         python-version:
           - "3.7"
           - "3.8"
@@ -28,12 +31,14 @@ jobs:
     steps:
 
       - name: Check out zfec sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'pip' # caching pip dependencies
+          cache-dependency-path: 'setup.py'
 
       - name: "Run unit tests"
         run: |
