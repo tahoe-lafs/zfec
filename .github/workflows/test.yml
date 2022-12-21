@@ -10,8 +10,11 @@ jobs:
 
   test:
     runs-on: ${{ matrix.os }}
+
     strategy:
       fail-fast: false
+      # NOTE: when updating the matrix below, be sure to keep OS and
+      # Python versions in sync with the ones in build.yml.
       matrix:
         os:
           - "macos-11"
