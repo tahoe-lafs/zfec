@@ -50,6 +50,7 @@ test-suite tests
     , base
     , bytestring
     , fec
+    , hspec
     , QuickCheck
     , random
 

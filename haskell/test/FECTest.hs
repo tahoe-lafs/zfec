@@ -1,5 +1,7 @@
 module Main where
 
+import Test.Hspec
+
 import qualified Codec.FEC as FEC
 import qualified Data.ByteString as B
 import Data.List (sortBy)
@@ -8,7 +10,10 @@ import System.Random
 
 import Test.QuickCheck
 
--- | Return true if the given @k@ and @n@ values are valid
+{- | Return true if the given @k@ and @n@ values are valid ZFEC encoding
+ parameters.  They are valid if they in [1..256] and if @k@ is no greater
+ than @n@.
+-}
 isValidConfig :: Int -> Int -> Bool
 isValidConfig k n
     | k >= n = False
@@ -25,6 +30,7 @@ randomTake seed n values = map snd $ take n sortedValues
     rnds = randoms gen
     gen = mkStdGen seed
 
+testFEC :: Int -> Int -> Int -> Int -> Bool
 testFEC k n len seed = FEC.decode fec someTaggedBlocks == origBlocks
   where
     origBlocks = map (\i -> B.replicate len $ fromIntegral i) [0 .. (k - 1)]
@@ -54,7 +60,8 @@ checkEnFEC len = do
         else fail "deFEC failure"
 
 main :: IO ()
-main = do
-    mapM_ quickCheck [prop_FEC]
-    mapM_ checkDivide [1, 2, 3, 4, 10]
-    mapM_ checkEnFEC [1, 2, 3, 4, 5, 1024 * 1024]
+main = hspec $ do
+    describe "FEC" $ do
+        it "does stuff" $ (withMaxSuccess 10000 prop_FEC)
+        it "can divide" $ mapM_ checkDivide [1, 2, 3, 4, 10]
+        it "can enFec" $ mapM_ checkEnFEC [1, 2, 3, 4, 5, 1024 * 1024]
