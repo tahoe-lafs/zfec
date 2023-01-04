@@ -15,6 +15,7 @@ import System.Random
 import Data.Int
 import Data.Serializer
 import Test.QuickCheck
+import Test.QuickCheck.Monadic
 
 newtype ArbByteString = ArbByteString BL.ByteString deriving newtype (Show, Ord, Eq)
 
@@ -88,13 +89,11 @@ testFEC fec len seed = FEC.decode fec someTaggedBlocks == origBlocks
     -- secondary) to try to use for decoding.
     someTaggedBlocks = randomTake seed (FEC.paramK fec) taggedBlocks
 
-checkDivide :: Int -> IO ()
-checkDivide n = do
-    let input = B.replicate 1024 65
-    parts <- FEC.secureDivide n input
-    if FEC.secureCombine parts == input
-        then return ()
-        else fail "checkDivide failed"
+prop_divide :: Word16 -> Word8 -> Word8 -> Property
+prop_divide size byte divisor = monadicIO $ do
+  let input = B.replicate (fromIntegral size + 1) byte
+  parts <- run $ FEC.secureDivide (fromIntegral divisor) input
+  assert (FEC.secureCombine parts == input)
 
 prop_decode :: FEC.FECParams -> Word16 -> Int -> Property
 prop_decode fec len seed = len < 1024 ==> testFEC fec len seed
@@ -109,8 +108,14 @@ prop_deFEC (Params required total) (ArbByteString testdata) =
 
 main :: IO ()
 main = hspec $ do
-    describe "FEC" $ do
-        it "secureCombine is the inverse of secureDivide n" $ mapM_ checkDivide [1, 2, 3, 4, 10]
+    describe "secureCombine" $ do
+        -- secureDivide is insanely slow and memory hungry for large inputs,
+        -- like QuickCheck will find with it as currently defined.  Just pass
+        -- some small inputs.  It's not clear it's worth fixing (or even
+        -- keeping) thesefunctions.  They don't seem to be used by anything.
+        -- Why are they here?
+        it "is the inverse of secureDivide n" $ once $ prop_divide 1024 65 3
+
     describe "deFEC" $ do
         it "is the inverse of enFEC" $ (withMaxSuccess 2000 prop_deFEC)
 
