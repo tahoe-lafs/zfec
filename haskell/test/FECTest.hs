@@ -38,8 +38,8 @@ data Params = Params
 -- | A somewhat efficient generator for valid ZFEC parameters.
 instance Arbitrary Params where
     arbitrary = do
-        required <- choose (1, 254)
-        total <- choose (min 255 (required + 1), 255)
+        required <- choose (1, 256)
+        total <- choose (required, 256)
         return $ Params required total
 
 instance Arbitrary FEC.FECParams where
