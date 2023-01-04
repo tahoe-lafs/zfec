@@ -10,16 +10,19 @@ import System.Random
 
 import Test.QuickCheck
 
-{- | Return true if the given @k@ and @n@ values are valid ZFEC encoding
- parameters.  They are valid if they in [1..256] and if @k@ is no greater
- than @n@.
--}
-isValidConfig :: Int -> Int -> Bool
-isValidConfig k n
-    | k >= n = False
-    | k < 1 = False
-    | n < 1 = False
-    | otherwise = True
+-- | Valid ZFEC parameters.
+data Params = Params
+    { required :: Int -- aka k
+    , total :: Int -- aka n
+    }
+    deriving (Show, Ord, Eq)
+
+-- | A somewhat efficient generator for valid ZFEC parameters.
+instance Arbitrary Params where
+    arbitrary = do
+        required <- choose (1, 254)
+        total <- choose (min 255 (required + 1), 255)
+        return $ Params required total
 
 randomTake :: Int -> Int -> [a] -> [a]
 randomTake seed n values = map snd $ take n sortedValues
@@ -39,9 +42,8 @@ testFEC k n len seed = FEC.decode fec someTaggedBlocks == origBlocks
     taggedBlocks = zip [0 ..] (origBlocks ++ secondaryBlocks)
     someTaggedBlocks = randomTake seed k taggedBlocks
 
-prop_FEC :: Int -> Int -> Int -> Int -> Property
-prop_FEC k n len seed =
-    isValidConfig k n && n < 256 && len < 1024 ==> testFEC k n len seed
+prop_FEC :: Params -> Int -> Int -> Property
+prop_FEC (Params k n) len seed = len < 1024 ==> testFEC k n len seed
 
 checkDivide :: Int -> IO ()
 checkDivide n = do
@@ -62,6 +64,6 @@ checkEnFEC len = do
 main :: IO ()
 main = hspec $ do
     describe "FEC" $ do
-        it "does stuff" $ (withMaxSuccess 10000 prop_FEC)
         it "can divide" $ mapM_ checkDivide [1, 2, 3, 4, 10]
-        it "can enFec" $ mapM_ checkEnFEC [1, 2, 3, 4, 5, 1024 * 1024]
+        it "decode is the inverse of encode" $ (withMaxSuccess 5000 prop_FEC)
+        it "deFEC is the inverse of enFEC" $ mapM_ checkEnFEC [1, 2, 3, 4, 5, 1024 * 1024]
