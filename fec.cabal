@@ -53,5 +53,6 @@ test-suite tests
     , hspec
     , QuickCheck
     , random
+    , data-serializer
 
   default-language: Haskell2010

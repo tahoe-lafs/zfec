@@ -1,14 +1,30 @@
+{-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+
 module Main where
 
 import Test.Hspec
 
+import qualified Data.ByteString.Lazy as BL
 import qualified Codec.FEC as FEC
 import qualified Data.ByteString as B
 import Data.List (sortBy)
 import System.IO (IOMode (..), withFile)
 import System.Random
+import Data.Int
+import Data.Serializer
 
 import Test.QuickCheck
+newtype ArbByteString = ArbByteString BL.ByteString deriving newtype (Show, Ord, Eq)
+
+instance Arbitrary ArbByteString where
+  arbitrary = do
+    len <- choose (0, 1024 * 64) :: Gen Int32
+    -- Invent some bytes that are somewhat distinctive-ish.
+    return . ArbByteString $ expand len (toLazyByteString len)
+
+expand :: Integral i => i -> BL.ByteString -> BL.ByteString
+expand len = BL.take (fromIntegral len) . BL.cycle
 
 -- | Valid ZFEC parameters.
 data Params = Params
@@ -53,17 +69,20 @@ checkDivide n = do
         then return ()
         else fail "checkDivide failed"
 
-checkEnFEC :: Int -> IO ()
-checkEnFEC len = do
-    testdata <- withFile "/dev/urandom" ReadMode (\handle -> B.hGet handle len)
-    let [a, b, c, d, e] = FEC.enFEC 3 5 testdata
-    if FEC.deFEC 3 5 [b, e, d] == testdata
-        then return ()
-        else fail "deFEC failure"
+
+prop_deFEC :: Params -> ArbByteString -> Property
+prop_deFEC (Params required total) (ArbByteString testdata) =
+  FEC.deFEC required total minimalShares === testdataStrict
+  where
+    allShares = FEC.enFEC required total testdataStrict
+    minimalShares = take required allShares
+    testdataStrict = BL.toStrict testdata
 
 main :: IO ()
 main = hspec $ do
     describe "FEC" $ do
         it "secureCombine is the inverse of secureDivide n" $ mapM_ checkDivide [1, 2, 3, 4, 10]
         it "decode is (nearly) the inverse of encode" $ (withMaxSuccess 5000 prop_FEC)
-        it "deFEC is the inverse of enFEC" $ (withMaxSuccess 5000 prop_enFEC)
+    describe "deFEC" $ do
+        it "is the inverse of enFEC" $ (withMaxSuccess 2000 prop_deFEC)
+
