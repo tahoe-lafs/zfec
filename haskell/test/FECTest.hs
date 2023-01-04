@@ -64,6 +64,6 @@ checkEnFEC len = do
 main :: IO ()
 main = hspec $ do
     describe "FEC" $ do
-        it "can divide" $ mapM_ checkDivide [1, 2, 3, 4, 10]
-        it "decode is the inverse of encode" $ (withMaxSuccess 5000 prop_FEC)
-        it "deFEC is the inverse of enFEC" $ mapM_ checkEnFEC [1, 2, 3, 4, 5, 1024 * 1024]
+        it "secureCombine is the inverse of secureDivide n" $ mapM_ checkDivide [1, 2, 3, 4, 10]
+        it "decode is (nearly) the inverse of encode" $ (withMaxSuccess 5000 prop_FEC)
+        it "deFEC is the inverse of enFEC" $ (withMaxSuccess 5000 prop_enFEC)
