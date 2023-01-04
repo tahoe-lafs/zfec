@@ -53,13 +53,8 @@ checkEnFEC len = do
         then return ()
         else fail "deFEC failure"
 
+main :: IO ()
 main = do
-    mapM_
-        (check (defaultConfig{configMaxTest = 1000, configMaxFail = 10000}))
-        [prop_FEC]
-        mapM_
-        checkDivide
-        [1, 2, 3, 4, 10]
-        mapM_
-        checkEnFEC
-        [1, 2, 3, 4, 5, 1024 * 1024]
+    mapM_ quickCheck [prop_FEC]
+    mapM_ checkDivide [1, 2, 3, 4, 10]
+    mapM_ checkEnFEC [1, 2, 3, 4, 5, 1024 * 1024]
