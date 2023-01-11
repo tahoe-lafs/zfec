@@ -77,11 +77,11 @@
         "pre-commit-hooks": "pre-commit-hooks"
       },
       "locked": {
-        "lastModified": 1671550653,
-        "narHash": "sha256-bDyzhrlvHLwoIZVhti1y/F82NlE2bm9lKnPq/TrZ/bw=",
+        "lastModified": 1673454489,
+        "narHash": "sha256-LsOintvQ4n3QPkI5MA+IhmlLlH5BVzL2xqT/h5U5K7w=",
         "ref": "main",
-        "rev": "11ef7d39b50d523f2991a056bb9211bf5eb3d9ac",
-        "revCount": 1,
+        "rev": "4feccf13501960b92e1d9d73bf6e046b36861af0",
+        "revCount": 4,
         "type": "git",
         "url": "https://whetstone.private.storage/jcalderone/hs-flake-utils.git"
       },
@@ -138,11 +138,11 @@
         "nixpkgs-stable": "nixpkgs-stable"
       },
       "locked": {
-        "lastModified": 1671452357,
-        "narHash": "sha256-HqzXiQEegpRQ4VEl9pEPgHSIxhJrNJ27HfN1wOc7w2E=",
+        "lastModified": 1673281605,
+        "narHash": "sha256-v6U0G3pJe0YaIuD1Ijhz86EhTgbXZ4f/2By8sLqFk4c=",
         "owner": "cachix",
         "repo": "pre-commit-hooks.nix",
-        "rev": "200790e9c77064c53eaf95805b013d96615ecc27",
+        "rev": "f8992fb404c7e79638192a10905b7ea985818050",
         "type": "github"
       },
       "original": {
