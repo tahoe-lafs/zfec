@@ -89,15 +89,18 @@ testFEC fec len seed = FEC.decode fec someTaggedBlocks == origBlocks
     -- secondary) to try to use for decoding.
     someTaggedBlocks = randomTake seed (FEC.paramK fec) taggedBlocks
 
+-- | @FEC.secureDivide@ is the inverse of @FEC.secureCombine@.
 prop_divide :: Word16 -> Word8 -> Word8 -> Property
 prop_divide size byte divisor = monadicIO $ do
   let input = B.replicate (fromIntegral size + 1) byte
   parts <- run $ FEC.secureDivide (fromIntegral divisor) input
   assert (FEC.secureCombine parts == input)
 
+-- | @FEC.encode@ is the inverse of @FEC.decode@.
 prop_decode :: FEC.FECParams -> Word16 -> Int -> Property
 prop_decode fec len seed = property $ testFEC fec len seed
 
+-- | @FEC.enFEC@ is the inverse of @FEC.deFEC@.
 prop_deFEC :: Params -> ArbByteString -> Property
 prop_deFEC (Params required total) (ArbByteString testdata) =
   FEC.deFEC required total minimalShares === testdataStrict
