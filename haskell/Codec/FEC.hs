@@ -73,7 +73,7 @@ foreign import ccall unsafe "fec_decode" _decode :: Ptr CFEC
 -- | Return true if the given @k@ and @n@ values are valid
 isValidConfig :: Int -> Int -> Bool
 isValidConfig k n
-  | k >= n = False
+  | k > n = False
   | k < 1 = False
   | n < 1 = False
   | n > 255 = False

@@ -38,8 +38,8 @@ data Params = Params
 -- | A somewhat efficient generator for valid ZFEC parameters.
 instance Arbitrary Params where
     arbitrary = do
-        required <- choose (1, 256)
-        total <- choose (required, 256)
+        required <- choose (1, 255)
+        total <- choose (required, 255)
         return $ Params required total
 
 instance Arbitrary FEC.FECParams where
@@ -96,7 +96,7 @@ prop_divide size byte divisor = monadicIO $ do
   assert (FEC.secureCombine parts == input)
 
 prop_decode :: FEC.FECParams -> Word16 -> Int -> Property
-prop_decode fec len seed = len < 1024 ==> testFEC fec len seed
+prop_decode fec len seed = property $ testFEC fec len seed
 
 prop_deFEC :: Params -> ArbByteString -> Property
 prop_deFEC (Params required total) (ArbByteString testdata) =
@@ -122,4 +122,4 @@ main = hspec $ do
     describe "decode" $ do
         it "is (nearly) the inverse of encode" $ (withMaxSuccess 2000 prop_decode)
         it "works with total=256" $ property $ prop_decode (FEC.fec 1 256)
-        it "works with required=256" $ property $ prop_decode (FEC.fec 256 256)
+        it "works with required=255" $ property $ prop_decode (FEC.fec 255 256)
