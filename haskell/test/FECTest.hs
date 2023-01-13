@@ -6,11 +6,9 @@ import Test.Hspec (describe, hspec, it, parallel)
 
 import qualified Codec.FEC as FEC
 import qualified Data.ByteString as B
-import Data.Int ()
+import qualified Data.ByteString.Lazy as BL
 import Data.List (sortOn)
-import Data.Serializer ()
 import Data.Word (Word16, Word8)
-
 import System.Random (Random (randoms), mkStdGen)
 import Test.QuickCheck (
     Arbitrary (arbitrary),
@@ -69,10 +67,6 @@ testFEC fec len seed = FEC.decode fec someTaggedBlocks == origBlocks
     -- block number repeated to satisfy the requested length.
     origBlocks = B.replicate (fromIntegral len) . fromIntegral <$> [0 .. (FEC.paramK fec - 1)]
 
-    -- Encode the data to produce the "secondary" blocks which (might) add
-    -- redundancy to the original blocks.
-    secondaryBlocks = FEC.encode fec origBlocks
-
     -- Tag each block with its block number because the decode API requires
     -- this information.
     taggedBlocks = zip [0 ..] (origBlocks ++ secondaryBlocks)
@@ -103,6 +97,13 @@ prop_deFEC (Params req tot) testdata =
     allShares = FEC.enFEC req tot testdata
     minimalShares = take req allShares
 
+prop_primary_copies :: Params -> BL.ByteString -> Property
+prop_primary_copies (Params _ tot) primary = property $ do
+    assert $ all (BL.toStrict primary ==) secondary
+  where
+    fec = FEC.fec 1 tot
+    secondary = FEC.encode fec [BL.toStrict primary]
+
 main :: IO ()
 main = hspec $
     parallel $ do
@@ -120,3 +121,6 @@ main = hspec $
         describe "decode" $ do
             it "is (nearly) the inverse of encode" (withMaxSuccess 2000 prop_decode)
             it "works with required=255" $ property $ prop_decode (Params 255 255)
+
+        describe "encode" $ do
+            it "returns copies of the primary block for all 1 of N encodings" $ property $ withMaxSuccess 10000 prop_primary_copies
