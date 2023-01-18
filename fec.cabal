@@ -41,7 +41,7 @@ library
   ghc-options:
     -Wall -Weverything -Wno-implicit-prelude
     -Wno-prepositive-qualified-module -Wno-all-missed-specialisations
-    -Wno-missing-safe-haskell-mode
+    -Wno-missing-safe-haskell-mode -Wmissing-deriving-strategies
 
   c-sources:          zfec/fec.c
   cc-options:         -std=c99
