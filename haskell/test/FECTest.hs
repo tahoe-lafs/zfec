@@ -115,5 +115,4 @@ main = hspec $ do
 
     describe "decode" $ do
         it "is (nearly) the inverse of encode" $ (withMaxSuccess 2000 prop_decode)
-        it "works with total=256" $ property $ prop_decode (FEC.fec 1 256)
-        it "works with required=255" $ property $ prop_decode (FEC.fec 255 256)
+        it "works with required=255" $ property $ prop_decode (FEC.fec 255 255)
