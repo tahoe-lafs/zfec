@@ -10,7 +10,7 @@ import qualified Data.ByteString as B
 
 import Data.List (sortOn)
 import Data.Word (Word8, Word16)
-import System.Random
+import System.Random (randoms, mkStdGen)
 import Test.QuickCheck (withMaxSuccess, once, choose, Testable(property), Arbitrary(arbitrary), Property)
 import Test.QuickCheck.Monadic (monadicIO, run, assert)
 
@@ -66,6 +66,7 @@ testFEC fec len seed =
 
             let -- Tag each block with its block number because the decode API requires
                 -- this information.
+                taggedBlocks :: [(Int, B.ByteString)]
                 taggedBlocks = zip [0 ..] (origBlocks ++ secondaryBlocks)
 
                 -- Choose enough of the tagged blocks (some combination of original and
