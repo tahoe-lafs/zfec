@@ -35,7 +35,7 @@ library
   exposed-modules:    Codec.FEC
   default-extensions: ForeignFunctionInterface
   hs-source-dirs:     haskell
-  ghc-options:        -Wall
+  ghc-options:        -Wall -Weverything
   c-sources:          zfec/fec.c
   cc-options:         -std=c99
   include-dirs:       zfec
@@ -45,7 +45,7 @@ test-suite tests
   main-is:          FECTest.hs
   other-modules:
   hs-source-dirs:   haskell/test
-  ghc-options:      -Wall -threaded -rtsopts -with-rtsopts=-N
+  ghc-options:      -Wall -Weverything -threaded -rtsopts -with-rtsopts=-N
   build-depends:
     , base
     , bytestring
