@@ -1,32 +1,26 @@
 {-# LANGUAGE DerivingStrategies #-}
 
-module Main where
+module Main (main) where
 
-import Test.Hspec
-
-import Control.Monad.IO.Class (
-    liftIO,
- )
+import Test.Hspec (Expectation, it, describe, hspec, shouldBe, parallel)
 
 import qualified Codec.FEC as FEC
 import qualified Data.ByteString as B
-import qualified Data.ByteString.Lazy as BL
-import Data.Int
+
+
 import Data.List (sortOn)
-import Data.Serializer
-import Data.Word
-import System.IO (IOMode (..), withFile)
+import Data.Word (Word8, Word16)
 import System.Random
-import Test.QuickCheck
-import Test.QuickCheck.Monadic
+import Test.QuickCheck (withMaxSuccess, once, choose, Testable(property), Arbitrary(arbitrary), Property)
+import Test.QuickCheck.Monadic (monadicIO, run, assert)
 
 -- Imported for the orphan Arbitrary ByteString instance.
 import Test.QuickCheck.Instances.ByteString ()
 
 -- | Valid ZFEC parameters.
 data Params = Params
-    { required :: Int -- aka k
-    , total :: Int -- aka n
+    { paramsRequired :: Int -- aka k
+    , paramsTotal :: Int -- aka n
     }
     deriving (Show, Ord, Eq)
 
@@ -120,7 +114,7 @@ main = hspec $
             it "is the inverse of secureDivide n" $ once $ prop_divide 1024 65 3
 
         describe "deFEC" $ do
-            it "is the inverse of enFEC" $ (withMaxSuccess 2000 prop_deFEC)
+            it "is the inverse of enFEC" $ withMaxSuccess 2000 prop_deFEC
 
         describe "decode" $ do
             it "is (nearly) the inverse of encode" $ withMaxSuccess 2000 prop_decode

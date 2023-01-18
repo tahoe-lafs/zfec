@@ -42,7 +42,7 @@ import System.IO (withFile, IOMode(ReadMode))
 
 data CFEC
 data FECParams = FECParams
-  { cfec   :: (ForeignPtr CFEC)
+  { cfec   :: ForeignPtr CFEC
   , paramK :: Int
   , paramN :: Int
   }
@@ -90,11 +90,11 @@ fec k n =
        return $ FECParams params k n
 
 -- | Create a C array of unsigned from an input array
-uintCArray :: [Int] -> ((Ptr CUInt) -> IO a) -> IO a
-uintCArray xs f = withArray (map fromIntegral xs) f
+uintCArray :: [Int] -> (Ptr CUInt -> IO a) -> IO a
+uintCArray xs = withArray (map fromIntegral xs)
 
 -- | Convert a list of ByteStrings to an array of pointers to their data
-byteStringsToArray :: [B.ByteString] -> ((Ptr (Ptr Word8)) -> IO a) -> IO a
+byteStringsToArray :: [B.ByteString] -> (Ptr (Ptr Word8) -> IO a) -> IO a
 byteStringsToArray inputs f = do
   let l = length inputs
   allocaBytes (l * sizeOf (undefined :: Ptr (Ptr Word8))) (\array -> do
@@ -108,13 +108,13 @@ byteStringsToArray inputs f = do
 -- | Return True iff all the given ByteStrings are the same length
 allByteStringsSameLength :: [B.ByteString] -> Bool
 allByteStringsSameLength [] = True
-allByteStringsSameLength (bs : bss) = all ((==) (B.length bs)) $ map B.length bss
+allByteStringsSameLength (bs : bss) = all ((B.length bs ==) . B.length) bss
 
 -- | Run the given function with a pointer to an array of @n@ pointers to
 --   buffers of size @size@. Return these buffers as a list of ByteStrings
 createByteStringArray :: Int  -- ^ the number of buffers requested
                       -> Int  -- ^ the size of each buffer
-                      -> ((Ptr (Ptr Word8)) -> IO ())
+                      -> (Ptr (Ptr Word8) -> IO ())
                       -> IO [B.ByteString]
 createByteStringArray n size f = do
   allocaBytes (n * sizeOf (undefined :: Ptr Word8)) (\array -> do
@@ -163,8 +163,8 @@ decode :: FECParams
        -> [(Int, B.ByteString)]  -- ^ a list of @k@ blocks and their index
        -> IO [B.ByteString]  -- ^ a list the @k@ primary blocks
 decode (FECParams params k n) inblocks
-  | length (nub $ map fst inblocks) /= length (inblocks) = error "Duplicate input blocks in FEC decode"
-  | any (\f -> f < 0 || f >= n) $ map fst inblocks = error "Invalid block numbers in FEC decode"
+  | length (nub $ map fst inblocks) /= length inblocks = error "Duplicate input blocks in FEC decode"
+  | any ((\f -> f < 0 || f >= n) . fst) inblocks = error "Invalid block numbers in FEC decode"
   | length inblocks /= k = error "Wrong number of blocks to FEC decode"
   | not (allByteStringsSameLength $ map snd inblocks) = error "Not all inputs to FEC decode are same length"
   | otherwise = do
@@ -223,21 +223,21 @@ enFEC :: Int  -- ^ the number of blocks required to reconstruct
       -> IO [B.ByteString]  -- ^ the resulting blocks
 enFEC k n input =
   let
-    taggedPrimaryBlocks = map (uncurry B.cons) $ zip [0..] primaryBlocks
-    taggedSecondaryBlocks sb = map (uncurry B.cons) $ zip [(fromIntegral k)..] sb
+    taggedPrimaryBlocks = zipWith B.cons [0..] primaryBlocks
+    taggedSecondaryBlocks = zipWith B.cons [(fromIntegral k)..]
     remainder = B.length input `mod` k
-    paddingLength = if remainder >= 1 then (k - remainder) else k
-    paddingBytes = (B.replicate (paddingLength - 1) 0) `B.append` (B.singleton $ fromIntegral paddingLength)
+    paddingLength = if remainder >= 1 then k - remainder else k
+    paddingBytes = B.replicate (paddingLength - 1) 0 `B.append` (B.singleton . fromIntegral $ paddingLength)
     divide a bs
         | B.null bs = []
-        | otherwise = (B.take a bs) : (divide a $ B.drop a bs)
+        | otherwise = B.take a bs : (divide a . B.drop a $ bs)
     input' = input `B.append` paddingBytes
     blockSize = B.length input' `div` k
     primaryBlocks = divide blockSize input'
   in do
     params <- fec k n
     secondaryBlocks <- encode params primaryBlocks
-    pure $ taggedPrimaryBlocks ++ (taggedSecondaryBlocks secondaryBlocks)
+    pure $ taggedPrimaryBlocks ++ taggedSecondaryBlocks secondaryBlocks
 
 -- | Reverses the operation of @enFEC@.
 deFEC :: Int  -- ^ the number of blocks required (matches call to @enFEC@)

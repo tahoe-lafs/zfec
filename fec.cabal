@@ -35,12 +35,13 @@ library
   exposed-modules:    Codec.FEC
   default-extensions: ForeignFunctionInterface
   hs-source-dirs:     haskell
+
   -- Try to keep the warning options here in sync with those in the
   -- test-suite.
   ghc-options:
     -Wall -Weverything -Wno-implicit-prelude
     -Wno-prepositive-qualified-module -Wno-all-missed-specialisations
-    -Wno-unsafe
+    -Wno-missing-safe-haskell-mode
 
   c-sources:          zfec/fec.c
   cc-options:         -std=c99
@@ -62,17 +63,20 @@ test-suite tests
   -- * all-missed-specialisations: I don't really understand the implications
   --   of messing with INLINABLE.
   --
-  -- * unsafe: Yea, well, the FEC implementation is actually unsafe, so.
+  -- * missing-safe-haskell-mode: Yea, well, the FEC implementation is
+  --   actually unsafe, so.
   --
+  -- * missing-deriving-strategies: The default deriving strategy is
+  --   unsurprising.
   ghc-options:
     -Wall -Weverything -threaded -rtsopts -with-rtsopts=-N
     -Wno-implicit-prelude -Wno-prepositive-qualified-module
-    -Wno-all-missed-specialisations -Wno-unsafe
+    -Wno-all-missed-specialisations -Wno-missing-safe-haskell-mode
+    -Wmissing-deriving-strategies
 
   build-depends:
     , base
     , bytestring
-    , data-serializer
     , fec
     , hspec
     , QuickCheck
