@@ -98,11 +98,11 @@ prop_decode (Params required total) len seed =
         fec <- FEC.fec required total
         testFEC fec len seed
 
-prop_primary_copies :: Params -> ArbByteString -> Property
-prop_primary_copies (Params _ total) (ArbByteString primary) = monadicIO $ do
+prop_primary_copies :: Params -> B.ByteString -> Property
+prop_primary_copies (Params _ total) primary = monadicIO $ do
     fec <- run $ FEC.fec 1 total
-    secondary <- run $ FEC.encode fec [BL.toStrict primary]
-    assert $ all (BL.toStrict primary ==) secondary
+    secondary <- run $ FEC.encode fec [primary]
+    assert $ all (primary ==) secondary
 
 -- | @FEC.enFEC@ is the inverse of @FEC.deFEC@.
 prop_deFEC :: Params -> B.ByteString -> Property
