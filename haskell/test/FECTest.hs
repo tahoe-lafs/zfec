@@ -8,9 +8,10 @@ import qualified Codec.FEC as FEC
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import Data.Int
-import Data.List (sortBy)
+import Data.List (sortOn)
 import Data.Serializer
 import Data.Word
+
 import System.IO (IOMode (..), withFile)
 import System.Random
 import Test.QuickCheck
@@ -41,7 +42,7 @@ instance Arbitrary FEC.FECParams where
 randomTake :: Int -> Int -> [a] -> [a]
 randomTake seed n values = map snd $ take n sortedValues
   where
-    sortedValues = sortBy (\a b -> compare (fst a) (fst b)) taggedValues
+    sortedValues = sortOn fst taggedValues
     taggedValues = zip rnds values
     rnds :: [Float]
     rnds = randoms gen
