@@ -35,7 +35,13 @@ library
   exposed-modules:    Codec.FEC
   default-extensions: ForeignFunctionInterface
   hs-source-dirs:     haskell
-  ghc-options:        -Wall -Weverything
+  -- Try to keep the warning options here in sync with those in the
+  -- test-suite.
+  ghc-options:
+    -Wall -Weverything -Wno-implicit-prelude
+    -Wno-prepositive-qualified-module -Wno-all-missed-specialisations
+    -Wno-unsafe
+
   c-sources:          zfec/fec.c
   cc-options:         -std=c99
   include-dirs:       zfec
@@ -45,7 +51,24 @@ test-suite tests
   main-is:          FECTest.hs
   other-modules:
   hs-source-dirs:   haskell/test
-  ghc-options:      -Wall -Weverything -threaded -rtsopts -with-rtsopts=-N
+
+  -- Turn on a lot of warnings.  Some warnings we turn off:
+  --
+  -- * implicit-prelude: We use the implicit prelude a lot for now.
+  --
+  -- * prepositive-qualified-module: prepositive qualified is really common
+  --   and I don't want to reformat everything right now.
+  --
+  -- * all-missed-specialisations: I don't really understand the implications
+  --   of messing with INLINABLE.
+  --
+  -- * unsafe: Yea, well, the FEC implementation is actually unsafe, so.
+  --
+  ghc-options:
+    -Wall -Weverything -threaded -rtsopts -with-rtsopts=-N
+    -Wno-implicit-prelude -Wno-prepositive-qualified-module
+    -Wno-all-missed-specialisations -Wno-unsafe
+
   build-depends:
     , base
     , bytestring

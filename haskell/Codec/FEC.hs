@@ -15,7 +15,7 @@
 -- numbered 0..(n - 1) and blocks numbered < k are the primary blocks.
 
 module Codec.FEC (
-    FECParams(paramK, paramN)
+    FECParams(cfec, paramK, paramN)
   , fec
   , encode
   , decode
@@ -29,17 +29,16 @@ module Codec.FEC (
 
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Unsafe as BU
-import qualified Data.ByteString.Internal as BI
 import Data.Word (Word8)
 import Data.Bits (xor)
 import Data.List (sortBy, partition, (\\), nub)
-import Foreign.Ptr
+import Foreign.Ptr (Ptr, FunPtr, castPtr)
 import Foreign.Storable (sizeOf, poke)
-import Foreign.ForeignPtr
-import Foreign.C.Types
-import Foreign.Marshal.Alloc
+import Foreign.ForeignPtr (ForeignPtr, withForeignPtr, newForeignPtr)
+import Foreign.C.Types (CSize(CSize), CUInt(CUInt))
+import Foreign.Marshal.Alloc (allocaBytes)
 import Foreign.Marshal.Array (withArray, advancePtr)
-import System.IO (withFile, IOMode(..))
+import System.IO (withFile, IOMode(ReadMode))
 
 data CFEC
 data FECParams = FECParams
@@ -86,8 +85,8 @@ fec k n =
   if not (isValidConfig k n)
      then error $ "Invalid FEC parameters: " ++ show k ++ " " ++ show n
      else do
-       cfec <- _new (fromIntegral k) (fromIntegral n)
-       params <- newForeignPtr _free cfec
+       cfec' <- _new (fromIntegral k) (fromIntegral n)
+       params <- newForeignPtr _free cfec'
        return $ FECParams params k n
 
 -- | Create a C array of unsigned from an input array
@@ -98,12 +97,13 @@ uintCArray xs f = withArray (map fromIntegral xs) f
 byteStringsToArray :: [B.ByteString] -> ((Ptr (Ptr Word8)) -> IO a) -> IO a
 byteStringsToArray inputs f = do
   let l = length inputs
-  allocaBytes (l * sizeOf (undefined :: Ptr Word8)) (\array -> do
-    let inner _ [] = f array
-        inner array' (bs : bss) = BU.unsafeUseAsCString bs (\ptr -> do
+  allocaBytes (l * sizeOf (undefined :: Ptr (Ptr Word8))) (\array -> do
+    let inner :: (Ptr (Ptr Word8) -> IO a) -> Ptr (Ptr Word8) -> [B.ByteString] -> IO a
+        inner f' _ [] = f' array
+        inner f' array' (bs : bss) = BU.unsafeUseAsCString bs (\ptr -> do
           poke array' $ castPtr ptr
-          inner (advancePtr array' 1) bss)
-    inner array inputs)
+          inner f' (advancePtr array' 1) bss)
+    inner f array inputs)
 
 -- | Return True iff all the given ByteStrings are the same length
 allByteStringsSameLength :: [B.ByteString] -> Bool
@@ -134,11 +134,11 @@ encode (FECParams params k n) inblocks
   | not (allByteStringsSameLength inblocks) = error "Not all inputs to FEC encode are the same length"
   | otherwise = do
       let sz = B.length $ head inblocks
-      withForeignPtr params (\cfec -> do
+      withForeignPtr params (\cfec' -> do
         byteStringsToArray inblocks (\src -> do
           createByteStringArray (n - k) sz (\fecs -> do
             uintCArray [k..(n - 1)] (\block_nums -> do
-              _encode cfec src fecs block_nums (fromIntegral (n - k)) $ fromIntegral sz))))
+              _encode cfec' src fecs block_nums (fromIntegral (n - k)) $ fromIntegral sz))))
 
 -- | A sort function for tagged assoc lists
 sortTagged :: [(Int, a)] -> [(Int, a)]
@@ -147,8 +147,9 @@ sortTagged = sortBy (\a b -> compare (fst a) (fst b))
 -- | Reorder the given list so that elements with tag numbers < the first
 --   argument have an index equal to their tag number (if possible)
 reorderPrimaryBlocks :: Int -> [(Int, a)] -> [(Int, a)]
-reorderPrimaryBlocks n blocks = inner (sortTagged pBlocks) sBlocks [] where
-  (pBlocks, sBlocks) = partition (\(tag, _) -> tag < n) blocks
+reorderPrimaryBlocks n blocks = inner (sortTagged primaryBlocks) secondaryBlocks [] where
+  (primaryBlocks, secondaryBlocks) = partition (\(tag, _) -> tag < n) blocks
+  inner :: [(Int, a)] -> [(Int, a)] -> [(Int, a)] -> [(Int, a)]
   inner [] sBlocks acc = acc ++ sBlocks
   inner pBlocks [] acc = acc ++ pBlocks
   inner pBlocks@((tag, a) : ps) sBlocks@(s : ss) acc =
@@ -170,11 +171,11 @@ decode (FECParams params k n) inblocks
       let sz = B.length $ snd $ head inblocks
           inblocks' = reorderPrimaryBlocks k inblocks
           presentBlocks = map fst inblocks'
-      withForeignPtr params (\cfec -> do
+      withForeignPtr params (\cfec' -> do
         byteStringsToArray (map snd inblocks') (\src -> do
           b <- createByteStringArray (n - k) sz (\out -> do
                  uintCArray presentBlocks (\block_nums -> do
-                   _decode cfec src out block_nums $ fromIntegral sz))
+                   _decode cfec' src out block_nums $ fromIntegral sz))
           let blocks = [0..(n - 1)] \\ presentBlocks
               tagged = zip blocks b
               allBlocks = sortTagged $ tagged ++ inblocks'
@@ -196,11 +197,12 @@ secureDivide :: Int  -- ^ the number of parts requested
 secureDivide n input
   | n < 0 = error "secureDivide called with negative number of parts"
   | otherwise = withFile "/dev/urandom" ReadMode (\handle -> do
-      let inner 1 bs = return [bs]
-          inner n bs = do
+      let inner :: Int -> B.ByteString -> IO [B.ByteString]
+          inner 1 bs = return [bs]
+          inner n' bs = do
             mask <- B.hGet handle (B.length bs)
             let masked = B.pack $ B.zipWith xor bs mask
-            rest <- inner (n - 1) masked
+            rest <- inner (n' - 1) masked
             return (mask : rest)
       inner n input)
 
@@ -246,8 +248,10 @@ deFEC k n inputs
   | length inputs < k = error "Too few inputs to deFEC"
   | otherwise =
     let
+      paddingLength :: B.ByteString -> Int
       paddingLength output = fromIntegral $ B.last output
       inputs' = take k inputs
+      taggedInputs :: [(Int, B.ByteString)]
       taggedInputs = map (\bs -> (fromIntegral $ B.head bs, B.tail bs)) inputs'
     in do
       params <- fec k n
