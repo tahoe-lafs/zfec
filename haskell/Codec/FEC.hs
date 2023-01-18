@@ -40,7 +40,6 @@ import Foreign.C.Types
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array (withArray, advancePtr)
 import System.IO (withFile, IOMode(..))
-import System.IO.Unsafe (unsafePerformIO)
 
 data CFEC
 data FECParams = FECParams
@@ -82,14 +81,14 @@ isValidConfig k n
 -- | Return a FEC with the given parameters.
 fec :: Int  -- ^ the number of primary blocks
     -> Int  -- ^ the total number blocks, must be < 256
-    -> FECParams
+    -> IO FECParams
 fec k n =
   if not (isValidConfig k n)
      then error $ "Invalid FEC parameters: " ++ show k ++ " " ++ show n
-     else unsafePerformIO (do
+     else do
        cfec <- _new (fromIntegral k) (fromIntegral n)
        params <- newForeignPtr _free cfec
-       return $ FECParams params k n)
+       return $ FECParams params k n
 
 -- | Create a C array of unsigned from an input array
 uintCArray :: [Int] -> ((Ptr CUInt) -> IO a) -> IO a
@@ -129,17 +128,17 @@ createByteStringArray n size f = do
 --   @k@ primary blocks.
 encode :: FECParams
        -> [B.ByteString]  -- ^ a list of @k@ input blocks
-       -> [B.ByteString]  -- ^ (n - k) output blocks
+       -> IO [B.ByteString]  -- ^ (n - k) output blocks
 encode (FECParams params k n) inblocks
   | length inblocks /= k = error "Wrong number of blocks to FEC encode"
   | not (allByteStringsSameLength inblocks) = error "Not all inputs to FEC encode are the same length"
-  | otherwise = unsafePerformIO (do
+  | otherwise = do
       let sz = B.length $ head inblocks
       withForeignPtr params (\cfec -> do
         byteStringsToArray inblocks (\src -> do
           createByteStringArray (n - k) sz (\fecs -> do
             uintCArray [k..(n - 1)] (\block_nums -> do
-              _encode cfec src fecs block_nums (fromIntegral (n - k)) $ fromIntegral sz)))))
+              _encode cfec src fecs block_nums (fromIntegral (n - k)) $ fromIntegral sz))))
 
 -- | A sort function for tagged assoc lists
 sortTagged :: [(Int, a)] -> [(Int, a)]
@@ -161,13 +160,13 @@ reorderPrimaryBlocks n blocks = inner (sortTagged pBlocks) sBlocks [] where
 --   tagged with its number (see the module comments about block numbering)
 decode :: FECParams
        -> [(Int, B.ByteString)]  -- ^ a list of @k@ blocks and their index
-       -> [B.ByteString]  -- ^ a list the @k@ primary blocks
+       -> IO [B.ByteString]  -- ^ a list the @k@ primary blocks
 decode (FECParams params k n) inblocks
   | length (nub $ map fst inblocks) /= length (inblocks) = error "Duplicate input blocks in FEC decode"
   | any (\f -> f < 0 || f >= n) $ map fst inblocks = error "Invalid block numbers in FEC decode"
   | length inblocks /= k = error "Wrong number of blocks to FEC decode"
   | not (allByteStringsSameLength $ map snd inblocks) = error "Not all inputs to FEC decode are same length"
-  | otherwise = unsafePerformIO (do
+  | otherwise = do
       let sz = B.length $ snd $ head inblocks
           inblocks' = reorderPrimaryBlocks k inblocks
           presentBlocks = map fst inblocks'
@@ -179,7 +178,7 @@ decode (FECParams params k n) inblocks
           let blocks = [0..(n - 1)] \\ presentBlocks
               tagged = zip blocks b
               allBlocks = sortTagged $ tagged ++ inblocks'
-          return $ take k $ map snd allBlocks)))
+          return $ take k $ map snd allBlocks))
 
 -- | Break a ByteString into @n@ parts, equal in length to the original, such
 --   that all @n@ are required to reconstruct the original, but having less
@@ -219,32 +218,38 @@ secureCombine (a : rest) = B.pack $ B.zipWith xor a $ secureCombine rest
 enFEC :: Int  -- ^ the number of blocks required to reconstruct
       -> Int  -- ^ the total number of blocks
       -> B.ByteString  -- ^ the data to divide
-      -> [B.ByteString]  -- ^ the resulting blocks
-enFEC k n input = taggedPrimaryBlocks ++ taggedSecondaryBlocks where
-  taggedPrimaryBlocks = map (uncurry B.cons) $ zip [0..] primaryBlocks
-  taggedSecondaryBlocks = map (uncurry B.cons) $ zip [(fromIntegral k)..] secondaryBlocks
-  remainder = B.length input `mod` k
-  paddingLength = if remainder >= 1 then (k - remainder) else k
-  paddingBytes = (B.replicate (paddingLength - 1) 0) `B.append` (B.singleton $ fromIntegral paddingLength)
-  divide a bs
-    | B.null bs = []
-    | otherwise = (B.take a bs) : (divide a $ B.drop a bs)
-  input' = input `B.append` paddingBytes
-  blockSize = B.length input' `div` k
-  primaryBlocks = divide blockSize input'
-  secondaryBlocks = encode params primaryBlocks
-  params = fec k n
+      -> IO [B.ByteString]  -- ^ the resulting blocks
+enFEC k n input =
+  let
+    taggedPrimaryBlocks = map (uncurry B.cons) $ zip [0..] primaryBlocks
+    taggedSecondaryBlocks sb = map (uncurry B.cons) $ zip [(fromIntegral k)..] sb
+    remainder = B.length input `mod` k
+    paddingLength = if remainder >= 1 then (k - remainder) else k
+    paddingBytes = (B.replicate (paddingLength - 1) 0) `B.append` (B.singleton $ fromIntegral paddingLength)
+    divide a bs
+        | B.null bs = []
+        | otherwise = (B.take a bs) : (divide a $ B.drop a bs)
+    input' = input `B.append` paddingBytes
+    blockSize = B.length input' `div` k
+    primaryBlocks = divide blockSize input'
+  in do
+    params <- fec k n
+    secondaryBlocks <- encode params primaryBlocks
+    pure $ taggedPrimaryBlocks ++ (taggedSecondaryBlocks secondaryBlocks)
 
 -- | Reverses the operation of @enFEC@.
 deFEC :: Int  -- ^ the number of blocks required (matches call to @enFEC@)
       -> Int  -- ^ the total number of blocks (matches call to @enFEC@)
       -> [B.ByteString]  -- ^ a list of k, or more, blocks from @enFEC@
-      -> B.ByteString
+      -> IO B.ByteString
 deFEC k n inputs
   | length inputs < k = error "Too few inputs to deFEC"
-  | otherwise = B.take (B.length fecOutput - paddingLength) fecOutput where
-      paddingLength = fromIntegral $ B.last fecOutput
+  | otherwise =
+    let
+      paddingLength output = fromIntegral $ B.last output
       inputs' = take k inputs
       taggedInputs = map (\bs -> (fromIntegral $ B.head bs, B.tail bs)) inputs'
-      fecOutput = B.concat $ decode params taggedInputs
-      params = fec k n
+    in do
+      params <- fec k n
+      fecOutput <- B.concat <$> decode params taggedInputs
+      pure $ B.take (B.length fecOutput - paddingLength fecOutput) fecOutput
