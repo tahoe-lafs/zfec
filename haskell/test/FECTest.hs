@@ -12,9 +12,6 @@ import qualified Codec.FEC as FEC
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import Data.Int
-import Data.List (sortBy)
-import Data.Serializer
-import Data.Word
 import Data.List (sortOn)
 import Data.Serializer
 import Data.Word
@@ -107,9 +104,9 @@ prop_primary_copies (Params _ total) primary = monadicIO $ do
 -- | @FEC.enFEC@ is the inverse of @FEC.deFEC@.
 prop_deFEC :: Params -> B.ByteString -> Property
 prop_deFEC (Params required total) testdata = monadicIO $ do
-  encoded <- run $ FEC.enFEC required total testdata
-  decoded <- run $ FEC.deFEC required total (take required encoded)
-  assert $ testdata == decoded
+    encoded <- run $ FEC.enFEC required total testdata
+    decoded <- run $ FEC.deFEC required total (take required encoded)
+    assert $ testdata == decoded
 
 main :: IO ()
 main = hspec $
