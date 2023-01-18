@@ -41,7 +41,8 @@ library
   ghc-options:
     -Wall -Weverything -Wno-implicit-prelude
     -Wno-prepositive-qualified-module -Wno-all-missed-specialisations
-    -Wno-missing-safe-haskell-mode -Wno-missing-deriving-strategies
+    -Wno-missing-safe-haskell-mode -Wno-unsafe
+    -Wno-missing-deriving-strategies
 
   c-sources:          zfec/fec.c
   cc-options:         -std=c99
@@ -72,7 +73,7 @@ test-suite tests
     -Wall -Weverything -threaded -rtsopts -with-rtsopts=-N
     -Wno-implicit-prelude -Wno-prepositive-qualified-module
     -Wno-all-missed-specialisations -Wno-missing-safe-haskell-mode
-    -Wno-missing-deriving-strategies
+    -Wno-unsafe -Wno-missing-deriving-strategies
 
   build-depends:
     , base
