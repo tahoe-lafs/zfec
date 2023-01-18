@@ -1,5 +1,4 @@
 {-# LANGUAGE DerivingStrategies #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Main where
 
@@ -16,21 +15,16 @@ import Data.Int
 import Data.List (sortBy)
 import Data.Serializer
 import Data.Word
+import Data.List (sortOn)
+import Data.Serializer
+import Data.Word
 import System.IO (IOMode (..), withFile)
 import System.Random
 import Test.QuickCheck
 import Test.QuickCheck.Monadic
 
-newtype ArbByteString = ArbByteString BL.ByteString deriving newtype (Show, Ord, Eq)
-
-instance Arbitrary ArbByteString where
-    arbitrary = do
-        len <- choose (0, 1024 * 64) :: Gen Int32
-        -- Invent some bytes that are somewhat distinctive-ish.
-        return . ArbByteString $ expand len (toLazyByteString len)
-
-expand :: Integral i => i -> BL.ByteString -> BL.ByteString
-expand len = BL.take (fromIntegral len) . BL.cycle
+-- Imported for the orphan Arbitrary ByteString instance.
+import Test.QuickCheck.Instances.ByteString ()
 
 -- | Valid ZFEC parameters.
 data Params = Params
@@ -49,7 +43,7 @@ instance Arbitrary Params where
 randomTake :: Int -> Int -> [a] -> [a]
 randomTake seed n values = map snd $ take n sortedValues
   where
-    sortedValues = sortBy (\a b -> compare (fst a) (fst b)) taggedValues
+    sortedValues = sortOn fst taggedValues
     taggedValues = zip rnds values
     rnds :: [Float]
     rnds = randoms gen
@@ -104,20 +98,19 @@ prop_decode (Params required total) len seed =
         fec <- FEC.fec required total
         testFEC fec len seed
 
--- | @FEC.enFEC@ is the inverse of @FEC.deFEC@.
-prop_deFEC :: Params -> ArbByteString -> Property
-prop_deFEC (Params required total) (ArbByteString testdata) = monadicIO $ do
-    let testdataStrict = BL.toStrict testdata
-    allShares <- run $ FEC.enFEC required total testdataStrict
-    let minimalShares = take required allShares
-    decoded <- run $ FEC.deFEC required total minimalShares
-    assert $ decoded == testdataStrict
-
 prop_primary_copies :: Params -> ArbByteString -> Property
 prop_primary_copies (Params _ total) (ArbByteString primary) = monadicIO $ do
     fec <- run $ FEC.fec 1 total
     secondary <- run $ FEC.encode fec [BL.toStrict primary]
     assert $ all (BL.toStrict primary ==) secondary
+
+-- | @FEC.enFEC@ is the inverse of @FEC.deFEC@.
+prop_deFEC :: Params -> B.ByteString -> Property
+prop_deFEC (Params required total) testdata =
+  FEC.deFEC required total minimalShares === testdata
+  where
+    allShares = FEC.enFEC required total testdata
+    minimalShares = take required allShares
 
 main :: IO ()
 main = hspec $
@@ -130,13 +123,13 @@ main = hspec $
             -- Why are they here?
             it "is the inverse of secureDivide n" $ once $ prop_divide 1024 65 3
 
-        -- describe "deFEC" $ do
-        --     it "is the inverse of enFEC" $ (withMaxSuccess 2000 prop_deFEC)
+        describe "deFEC" $ do
+            it "is the inverse of enFEC" $ (withMaxSuccess 2000 prop_deFEC)
 
-        -- describe "decode" $ do
-        --     it "is (nearly) the inverse of encode" $ withMaxSuccess 2000 prop_decode
-        --     it "works with total=255" $ property $ prop_decode (Params 1 255)
-        --     it "works with required=255" $ property $ prop_decode (Params 255 255)
+        describe "decode" $ do
+            it "is (nearly) the inverse of encode" $ withMaxSuccess 2000 prop_decode
+            it "works with total=255" $ property $ prop_decode (Params 1 255)
+            it "works with required=255" $ property $ prop_decode (Params 255 255)
 
         describe "encode" $ do
             it "returns copies of the primary block for all 1 of N encodings" $ property $ withMaxSuccess 10000 prop_primary_copies

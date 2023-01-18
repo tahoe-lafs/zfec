@@ -49,10 +49,11 @@ test-suite tests
   build-depends:
     , base
     , bytestring
+    , data-serializer
     , fec
     , hspec
     , QuickCheck
+    , quickcheck-instances
     , random
-    , data-serializer
 
   default-language: Haskell2010
