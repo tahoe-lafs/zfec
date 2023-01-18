@@ -106,11 +106,10 @@ prop_primary_copies (Params _ total) primary = monadicIO $ do
 
 -- | @FEC.enFEC@ is the inverse of @FEC.deFEC@.
 prop_deFEC :: Params -> B.ByteString -> Property
-prop_deFEC (Params required total) testdata =
-  FEC.deFEC required total minimalShares === testdata
-  where
-    allShares = FEC.enFEC required total testdata
-    minimalShares = take required allShares
+prop_deFEC (Params required total) testdata = monadicIO $ do
+  encoded <- run $ FEC.enFEC required total testdata
+  decoded <- run $ FEC.deFEC required total (take required encoded)
+  assert $ testdata == decoded
 
 main :: IO ()
 main = hspec $
