@@ -15,7 +15,7 @@
 -- numbered 0..(n - 1) and blocks numbered < k are the primary blocks.
 
 module Codec.FEC (
-    FECParams
+    FECParams(paramK, paramN)
   , fec
   , encode
   , decode
@@ -43,7 +43,11 @@ import System.IO (withFile, IOMode(..))
 import System.IO.Unsafe (unsafePerformIO)
 
 data CFEC
-data FECParams = FECParams (ForeignPtr CFEC) Int Int
+data FECParams = FECParams
+  { cfec   :: (ForeignPtr CFEC)
+  , paramK :: Int
+  , paramN :: Int
+  }
 
 instance Show FECParams where
   show (FECParams _ k n) = "FEC (" ++ show k ++ ", " ++ show n ++ ")"
@@ -69,7 +73,7 @@ foreign import ccall unsafe "fec_decode" _decode :: Ptr CFEC
 -- | Return true if the given @k@ and @n@ values are valid
 isValidConfig :: Int -> Int -> Bool
 isValidConfig k n
-  | k >= n = False
+  | k > n = False
   | k < 1 = False
   | n < 1 = False
   | n > 255 = False
