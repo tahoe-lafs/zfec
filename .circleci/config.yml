@@ -7,8 +7,11 @@ jobs:
 
     environment:
       # Let us use features marked "experimental".  For example, most/all of
-      # the `nix <subcommand>` forms.
-      NIX_CONFIG: "experimental-features = nix-command flakes"
+      # the `nix <subcommand>` forms.  Also, allow import from derivation
+      # because cabal2nix requires it.
+      NIX_CONFIG: |
+        experimental-features = nix-command flakes
+        allow-import-from-derivation = true
 
     steps:
       - "checkout"
