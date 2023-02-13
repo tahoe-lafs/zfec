@@ -1,26 +1,23 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/2.0/configuration-reference
-version: 2.1
+version: "2.1"
 
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  say-hello:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+  nix-build:
     docker:
-      - image: cimg/base:stable
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
-    steps:
-      - checkout
-      - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
+      - image: "nixos/nix:2.13.2"
 
-# Invoke jobs via workflows
-# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+    environment:
+      # Let us use features marked "experimental".  For example, most/all of
+      # the `nix <subcommand>` forms.
+      NIX_CONFIG: "experimental-features = nix-command flakes"
+
+    steps:
+      - "checkout"
+      - run:
+          name: "nix build"
+          command: |
+            nix build
+
 workflows:
-  say-hello-workflow:
+  ci:
     jobs:
-      - say-hello
+      - nix-build
