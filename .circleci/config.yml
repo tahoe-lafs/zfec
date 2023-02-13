@@ -16,11 +16,16 @@ jobs:
     steps:
       - "checkout"
       - run:
-          no_output_timeout: "30m"
           name: "nix flake check"
           command: |
             nix flake show
             nix flake check -v
+
+      - run:
+          name: "nix build"
+          no_output_timeout: "30m"
+          command: |
+            nix build -v
 
 workflows:
   ci:
