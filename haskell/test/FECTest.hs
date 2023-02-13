@@ -36,8 +36,8 @@ instance Arbitrary Params where
 
 instance Arbitrary FEC.FECParams where
     arbitrary = do
-      (Params required total) <- arbitrary :: Gen Params
-      return $ FEC.fec required total
+        (Params required total) <- arbitrary :: Gen Params
+        return $ FEC.fec required total
 
 randomTake :: Int -> Int -> [a] -> [a]
 randomTake seed n values = map snd $ take n sortedValues
@@ -48,21 +48,21 @@ randomTake seed n values = map snd $ take n sortedValues
     rnds = randoms gen
     gen = mkStdGen seed
 
--- | Any combination of the inputs blocks and the output blocks from
--- @FEC.encode@, as long as there are at least @k@ of them, can be recombined
--- using @FEC.decode@ to produce the original input blocks.
---
-testFEC
-  :: FEC.FECParams
-  -- ^ The FEC parameters to exercise.
-  -> Word16
-  -- ^ The length of the blocks to exercise.
-  -> Int
-  -- ^ A random seed to use to be able to vary the choice of which blocks to
-  -- try to decode.
-  -> Bool
-  -- ^ True if the encoded input was reconstructed by decoding, False
-  -- otherwise.
+{- | Any combination of the inputs blocks and the output blocks from
+ @FEC.encode@, as long as there are at least @k@ of them, can be recombined
+ using @FEC.decode@ to produce the original input blocks.
+-}
+testFEC ::
+    -- | The FEC parameters to exercise.
+    FEC.FECParams ->
+    -- | The length of the blocks to exercise.
+    Word16 ->
+    -- | A random seed to use to be able to vary the choice of which blocks to
+    -- try to decode.
+    Int ->
+    -- | True if the encoded input was reconstructed by decoding, False
+    -- otherwise.
+    Bool
 testFEC fec len seed = FEC.decode fec someTaggedBlocks == origBlocks
   where
     -- Construct some blocks.  Each will just be the byte corresponding to the
@@ -84,9 +84,9 @@ testFEC fec len seed = FEC.decode fec someTaggedBlocks == origBlocks
 -- | @FEC.secureDivide@ is the inverse of @FEC.secureCombine@.
 prop_divide :: Word16 -> Word8 -> Word8 -> Property
 prop_divide size byte divisor = monadicIO $ do
-  let input = B.replicate (fromIntegral size + 1) byte
-  parts <- run $ FEC.secureDivide (fromIntegral divisor) input
-  assert (FEC.secureCombine parts == input)
+    let input = B.replicate (fromIntegral size + 1) byte
+    parts <- run $ FEC.secureDivide (fromIntegral divisor) input
+    assert (FEC.secureCombine parts == input)
 
 -- | @FEC.encode@ is the inverse of @FEC.decode@.
 prop_decode :: FEC.FECParams -> Word16 -> Int -> Property
@@ -95,7 +95,7 @@ prop_decode fec len seed = property $ testFEC fec len seed
 -- | @FEC.enFEC@ is the inverse of @FEC.deFEC@.
 prop_deFEC :: Params -> B.ByteString -> Property
 prop_deFEC (Params required total) testdata =
-  FEC.deFEC required total minimalShares === testdata
+    FEC.deFEC required total minimalShares === testdata
   where
     allShares = FEC.enFEC required total testdata
     minimalShares = take required allShares
