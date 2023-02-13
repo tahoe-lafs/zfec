@@ -13,6 +13,7 @@ jobs:
     steps:
       - "checkout"
       - run:
+          no_output_timeout: "30m"
           name: "nix flake check"
           command: |
             nix flake show
