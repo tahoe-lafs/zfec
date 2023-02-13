@@ -13,9 +13,10 @@ jobs:
     steps:
       - "checkout"
       - run:
-          name: "nix build"
+          name: "nix flake check"
           command: |
-            nix build
+            nix flake show
+            nix flake check -v
 
 workflows:
   ci:
