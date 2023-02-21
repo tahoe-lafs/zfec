@@ -51,9 +51,9 @@ test-suite tests
     , bytestring
     , data-serializer
     , fec
-    , hspec
-    , QuickCheck
-    , quickcheck-instances
+    , hedgehog
     , random
+    , tasty
+    , tasty-hedgehog
 
   default-language: Haskell2010
