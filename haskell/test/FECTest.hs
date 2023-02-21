@@ -2,23 +2,22 @@
 
 module Main where
 
-import Test.Hspec
-
 import qualified Codec.FEC as FEC
 import qualified Data.ByteString as B
-import qualified Data.ByteString.Lazy as BL
-import Data.Int
-import Data.List (sortOn)
-import Data.Serializer
-import Data.Word
+import Hedgehog (
+    MonadGen,
+    diff,
+    evalIO,
+    forAll,
+    property,
+ )
+import qualified Hedgehog.Gen as Gen
+import qualified Hedgehog.Range as Range
+import Test.Tasty (TestTree, defaultMain, testGroup)
+import Test.Tasty.Hedgehog (testProperty)
 
-import System.IO (IOMode (..), withFile)
-import System.Random
-import Test.QuickCheck
-import Test.QuickCheck.Monadic
-
--- Imported for the orphan Arbitrary ByteString instance.
-import Test.QuickCheck.Instances.ByteString ()
+main :: IO ()
+main = defaultMain tests
 
 -- | Valid ZFEC parameters.
 data Params = Params
@@ -28,91 +27,70 @@ data Params = Params
     deriving (Show, Ord, Eq)
 
 -- | A somewhat efficient generator for valid ZFEC parameters.
-instance Arbitrary Params where
-    arbitrary = do
-        required <- choose (1, 255)
-        total <- choose (required, 255)
-        return $ Params required total
+validParameters :: MonadGen m => m Params
+validParameters = do
+    k <- Gen.integral (Range.linear 1 255)
+    n <- Gen.integral (Range.linear k 255)
+    pure $ Params k n
 
-instance Arbitrary FEC.FECParams where
-    arbitrary = do
-        (Params required total) <- arbitrary :: Gen Params
-        return $ FEC.fec required total
+validFECParameters :: MonadGen m => m FEC.FECParams
+validFECParameters = do
+    (Params k n) <- validParameters
+    pure $ FEC.fec k n
 
-randomTake :: Int -> Int -> [a] -> [a]
-randomTake seed n values = map snd $ take n sortedValues
-  where
-    sortedValues = sortOn fst taggedValues
-    taggedValues = zip rnds values
-    rnds :: [Float]
-    rnds = randoms gen
-    gen = mkStdGen seed
+tests :: TestTree
+tests =
+    testGroup
+        "FEC"
+        [ prop_secureCombine
+        , prop_deFEC
+        , prop_decode
+        ]
 
-{- | Any combination of the inputs blocks and the output blocks from
- @FEC.encode@, as long as there are at least @k@ of them, can be recombined
- using @FEC.decode@ to produce the original input blocks.
--}
-testFEC ::
-    -- | The FEC parameters to exercise.
-    FEC.FECParams ->
-    -- | The length of the blocks to exercise.
-    Word16 ->
-    -- | A random seed to use to be able to vary the choice of which blocks to
-    -- try to decode.
-    Int ->
-    -- | True if the encoded input was reconstructed by decoding, False
-    -- otherwise.
-    Bool
-testFEC fec len seed = FEC.decode fec someTaggedBlocks == origBlocks
-  where
-    -- Construct some blocks.  Each will just be the byte corresponding to the
-    -- block number repeated to satisfy the requested length.
-    origBlocks = B.replicate (fromIntegral len) . fromIntegral <$> [0 .. (FEC.paramK fec - 1)]
+prop_secureCombine :: TestTree
+prop_secureCombine = testProperty "`secureCombine` is the inverse of `secureDivide n`" $
+    property $ do
+        -- secureDivide is insanely slow and memory hungry for large inputs.  Just
+        -- pass some small inputs.  It's not clear it's worth fixing (or even
+        -- keeping) these functions.  They don't seem to be used by anything.  Why
+        -- are they here?
+        sz <- forAll $ Gen.integral (Range.linear 1 1024)
+        byte <- forAll $ Gen.integral Range.linearBounded
+        divisor <- forAll $ Gen.integral (Range.linear 1 1024)
+        let input = B.replicate (sz + 1) byte
+        parts <- evalIO $ FEC.secureDivide divisor input
+        diff input (==) (FEC.secureCombine parts)
 
-    -- Encode the data to produce the "secondary" blocks which (might) add
-    -- redundancy to the original blocks.
-    secondaryBlocks = FEC.encode fec origBlocks
+prop_deFEC :: TestTree
+prop_deFEC = testProperty "deFEC is the inverse of enFEC" $
+    property $ do
+        (Params k n) <- forAll validParameters
+        testdata <- forAll $ Gen.bytes (Range.linear 1 1024)
+        let allShares = FEC.enFEC k n testdata
+        minimalShares <- forAll $ take k <$> Gen.shuffle allShares
+        diff testdata (==) (FEC.deFEC k n minimalShares)
 
-    -- Tag each block with its block number because the decode API requires
-    -- this information.
-    taggedBlocks = zip [0 ..] (origBlocks ++ secondaryBlocks)
+prop_decode :: TestTree
+prop_decode = testProperty "decode is (nearly) the inverse of encode" $
+    property $ do
+        fec <- forAll validFECParameters
+        len <- forAll $ Gen.integral (Range.linear 1 16384)
 
-    -- Choose enough of the tagged blocks (some combination of original and
-    -- secondary) to try to use for decoding.
-    someTaggedBlocks = randomTake seed (FEC.paramK fec) taggedBlocks
+        let -- Construct some blocks.  Each will just be the byte corresponding
+            -- to the block number repeated to satisfy the requested length.
+            origBlocks = B.replicate len <$> [0 .. fromIntegral (FEC.paramK fec - 1)]
 
--- | @FEC.secureDivide@ is the inverse of @FEC.secureCombine@.
-prop_divide :: Word16 -> Word8 -> Word8 -> Property
-prop_divide size byte divisor = monadicIO $ do
-    let input = B.replicate (fromIntegral size + 1) byte
-    parts <- run $ FEC.secureDivide (fromIntegral divisor) input
-    assert (FEC.secureCombine parts == input)
+            -- Encode the data to produce the "secondary" blocks which (might)
+            -- add redundancy to the original blocks.
+            secondaryBlocks = FEC.encode fec origBlocks
 
--- | @FEC.encode@ is the inverse of @FEC.decode@.
-prop_decode :: FEC.FECParams -> Word16 -> Int -> Property
-prop_decode fec len seed = property $ testFEC fec len seed
+            -- Tag each block with its block number because the decode API
+            -- requires this information.
+            taggedBlocks = zip [0 ..] (origBlocks ++ secondaryBlocks)
 
--- | @FEC.enFEC@ is the inverse of @FEC.deFEC@.
-prop_deFEC :: Params -> B.ByteString -> Property
-prop_deFEC (Params required total) testdata =
-    FEC.deFEC required total minimalShares === testdata
-  where
-    allShares = FEC.enFEC required total testdata
-    minimalShares = take required allShares
+        -- Choose enough of the tagged blocks (some combination of original and
+        -- secondary) to try to use for decoding.
+        someTaggedBlocks <- forAll $ take (FEC.paramK fec) <$> Gen.shuffle taggedBlocks
 
-main :: IO ()
-main = hspec $ do
-    describe "secureCombine" $ do
-        -- secureDivide is insanely slow and memory hungry for large inputs,
-        -- like QuickCheck will find with it as currently defined.  Just pass
-        -- some small inputs.  It's not clear it's worth fixing (or even
-        -- keeping) thesefunctions.  They don't seem to be used by anything.
-        -- Why are they here?
-        it "is the inverse of secureDivide n" $ once $ prop_divide 1024 65 3
-
-    describe "deFEC" $ do
-        it "is the inverse of enFEC" $ (withMaxSuccess 2000 prop_deFEC)
-
-    describe "decode" $ do
-        it "is (nearly) the inverse of encode" $ (withMaxSuccess 2000 prop_decode)
-        it "works with required=255" $ property $ prop_decode (FEC.fec 255 255)
+        -- It should decode to the original.
+        diff origBlocks (==) (FEC.decode fec someTaggedBlocks)
