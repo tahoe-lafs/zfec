@@ -4,6 +4,7 @@ module Main where
 
 import Test.Hspec
 
+import Control.Monad (replicateM_)
 import Control.Monad.IO.Class (
     liftIO,
  )
@@ -128,4 +129,9 @@ main = hspec $
             it "works with required=255" $ property $ prop_decode (Params 255 255)
 
         describe "encode" $ do
-            it "returns copies of the primary block for all 1 of N encodings" $ property $ withMaxSuccess 10000 prop_primary_copies
+            -- Since a single property won't result in parallel execution, add a
+            -- few of these.
+            replicateM_ 10 $
+                it "returns copies of the primary block for all 1 of N encodings" $
+                    property $
+                        withMaxSuccess 10000 prop_primary_copies
