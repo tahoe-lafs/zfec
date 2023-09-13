@@ -120,7 +120,7 @@ main = hspec $
             it "is the inverse of secureDivide n" $ once $ prop_divide 1024 65 3
 
         describe "deFEC" $ do
-            it "is the inverse of enFEC" $ (withMaxSuccess 2000 prop_deFEC)
+            it "is the inverse of enFEC" $ withMaxSuccess 2000 prop_deFEC
 
         describe "decode" $ do
             it "is (nearly) the inverse of encode" $ withMaxSuccess 2000 prop_decode
