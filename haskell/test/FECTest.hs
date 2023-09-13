@@ -61,25 +61,25 @@ testFEC ::
     -- | True if the encoded input was reconstructed by decoding, False
     -- otherwise.
     Expectation
-testFEC fec len seed =
-    let -- Construct some blocks.  Each will just be the byte corresponding to the
-        -- block number repeated to satisfy the requested length.
-        origBlocks = B.replicate (fromIntegral len) . fromIntegral <$> [0 .. (FEC.paramK fec - 1)]
-     in do
-            -- Encode the data to produce the "secondary" blocks which (might) add
-            -- redundancy to the original blocks.
-            secondaryBlocks <- FEC.encode fec origBlocks
+testFEC fec len seed = do
+    -- Encode the data to produce the "secondary" blocks which (might) add
+    -- redundancy to the original blocks.
+    secondaryBlocks <- FEC.encode fec origBlocks
 
-            let -- Tag each block with its block number because the decode API requires
-                -- this information.
-                taggedBlocks = zip [0 ..] (origBlocks ++ secondaryBlocks)
+    let -- Tag each block with its block number because the decode API requires
+        -- this information.
+        taggedBlocks = zip [0 ..] (origBlocks ++ secondaryBlocks)
 
-                -- Choose enough of the tagged blocks (some combination of original and
-                -- secondary) to try to use for decoding.
-                someTaggedBlocks = randomTake seed (FEC.paramK fec) taggedBlocks
+        -- Choose enough of the tagged blocks (some combination of original and
+        -- secondary) to try to use for decoding.
+        someTaggedBlocks = randomTake seed (FEC.paramK fec) taggedBlocks
 
-            decoded <- FEC.decode fec someTaggedBlocks
-            decoded `shouldBe` origBlocks
+    decoded <- FEC.decode fec someTaggedBlocks
+    decoded `shouldBe` origBlocks
+  where
+    -- Construct some blocks.  Each will just be the byte corresponding to the
+    -- block number repeated to satisfy the requested length.
+    origBlocks = B.replicate (fromIntegral len) . fromIntegral <$> [0 .. (FEC.paramK fec - 1)]
 
 -- | @FEC.secureDivide@ is the inverse of @FEC.secureCombine@.
 prop_divide :: Word16 -> Word8 -> Word8 -> Property
