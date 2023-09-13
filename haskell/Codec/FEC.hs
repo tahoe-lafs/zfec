@@ -219,8 +219,11 @@ enFEC :: Int  -- ^ the number of blocks required to reconstruct
       -> Int  -- ^ the total number of blocks
       -> B.ByteString  -- ^ the data to divide
       -> IO [B.ByteString]  -- ^ the resulting blocks
-enFEC k n input =
-  let
+enFEC k n input = do
+    params <- fec k n
+    secondaryBlocks <- encode params primaryBlocks
+    pure $ taggedPrimaryBlocks ++ (taggedSecondaryBlocks secondaryBlocks)
+  where
     taggedPrimaryBlocks = map (uncurry B.cons) $ zip [0..] primaryBlocks
     taggedSecondaryBlocks sb = map (uncurry B.cons) $ zip [(fromIntegral k)..] sb
     remainder = B.length input `mod` k
@@ -232,10 +235,7 @@ enFEC k n input =
     input' = input `B.append` paddingBytes
     blockSize = B.length input' `div` k
     primaryBlocks = divide blockSize input'
-  in do
-    params <- fec k n
-    secondaryBlocks <- encode params primaryBlocks
-    pure $ taggedPrimaryBlocks ++ (taggedSecondaryBlocks secondaryBlocks)
+
 
 -- | Reverses the operation of @enFEC@.
 deFEC :: Int  -- ^ the number of blocks required (matches call to @enFEC@)
