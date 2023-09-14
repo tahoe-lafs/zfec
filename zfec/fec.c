@@ -394,11 +394,14 @@ _invert_vdm (gf* src, unsigned k) {
 }
 
 static int fec_initialized = 0;
-static void
-init_fec (void) {
-    generate_gf();
-    _init_mul_table();
-    fec_initialized = 1;
+
+void
+fec_init (void) {
+    if (fec_initialized == 0) {
+        generate_gf();
+        _init_mul_table();
+        fec_initialized = 1;
+    }
 }
 
 /*
@@ -428,8 +431,9 @@ fec_new(unsigned short k, unsigned short n) {
     assert(n <= 256);
     assert(k <= n);
 
-    if (fec_initialized == 0)
-        init_fec ();
+    if (fec_initialized == 0) {
+        return NULL;
+    }
 
     retval = (fec_t *) malloc (sizeof (fec_t));
     retval->k = k;
