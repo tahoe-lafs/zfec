@@ -2,20 +2,26 @@
 
 module Main where
 
-import Test.Hspec
+import Test.Hspec (describe, hspec, it, parallel)
 
 import qualified Codec.FEC as FEC
 import qualified Data.ByteString as B
-import qualified Data.ByteString.Lazy as BL
-import Data.Int
+import Data.Int ()
 import Data.List (sortOn)
-import Data.Serializer
-import Data.Word
+import Data.Serializer ()
+import Data.Word (Word16, Word8)
 
-import System.IO (IOMode (..), withFile)
-import System.Random
-import Test.QuickCheck
-import Test.QuickCheck.Monadic
+import System.Random (Random (randoms), mkStdGen)
+import Test.QuickCheck (
+    Arbitrary (arbitrary),
+    Property,
+    Testable (property),
+    choose,
+    once,
+    withMaxSuccess,
+    (===),
+ )
+import Test.QuickCheck.Monadic (assert, monadicIO, run)
 
 -- Imported for the orphan Arbitrary ByteString instance.
 import Test.QuickCheck.Instances.ByteString ()
@@ -29,15 +35,9 @@ data Params = Params
 
 -- | A somewhat efficient generator for valid ZFEC parameters.
 instance Arbitrary Params where
-    arbitrary = do
-        required <- choose (1, 255)
-        total <- choose (required, 255)
-        return $ Params required total
-
-instance Arbitrary FEC.FECParams where
-    arbitrary = do
-        (Params required total) <- arbitrary :: Gen Params
-        return $ FEC.fec required total
+    arbitrary =
+        choose (1, 255)
+            >>= \req -> Params req <$> choose (req, 255)
 
 randomTake :: Int -> Int -> [a] -> [a]
 randomTake seed n values = map snd $ take n sortedValues
@@ -89,30 +89,34 @@ prop_divide size byte divisor = monadicIO $ do
     assert (FEC.secureCombine parts == input)
 
 -- | @FEC.encode@ is the inverse of @FEC.decode@.
-prop_decode :: FEC.FECParams -> Word16 -> Int -> Property
-prop_decode fec len seed = property $ testFEC fec len seed
+prop_decode :: Params -> Word16 -> Int -> Property
+prop_decode (Params req tot) len seed = property $ do
+    testFEC fec len seed === True
+  where
+    fec = FEC.fec req tot
 
 -- | @FEC.enFEC@ is the inverse of @FEC.deFEC@.
 prop_deFEC :: Params -> B.ByteString -> Property
-prop_deFEC (Params required total) testdata =
-    FEC.deFEC required total minimalShares === testdata
+prop_deFEC (Params req tot) testdata =
+    FEC.deFEC req tot minimalShares === testdata
   where
-    allShares = FEC.enFEC required total testdata
-    minimalShares = take required allShares
+    allShares = FEC.enFEC req tot testdata
+    minimalShares = take req allShares
 
 main :: IO ()
-main = hspec $ do
-    describe "secureCombine" $ do
-        -- secureDivide is insanely slow and memory hungry for large inputs,
-        -- like QuickCheck will find with it as currently defined.  Just pass
-        -- some small inputs.  It's not clear it's worth fixing (or even
-        -- keeping) thesefunctions.  They don't seem to be used by anything.
-        -- Why are they here?
-        it "is the inverse of secureDivide n" $ once $ prop_divide 1024 65 3
+main = hspec $
+    parallel $ do
+        describe "secureCombine" $ do
+            -- secureDivide is insanely slow and memory hungry for large inputs,
+            -- like QuickCheck will find with it as currently defined.  Just pass
+            -- some small inputs.  It's not clear it's worth fixing (or even
+            -- keeping) thesefunctions.  They don't seem to be used by anything.
+            -- Why are they here?
+            it "is the inverse of secureDivide n" $ once $ prop_divide 1024 65 3
 
-    describe "deFEC" $ do
-        it "is the inverse of enFEC" $ (withMaxSuccess 2000 prop_deFEC)
+        describe "deFEC" $ do
+            it "is the inverse of enFEC" (withMaxSuccess 2000 prop_deFEC)
 
-    describe "decode" $ do
-        it "is (nearly) the inverse of encode" $ (withMaxSuccess 2000 prop_decode)
-        it "works with required=255" $ property $ prop_decode (FEC.fec 255 255)
+        describe "decode" $ do
+            it "is (nearly) the inverse of encode" (withMaxSuccess 2000 prop_decode)
+            it "works with required=255" $ property $ prop_decode (Params 255 255)
