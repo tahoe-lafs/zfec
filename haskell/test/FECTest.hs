@@ -112,8 +112,10 @@ prop_primary_copies (Params _ tot) primary = property $ do
     secondary = FEC.encode fec [BL.toStrict primary]
 
 main :: IO ()
-main = hspec $
-    parallel $ do
+main = do
+    -- Be sure to do the required zfec initialization first.
+    FEC.initialize
+    hspec . parallel $ do
         describe "encode" $ do
             -- This test originally caught a bug in multi-threaded
             -- initialization of the C library.  Since it is in the
