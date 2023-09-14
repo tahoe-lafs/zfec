@@ -15,6 +15,7 @@ import Test.QuickCheck (
     Property,
     Testable (property),
     choose,
+    conjoin,
     once,
     withMaxSuccess,
     (===),
@@ -67,6 +68,10 @@ testFEC fec len seed = FEC.decode fec someTaggedBlocks == origBlocks
     -- block number repeated to satisfy the requested length.
     origBlocks = B.replicate (fromIntegral len) . fromIntegral <$> [0 .. (FEC.paramK fec - 1)]
 
+    -- Encode the data to produce the "secondary" blocks which (might) add
+    -- redundancy to the original blocks.
+    secondaryBlocks = FEC.encode fec origBlocks
+
     -- Tag each block with its block number because the decode API requires
     -- this information.
     taggedBlocks = zip [0 ..] (origBlocks ++ secondaryBlocks)
@@ -99,7 +104,7 @@ prop_deFEC (Params req tot) testdata =
 
 prop_primary_copies :: Params -> BL.ByteString -> Property
 prop_primary_copies (Params _ tot) primary = property $ do
-    assert $ all (BL.toStrict primary ==) secondary
+    conjoin $ (BL.toStrict primary ===) <$> secondary
   where
     fec = FEC.fec 1 tot
     secondary = FEC.encode fec [BL.toStrict primary]
