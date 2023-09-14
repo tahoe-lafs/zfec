@@ -1,6 +1,6 @@
 cabal-version:      3.0
 name:               fec
-version:            0.1.1
+version:            0.2.0
 license:            GPL-2.0-or-later
 license-file:       README.rst
 author:             Adam Langley <agl@imperialviolet.org>
@@ -31,6 +31,7 @@ library
   build-depends:
     , base
     , bytestring  >=0.9
+    , extra
 
   exposed-modules:    Codec.FEC
   default-extensions: ForeignFunctionInterface
