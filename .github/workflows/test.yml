@@ -42,7 +42,14 @@ jobs:
           cache: 'pip' # caching pip dependencies
           cache-dependency-path: 'setup.py'
 
-      - name: "Run unit tests"
+      - name: "Run Python test suite"
         run: |
           pip install .[test]
           trial zfec
+
+      - name: "Install Nix"
+        if: ${{ runner.os == "Linux" }}
+      - name: "Run Haskell test suite"
+        if: ${{ runner.os == "Linux" }}
+        run: |
+          nix build --print-build-logs
