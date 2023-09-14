@@ -45,11 +45,7 @@ Installation
 
 To run the self-tests, execute ``tox`` from an unpacked source tree or git checkout.
 
-To run the tests of the Haskell API: ``runhaskell haskell/test/FECTest.hs``
-
-Note that in order to run the Haskell API tests you must have installed the
-library first due to the fact that the interpreter cannot process FEC.hs as
-it takes a reference to an FFI function.
+To run the tests of the Haskell API: ``cabal run test:tests``
 
 
 Community
