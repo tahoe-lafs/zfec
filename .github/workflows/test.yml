@@ -8,7 +8,7 @@ on:
 
 jobs:
 
-  test:
+  python:
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -47,9 +47,21 @@ jobs:
           pip install .[test]
           trial zfec
 
+  haskell:
+    runs-on: "${{ matrix.os }}"
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - "ubuntu-22.04"
+
+    steps:
+      - name: "Check out zfec sources"
+        uses: "actions/checkout@v3"
+
       - name: "Install Nix"
-        if: ${{ runner.os == "Linux" }}
+
       - name: "Run Haskell test suite"
-        if: ${{ runner.os == "Linux" }}
         run: |
           nix build --print-build-logs
