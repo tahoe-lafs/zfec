@@ -23,6 +23,8 @@ import Test.QuickCheck (
 import Test.QuickCheck.Monadic (assert, monadicIO, run)
 
 -- Imported for the orphan Arbitrary ByteString instance.
+
+import Control.Monad (replicateM_)
 import Test.QuickCheck.Instances.ByteString ()
 
 -- | Valid ZFEC parameters.
@@ -112,6 +114,25 @@ prop_primary_copies (Params _ tot) primary = property $ do
 main :: IO ()
 main = hspec $
     parallel $ do
+        describe "encode" $ do
+            -- This test originally caught a bug in multi-threaded
+            -- initialization of the C library.  Since it is in the
+            -- initialization codepath, it cannot catch the bug if it runs
+            -- after initialization has happened.  So we put it first in the
+            -- suite and hope that nothing manages to get in before this.
+            --
+            -- Since the bug has to do with multi-threaded use, we also make a
+            -- lot of copies of this property so hspec can run them in parallel
+            -- (QuickCheck will not do anything in parallel inside a single
+            -- property).
+            --
+            -- Still, there's non-determinism and the behavior is only revealed
+            -- by this property sometimes.
+            replicateM_ 20 $
+                it "returns copies of the primary block for all 1 of N encodings" $
+                    property $
+                        withMaxSuccess 50 prop_primary_copies
+
         describe "secureCombine" $ do
             -- secureDivide is insanely slow and memory hungry for large inputs,
             -- like QuickCheck will find with it as currently defined.  Just pass
@@ -121,11 +142,10 @@ main = hspec $
             it "is the inverse of secureDivide n" $ once $ prop_divide 1024 65 3
 
         describe "deFEC" $ do
-            it "is the inverse of enFEC" (withMaxSuccess 2000 prop_deFEC)
+            replicateM_ 10 $
+                it "is the inverse of enFEC" (withMaxSuccess 200 prop_deFEC)
 
-        describe "decode" $ do
-            it "is (nearly) the inverse of encode" (withMaxSuccess 2000 prop_decode)
-            it "works with required=255" $ property $ prop_decode (Params 255 255)
-
-        describe "encode" $ do
-            it "returns copies of the primary block for all 1 of N encodings" $ property $ withMaxSuccess 10000 prop_primary_copies
+        describe "decode" $
+            replicateM_ 10 $ do
+                it "is (nearly) the inverse of encode" (withMaxSuccess 200 prop_decode)
+                it "works with required=255" $ property $ prop_decode (Params 255 255)
