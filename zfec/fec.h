@@ -22,9 +22,13 @@ typedef struct {
 
 /** Initialize the fec library.
  *
- * Call this at least one time from at most one thread to initialize the
- * library's internal state.  Call this before calling any other APIs from the
- * library.
+ * Call this:
+ *
+ *  - at least once
+ *  - from at most one thread at a time
+ *  - before calling any other APIs from the library
+ *  - before creating any other threads that will use APIs from the library
+ *
  */
 void fec_init(void);
 
