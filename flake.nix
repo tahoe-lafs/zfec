@@ -28,5 +28,9 @@
       checks = hslib.checks {};
       devShells = hslib.devShells {};
       packages = hslib.packages {};
+      apps = {
+        hlint = hslib.apps.hlint {argv = ["haskell/"];};
+        cabal-test = hslib.apps.cabal-test {testTargetName = "test:tests";};
+      };
     });
 }
