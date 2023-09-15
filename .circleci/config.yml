@@ -22,10 +22,10 @@ jobs:
             nix flake check -v
 
       - run:
-          name: "nix build"
+          name: "Haskell Test Suite"
           no_output_timeout: "30m"
           command: |
-            nix build -v
+            nix run .#cabal-test
 
 workflows:
   ci:
