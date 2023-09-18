@@ -32,9 +32,10 @@
         hlint = hslib.apps.hlint {argv = ["haskell/"];};
         cabal-test = hslib.apps.cabal-test {
           extraRuntimeInputs = pkgs: [
-            # A build-time dependency of old-time, a transitive dependency of
-            # ours...
+            # Some build-time dependencies of old-time, a transitive
+            # dependency of ours...
             pkgs.gnused
+            pkgs.gawk
           ];
           preBuild = ''
             cabal update hackage.haskell.org
