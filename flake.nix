@@ -32,6 +32,7 @@
         hlint = hslib.apps.hlint {argv = ["haskell/"];};
         cabal-test = hslib.apps.cabal-test {
           preBuild = ''
+            cabal update hackage.haskell.org
             cabal get old-time-1.1.0.3
             cd old-time-1.1.0.3
             cabal build
