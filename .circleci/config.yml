@@ -1,6 +1,26 @@
 version: "2.1"
 
 jobs:
+  cabal-test:
+    docker:
+      - image: "nixos/nix:2.13.2"
+
+    environment:
+      # Let us use features marked "experimental".  For example, most/all of
+      # the `nix <subcommand>` forms.  Also, allow import from derivation
+      # because cabal2nix requires it.
+      NIX_CONFIG: |
+        experimental-features = nix-command flakes
+        allow-import-from-derivation = true
+
+    steps:
+      - "checkout"
+      - run:
+          name: "Haskell Test Suite"
+          no_output_timeout: "30m"
+          command: |
+            nix run .#cabal-test
+
   nix-build:
     docker:
       - image: "nixos/nix:2.13.2"
@@ -22,12 +42,13 @@ jobs:
             nix flake check -v
 
       - run:
-          name: "nix build"
+          name: "Nix Build"
           no_output_timeout: "30m"
           command: |
-            nix build -v
+            nix build --print-build-logs
 
 workflows:
   ci:
     jobs:
-      - nix-build
+      - "cabal-test"
+      - "nix-build"
