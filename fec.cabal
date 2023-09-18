@@ -31,6 +31,7 @@ library
   build-depends:
     , base
     , bytestring  >=0.9
+    , deepseq
     , extra
 
   exposed-modules:    Codec.FEC
