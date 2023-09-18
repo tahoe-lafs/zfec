@@ -37,12 +37,6 @@
             pkgs.gnused
             pkgs.gawk
           ];
-          preBuild = ''
-            cabal update hackage.haskell.org
-            cabal get old-time-1.1.0.3
-            cd old-time-1.1.0.3
-            cabal build
-          '';
           testTargetName = "test:tests";
         };
       };
