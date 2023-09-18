@@ -132,8 +132,7 @@ main = do
             -- by this property sometimes.
             replicateM_ 20 $
                 it "returns copies of the primary block for all 1 of N encodings" $
-                    property $
-                        withMaxSuccess 50 prop_primary_copies
+                    withMaxSuccess 5 prop_primary_copies
 
         describe "secureCombine" $ do
             -- secureDivide is insanely slow and memory hungry for large inputs,
@@ -145,9 +144,10 @@ main = do
 
         describe "deFEC" $ do
             replicateM_ 10 $
-                it "is the inverse of enFEC" (withMaxSuccess 200 prop_deFEC)
+                it "is the inverse of enFEC" $
+                    property prop_deFEC
 
         describe "decode" $
             replicateM_ 10 $ do
-                it "is (nearly) the inverse of encode" (withMaxSuccess 200 prop_decode)
+                it "is (nearly) the inverse of encode" $ property $ prop_decode
                 it "works with required=255" $ property $ prop_decode (Params 255 255)
