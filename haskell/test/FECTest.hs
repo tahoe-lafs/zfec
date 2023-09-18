@@ -6,17 +6,16 @@ import Test.Hspec (describe, hspec, it, parallel)
 
 import qualified Codec.FEC as FEC
 import qualified Data.ByteString as B
-import Data.Int ()
+import qualified Data.ByteString.Lazy as BL
 import Data.List (sortOn)
-import Data.Serializer ()
 import Data.Word (Word16, Word8)
-
 import System.Random (Random (randoms), mkStdGen)
 import Test.QuickCheck (
     Arbitrary (arbitrary),
     Property,
     Testable (property),
     choose,
+    conjoin,
     once,
     withMaxSuccess,
     (===),
@@ -24,6 +23,8 @@ import Test.QuickCheck (
 import Test.QuickCheck.Monadic (assert, monadicIO, run)
 
 -- Imported for the orphan Arbitrary ByteString instance.
+
+import Control.Monad (replicateM_)
 import Test.QuickCheck.Instances.ByteString ()
 
 -- | Valid ZFEC parameters.
@@ -103,9 +104,36 @@ prop_deFEC (Params req tot) testdata =
     allShares = FEC.enFEC req tot testdata
     minimalShares = take req allShares
 
+prop_primary_copies :: Params -> BL.ByteString -> Property
+prop_primary_copies (Params _ tot) primary = property $ do
+    conjoin $ (BL.toStrict primary ===) <$> secondary
+  where
+    fec = FEC.fec 1 tot
+    secondary = FEC.encode fec [BL.toStrict primary]
+
 main :: IO ()
-main = hspec $
-    parallel $ do
+main = do
+    -- Be sure to do the required zfec initialization first.
+    FEC.initialize
+    hspec . parallel $ do
+        describe "encode" $ do
+            -- This test originally caught a bug in multi-threaded
+            -- initialization of the C library.  Since it is in the
+            -- initialization codepath, it cannot catch the bug if it runs
+            -- after initialization has happened.  So we put it first in the
+            -- suite and hope that nothing manages to get in before this.
+            --
+            -- Since the bug has to do with multi-threaded use, we also make a
+            -- lot of copies of this property so hspec can run them in parallel
+            -- (QuickCheck will not do anything in parallel inside a single
+            -- property).
+            --
+            -- Still, there's non-determinism and the behavior is only revealed
+            -- by this property sometimes.
+            replicateM_ 20 $
+                it "returns copies of the primary block for all 1 of N encodings" $
+                    withMaxSuccess 5 prop_primary_copies
+
         describe "secureCombine" $ do
             -- secureDivide is insanely slow and memory hungry for large inputs,
             -- like QuickCheck will find with it as currently defined.  Just pass
@@ -115,8 +143,11 @@ main = hspec $
             it "is the inverse of secureDivide n" $ once $ prop_divide 1024 65 3
 
         describe "deFEC" $ do
-            it "is the inverse of enFEC" (withMaxSuccess 2000 prop_deFEC)
+            replicateM_ 10 $
+                it "is the inverse of enFEC" $
+                    property prop_deFEC
 
-        describe "decode" $ do
-            it "is (nearly) the inverse of encode" (withMaxSuccess 2000 prop_decode)
-            it "works with required=255" $ property $ prop_decode (Params 255 255)
+        describe "decode" $
+            replicateM_ 10 $ do
+                it "is (nearly) the inverse of encode" $ property $ prop_decode
+                it "works with required=255" $ property $ prop_decode (Params 255 255)

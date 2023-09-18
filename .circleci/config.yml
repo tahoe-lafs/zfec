@@ -43,7 +43,7 @@ jobs:
 
       - run:
           name: "Nix Build"
-          no_output_timeout: "30m"
+          no_output_timeout: "90m"
           command: |
             nix build --print-build-logs
 

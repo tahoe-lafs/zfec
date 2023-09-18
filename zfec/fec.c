@@ -393,12 +393,23 @@ _invert_vdm (gf* src, unsigned k) {
     return;
 }
 
+/* There are few (if any) ordering guarantees that apply to reads and writes
+ * of this static int across threads.  This is the reason for some of the
+ * tight requirements for how `fec_init` is called.  If we could use a mutex
+ * or a C11 atomic here we might be able to provide more flexibility to
+ * callers.  It's tricky to do that while remaining compatible with all of
+ * macOS/Linux/Windows and CPython's MSVC requirements and not switching to
+ * C++ (or something even more different).
+ */
 static int fec_initialized = 0;
-static void
-init_fec (void) {
-    generate_gf();
-    _init_mul_table();
-    fec_initialized = 1;
+
+void
+fec_init (void) {
+    if (fec_initialized == 0) {
+        generate_gf();
+        _init_mul_table();
+        fec_initialized = 1;
+    }
 }
 
 /*
@@ -428,8 +439,9 @@ fec_new(unsigned short k, unsigned short n) {
     assert(n <= 256);
     assert(k <= n);
 
-    if (fec_initialized == 0)
-        init_fec ();
+    if (fec_initialized == 0) {
+        return NULL;
+    }
 
     retval = (fec_t *) malloc (sizeof (fec_t));
     retval->k = k;

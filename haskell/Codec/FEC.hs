@@ -18,6 +18,7 @@
 -}
 module Codec.FEC (
     FECParams (paramK, paramN),
+    initialize,
     fec,
     encode,
     decode,
@@ -29,6 +30,8 @@ module Codec.FEC (
     deFEC,
 ) where
 
+import Control.Concurrent.Extra (Lock, newLock, withLock)
+import Control.Exception (Exception, throwIO)
 import Data.Bits (xor)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Unsafe as BU
@@ -42,7 +45,7 @@ import Foreign.ForeignPtr (
  )
 import Foreign.Marshal.Alloc (allocaBytes)
 import Foreign.Marshal.Array (advancePtr, withArray)
-import Foreign.Ptr (FunPtr, Ptr, castPtr)
+import Foreign.Ptr (FunPtr, Ptr, castPtr, nullPtr)
 import Foreign.Storable (poke, sizeOf)
 import System.IO (IOMode (..), withFile)
 import System.IO.Unsafe (unsafePerformIO)
@@ -57,6 +60,8 @@ data FECParams = FECParams
 instance Show FECParams where
     show (FECParams _ k n) = "FEC (" ++ show k ++ ", " ++ show n ++ ")"
 
+foreign import ccall unsafe "fec_init"
+    _init :: IO ()
 foreign import ccall unsafe "fec_new"
     _new ::
         -- | k
@@ -101,6 +106,24 @@ isValidConfig k n
     | n > 255 = False
     | otherwise = True
 
+{- | The underlying library signaled that it has not been properly initialized
+ yet.  Use @initialize@ to initialize it.
+-}
+data Uninitialized = Uninitialized deriving (Ord, Eq, Show)
+
+instance Exception Uninitialized
+
+-- A lock to ensure at most one thread attempts to initialize the underlying
+-- library at a time.  Multiple initializations are harmless but concurrent
+-- initializations are disallowed.
+_initializationLock :: Lock
+{-# NOINLINE _initializationLock #-}
+_initializationLock = unsafePerformIO newLock
+
+-- | Initialize the library.  This must be done before other APIs can succeed.
+initialize :: IO ()
+initialize = withLock _initializationLock _init
+
 -- | Return a FEC with the given parameters.
 fec ::
     -- | the number of primary blocks
@@ -115,8 +138,13 @@ fec k n =
             unsafePerformIO
                 ( do
                     cfec' <- _new (fromIntegral k) (fromIntegral n)
-                    params <- newForeignPtr _free cfec'
-                    return $ FECParams params k n
+                    -- new will return null if the library hasn't been
+                    -- initialized.
+                    if cfec' == nullPtr
+                        then throwIO Uninitialized
+                        else do
+                            params <- newForeignPtr _free cfec'
+                            return $ FECParams params k n
                 )
 
 -- | Create a C array of unsigned from an input array
