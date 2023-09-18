@@ -31,6 +31,11 @@
       apps = {
         hlint = hslib.apps.hlint {argv = ["haskell/"];};
         cabal-test = hslib.apps.cabal-test {
+          extraRuntimeInputs = pkgs: [
+            # A build-time dependency of old-time, a transitive dependency of
+            # ours...
+            pkgs.gnused
+          ];
           preBuild = ''
             cabal update hackage.haskell.org
             cabal get old-time-1.1.0.3
