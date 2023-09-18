@@ -30,7 +30,14 @@
       packages = hslib.packages {};
       apps = {
         hlint = hslib.apps.hlint {argv = ["haskell/"];};
-        cabal-test = hslib.apps.cabal-test {testTargetName = "test:tests";};
+        cabal-test = hslib.apps.cabal-test {
+          preBuild = ''
+            cabal get old-time-1.1.0.3
+            cd old-time-1.1.0.3
+            cabal build
+          '';
+          testTargetName = "test:tests";
+        };
       };
     });
 }
