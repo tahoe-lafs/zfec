@@ -25,11 +25,6 @@ jobs:
     docker:
       - image: "nixos/nix:2.13.2"
 
-      # CACHIX_AUTH_TOKEN is manually set in the CircleCI web UI and allows us
-      # to push to CACHIX_NAME.  CACHIX_NAME tells cachix which cache to push
-      # to.
-      CACHIX_NAME: "tahoe-lafs-opensource"
-
     environment:
       # Let us use features marked "experimental".  For example, most/all of
       # the `nix <subcommand>` forms.  Also, allow import from derivation
@@ -37,6 +32,11 @@ jobs:
       NIX_CONFIG: |
         experimental-features = nix-command flakes
         allow-import-from-derivation = true
+
+      # CACHIX_AUTH_TOKEN is manually set in the CircleCI web UI and allows us
+      # to push to CACHIX_NAME.  CACHIX_NAME tells cachix which cache to push
+      # to.
+      CACHIX_NAME: "tahoe-lafs-opensource"
 
     steps:
       - "run":
