@@ -1,5 +1,8 @@
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE EmptyDataDecls #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
+{-# LANGUAGE NamedFieldPuns #-}
 
 {- |
  Module:    Codec.FEC
@@ -31,6 +34,7 @@ module Codec.FEC (
 ) where
 
 import Control.Concurrent.Extra (Lock, newLock, withLock)
+import Control.DeepSeq (NFData (rnf))
 import Control.Exception (Exception, throwIO)
 import Data.Bits (xor)
 import qualified Data.ByteString as B
@@ -47,15 +51,27 @@ import Foreign.Marshal.Alloc (allocaBytes)
 import Foreign.Marshal.Array (advancePtr, withArray)
 import Foreign.Ptr (FunPtr, Ptr, castPtr, nullPtr)
 import Foreign.Storable (poke, sizeOf)
+import GHC.Generics (Generic)
 import System.IO (IOMode (..), withFile)
 import System.IO.Unsafe (unsafePerformIO)
 
 data CFEC
 data FECParams = FECParams
-    { _cfec :: ForeignPtr CFEC
+    { _cfec :: !(ForeignPtr CFEC)
     , paramK :: Int
     , paramN :: Int
     }
+    deriving (Generic)
+
+-- Provide an NFData instance so it's possible to use a FECParams in a
+-- Criterion benchmark.
+instance NFData FECParams where
+    rnf FECParams{_cfec, paramK, paramN} =
+        -- ForeignPtr has no NFData instance and I don't know how to implement
+        -- one for it so we punt on it here.  We do make it strict in the
+        -- record definition which at least shallowly evaluates the
+        -- ForeignPtr which is ... part of the job?
+        rnf paramK `seq` rnf paramN
 
 instance Show FECParams where
     show (FECParams _ k n) = "FEC (" ++ show k ++ ", " ++ show n ++ ")"
