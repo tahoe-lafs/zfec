@@ -11,7 +11,7 @@ except ImportError:
 
 import unittest
 from hypothesis import given
-from hypothesis.strategies import integers, binary, lists, tuples, just
+from hypothesis.strategies import integers, binary, lists, just
 
 global VERBOSE
 VERBOSE=False
