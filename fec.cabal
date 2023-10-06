@@ -21,20 +21,23 @@ homepage:           https://github.com/tahoe-lafs/zfec
 synopsis:           Forward error correction of ByteStrings
 category:           Codec
 stability:          provisional
-tested-with:        GHC ==6.8.2
+tested-with:        GHC ==8.10.7
 extra-source-files:
   COPYING.GPL
   COPYING.TGPPL.rst
   zfec/fec.h
 
+extra-doc-files:    ChangeLog.md
+
 library
   build-depends:
-    , base
-    , bytestring  >=0.9
-    , deepseq
-    , extra
+    , base        >=4.9  && <5
+    , bytestring  >=0.10 && <0.13
+    , deepseq     >=1.4  && <1.6
+    , extra       >=1.7  && <1.8
 
   exposed-modules:    Codec.FEC
+  default-language:   Haskell2010
   default-extensions: ForeignFunctionInterface
   hs-source-dirs:     haskell
   ghc-options:        -Wall
@@ -46,11 +49,11 @@ executable benchmark-zfec
   main-is:          Main.hs
   ghc-options:      -threaded
   build-depends:
-    , base        ^>=4.14.3.0
-    , bytestring
-    , criterion
+    , base        >=4.9  && <5
+    , bytestring  >=0.10 && <0.13
+    , criterion   >=1.1  && <1.7
     , fec
-    , random
+    , random      >=1.1  && <1.3
 
   hs-source-dirs:   benchmark-zfec
   default-language: Haskell2010
@@ -62,13 +65,13 @@ test-suite tests
   hs-source-dirs:   haskell/test
   ghc-options:      -Wall -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-    , base
-    , bytestring
-    , data-serializer
+    , base                  >=4.9  && <5
+    , bytestring            >=0.10 && <0.13
+    , data-serializer       >=0.3  && <0.4
     , fec
-    , hspec
-    , QuickCheck
-    , quickcheck-instances
-    , random
+    , hspec                 >=2.7  && <2.12
+    , QuickCheck            >=2.14 && <2.15
+    , quickcheck-instances  >=0.3  && <0.4
+    , random                >=1.1  && <1.3
 
   default-language: Haskell2010
