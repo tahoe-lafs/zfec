@@ -1,3 +1,6 @@
+Wed Sep 20 10:35:00 EST 2023 exarkun@twistedmatrix.com
+  * zfec: fix incorrect results, memory corruption, and a sometimes-crash when decoding with k = n = 256.
+
 Tue Jan 25 13:45:00 EST 2022 exarkun@twistedmatrix.com
   * zfec: setup: remove support for python < 3.7
 

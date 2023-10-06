@@ -10,6 +10,8 @@ except ImportError:
     from io import BytesIO
 
 import unittest
+from hypothesis import given
+from hypothesis.strategies import integers, binary, lists, just
 
 global VERBOSE
 VERBOSE=False
@@ -49,12 +51,6 @@ def _help_test_random():
     m = random.randrange(1, 257)
     k = random.randrange(1, m+1)
     l = random.randrange(0, 2**9)
-    ss = [ randstr(l//k) for x in range(k) ]
-    _h(k, m, ss)
-
-def _help_test_random_with_l(l):
-    m = random.randrange(1, 257)
-    k = random.randrange(1, m+1)
     ss = [ randstr(l//k) for x in range(k) ]
     _h(k, m, ss)
 
@@ -127,11 +123,35 @@ class ZFecTest(unittest.TestCase):
         # print "after decoding:"
         # print "b0: %s, b1: %s" % tuple(base64.b16encode(x) for x in [b0, b1])
 
-    def test_small(self):
-        for i in range(16):
-            _help_test_random_with_l(i)
-        if VERBOSE:
-            print("%d randomized tests pass." % (i+1))
+    @given(
+        integers(min_value=0, max_value=15).flatmap(
+            lambda l:
+            integers(min_value=1, max_value=256).flatmap(
+                lambda m:
+                integers(min_value=1, max_value=m).flatmap(
+                    lambda k:
+                    lists(
+                        binary(min_size=l//k, max_size=l//k),
+                        min_size=k,
+                        max_size=k,
+                    ).flatmap(
+                        lambda ss: just((k, m, ss)),
+                    ),
+                ),
+            ),
+        ),
+    )
+    def test_small(self, kmss):
+        """
+        Short primary blocks (length between 0 and 15) round-trip through
+        Encoder / Decoder for all values of k, m, such that:
+
+          * 1 <= m <= 256
+          * 1 <= k <= m
+
+        """
+        (k, m, ss) = kmss
+        _h(k, m, ss)
 
     def test_random(self):
         for i in range(3):
