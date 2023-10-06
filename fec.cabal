@@ -27,6 +27,8 @@ extra-source-files:
   COPYING.TGPPL.rst
   zfec/fec.h
 
+extra-doc-files:    ChangeLog.md
+
 library
   build-depends:
     , base        >=4.9  && <5
