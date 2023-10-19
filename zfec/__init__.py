@@ -6,9 +6,8 @@ maintainer web site: U{http://tahoe-lafs.org/source/zfec}
 zfec web site: U{http://tahoe-lafs.org/source/zfec}
 """
 
-from ._version import get_versions
-__version__ = get_versions()['version']
-del get_versions
+from . import _version
+__version__ = _version.get_versions()['version']
 
 from ._fec import Encoder, Decoder, Error
 from . import easyfec, filefec, cmdline_zfec, cmdline_zunfec
