@@ -97,7 +97,10 @@ Encoder_init(Encoder *self, PyObject *args, PyObject *kwdict) {
     }
     self->kk = (unsigned short)ink;
     self->mm = (unsigned short)inm;
+
+    Py_BEGIN_ALLOW_THREADS
     self->fec_matrix = fec_new(self->kk, self->mm);
+    Py_END_ALLOW_THREADS
 
     return 0;
 }
@@ -207,7 +210,9 @@ Encoder_encode(Encoder *self, PyObject *args) {
     assert (check_block_index == num_check_blocks_produced);
 
     /* Encode any check blocks that are needed. */
+    Py_BEGIN_ALLOW_THREADS
     fec_encode(self->fec_matrix, incblocks, check_blocks_produced, c_desired_checkblocks_ids, num_check_blocks_produced, sz);
+    Py_END_ALLOW_THREADS
 
     /* Wrap all requested blocks up into a Python list of Python strings. */
     result = PyList_New(num_desired_blocks);
@@ -360,7 +365,10 @@ Decoder_init(Encoder *self, PyObject *args, PyObject *kwdict) {
     }
     self->kk = (unsigned short)ink;
     self->mm = (unsigned short)inm;
+
+    Py_BEGIN_ALLOW_THREADS
     self->fec_matrix = fec_new(self->kk, self->mm);
+    Py_END_ALLOW_THREADS
 
     return 0;
 }
@@ -478,7 +486,9 @@ Decoder_decode(Decoder *self, PyObject *args) {
     }
 
     /* Decode any recovered blocks that are needed. */
+    Py_BEGIN_ALLOW_THREADS
     fec_decode(self->fec_matrix, cblocks, recoveredcstrs, cblocknums, sz);
+    Py_END_ALLOW_THREADS
 
     /* Wrap up both original primary blocks and decoded blocks into a Python list of Python strings. */
     result = PyList_New(self->kk);
