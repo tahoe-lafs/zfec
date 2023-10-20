@@ -1,4 +1,4 @@
-from zfec import easyfec, Encoder, filefec
+from zfec import easyfec, Encoder, filefec, Decoder
 from pyutil import mathutil
 
 import os, sys
@@ -87,12 +87,24 @@ def bench(k, m):
         def _init_func(size):
             return _make_new_rand_data(size, k, m)
         for BSIZE in [SIZE]:
-            start = time()
             _init_func(BSIZE)
+            start = time()
             for _ in range(MAXREPS):
                 f(BSIZE)
             elapsed = (time() - start) / MAXREPS
             print("Average MB/s:", (BSIZE / (1024 * 1024)) / elapsed)
+
+    print("measuring decoding of data with K=%d, M=%d, %d times in a row..." % (k, m, MAXREPS))
+    blocks = fecenc.encode(ds)
+    sharenums = list(range(len(blocks)))
+    decer = Decoder(k, m)
+    start = time()
+    for _ in range(MAXREPS):
+        decer.decode(blocks[:k], sharenums[:k])
+    assert b"".join(decer.decode(blocks[:k], sharenums[:k]))[:SIZE] == b"".join(ds)[:SIZE]
+    elapsed = (time() - start) / MAXREPS
+    print("Average MB/s:", (sum(len(b) for b in blocks) / (1024 * 1024)) / elapsed)
+
 
 k = K
 m = M
