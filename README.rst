@@ -115,24 +115,16 @@ Performance
 To run the benchmarks, execute the included bench/bench_zfec.py script with
 optional --k= and --m= arguments.
 
-On my Athlon 64 2.4 GHz workstation (running Linux), the "zfec" command-line
-tool encoded a 160 MB file with m=100, k=94 (about 6% redundancy) in 3.9
-seconds, where the "par2" tool encoded the file with about 6% redundancy in
-27 seconds.  zfec encoded the same file with m=12, k=6 (100% redundancy) in
-4.1 seconds, where par2 encoded it with about 100% redundancy in 7 minutes
-and 56 seconds.
+Here's the results for an i7-12700k:
 
-The underlying C library in benchmark mode encoded from a file at about 4.9
-million bytes per second and decoded at about 5.8 million bytes per second.
-
-On Peter's fancy Intel Mac laptop (2.16 GHz Core Duo), it encoded from a file
-at about 6.2 million bytes per second.
-
-On my even fancier Intel Mac laptop (2.33 GHz Core Duo), it encoded from a
-file at about 6.8 million bytes per second.
-
-On my old PowerPC G4 867 MHz Mac laptop, it encoded from a file at about 1.3
-million bytes per second.
+```
+measuring encoding of data with K=3, M=10, encoding 1000000 bytes 1000 times in a row...
+Average MB/s: 364
+measuring decoding of primary-only data with K=3, M=10, 1000 times in a row...
+Average MB/s: 1894750
+measuring decoding of secondary-only data with K=3, M=10, 1000 times in a row...
+Average MB/s: 3298
+```
 
 Here is a paper analyzing the performance of various erasure codes and their
 implementations, including zfec:
