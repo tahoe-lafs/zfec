@@ -94,7 +94,7 @@ def bench(k, m):
             elapsed = (time() - start) / MAXREPS
             print("Average MB/s:", (BSIZE / (1024 * 1024)) / elapsed)
 
-    print("measuring decoding of data with K=%d, M=%d, %d times in a row..." % (k, m, MAXREPS))
+    print("measuring decoding of primary-only data with K=%d, M=%d, %d times in a row..." % (k, m, MAXREPS))
     blocks = fecenc.encode(ds)
     sharenums = list(range(len(blocks)))
     decer = Decoder(k, m)
@@ -102,6 +102,17 @@ def bench(k, m):
     for _ in range(MAXREPS):
         decer.decode(blocks[:k], sharenums[:k])
     assert b"".join(decer.decode(blocks[:k], sharenums[:k]))[:SIZE] == b"".join(ds)[:SIZE]
+    elapsed = (time() - start) / MAXREPS
+    print("Average MB/s:", (sum(len(b) for b in blocks) / (1024 * 1024)) / elapsed)
+
+    print("measuring decoding of secondary-only data with K=%d, M=%d, %d times in a row..." % (k, m, MAXREPS))
+    blocks = fecenc.encode(ds)
+    sharenums = list(range(len(blocks)))
+    decer = Decoder(k, m)
+    start = time()
+    for _ in range(MAXREPS):
+        decer.decode(blocks[k:k+k], sharenums[k:k+k])
+    assert b"".join(decer.decode(blocks[k:k+k], sharenums[k:k+k]))[:SIZE] == b"".join(ds)[:SIZE]
     elapsed = (time() - start) / MAXREPS
     print("Average MB/s:", (sum(len(b) for b in blocks) / (1024 * 1024)) / elapsed)
 
