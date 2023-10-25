@@ -44,9 +44,9 @@ jobs:
           - "cp310-*"
           - "cp311-*"
           - "cp312-*"
-          - "pp37-*"
           - "pp38-*"
           - "pp39-*"
+          - "pp310-*"
 
     steps:
       - name: Check out zfec sources
