@@ -22,8 +22,8 @@ def ab(x): # debuggery
         return "%s:%s" % (len(x), "--empty--",)
 
 class Encoder(object):
-    def __init__(self, k, m):
-        self.fec = zfec.Encoder(k, m)
+    def __init__(self, k, m, option=0):
+        self.fec = zfec.Encoder(k, m, option=option)
 
     def encode(self, data):
         """
@@ -39,8 +39,8 @@ class Encoder(object):
         return self.fec.encode(l)
         
 class Decoder(object):
-    def __init__(self, k, m):
-        self.fec = zfec.Decoder(k, m)
+    def __init__(self, k, m, option=0):
+        self.fec = zfec.Decoder(k, m, option=option)
 
     def decode(self, blocks, sharenums, padlen):
         """

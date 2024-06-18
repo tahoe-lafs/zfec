@@ -9,6 +9,9 @@ zfec web site: U{http://tahoe-lafs.org/source/zfec}
 from . import _version
 __version__ = _version.get_versions()['version']
 
+OPTION_POWER_SEQUENCE = 0
+OPTION_SEQUENTIAL_INTEGERS = 1
+
 from ._fec import Encoder, Decoder, Error
 from . import easyfec, filefec, cmdline_zfec, cmdline_zunfec
 

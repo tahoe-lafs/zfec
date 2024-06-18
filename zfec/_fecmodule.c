@@ -73,10 +73,11 @@ Encoder_init(Encoder *self, PyObject *args, PyObject *kwdict) {
     static char *kwlist[] = {
         "k",
         "m",
+        "option",
         NULL
     };
-    int ink, inm;
-    if (!PyArg_ParseTupleAndKeywords(args, kwdict, "ii:Encoder.__init__", kwlist, &ink, &inm))
+    int ink, inm, option = FEC_OPTION_POWER_SEQUENCE;
+    if (!PyArg_ParseTupleAndKeywords(args, kwdict, "ii|i:Encoder.__init__", kwlist, &ink, &inm, &option))
         return -1;
 
     if (ink < 1) {
@@ -95,11 +96,15 @@ Encoder_init(Encoder *self, PyObject *args, PyObject *kwdict) {
         PyErr_Format(py_fec_error, "Precondition violation: first argument is required to be less than or equal to the second argument, but they were %d and %d respectively", ink, inm);
         return -1;
     }
+    if (option != FEC_OPTION_POWER_SEQUENCE && option != FEC_OPTION_SEQUENTIAL_INTEGERS) {
+        PyErr_Format(py_fec_error, "Precondition violation: option third argument must be one of (%d,%d)", FEC_OPTION_POWER_SEQUENCE, FEC_OPTION_SEQUENTIAL_INTEGERS);
+        return -1;
+    }
     self->kk = (unsigned short)ink;
     self->mm = (unsigned short)inm;
 
     Py_BEGIN_ALLOW_THREADS
-    self->fec_matrix = fec_new(self->kk, self->mm);
+    self->fec_matrix = fec_new2(self->kk, self->mm, option);
     Py_END_ALLOW_THREADS
 
     return 0;
@@ -340,11 +345,12 @@ Decoder_init(Encoder *self, PyObject *args, PyObject *kwdict) {
     static char *kwlist[] = {
         "k",
         "m",
+        "option",
         NULL
     };
 
-    int ink, inm;
-    if (!PyArg_ParseTupleAndKeywords(args, kwdict, "ii:Decoder.__init__", kwlist, &ink, &inm))
+    int ink, inm, option = FEC_OPTION_POWER_SEQUENCE;
+    if (!PyArg_ParseTupleAndKeywords(args, kwdict, "ii|i:Decoder.__init__", kwlist, &ink, &inm, &option))
         return -1;
 
     if (ink < 1) {
@@ -367,7 +373,7 @@ Decoder_init(Encoder *self, PyObject *args, PyObject *kwdict) {
     self->mm = (unsigned short)inm;
 
     Py_BEGIN_ALLOW_THREADS
-    self->fec_matrix = fec_new(self->kk, self->mm);
+    self->fec_matrix = fec_new2(self->kk, self->mm, option);
     Py_END_ALLOW_THREADS
 
     return 0;
