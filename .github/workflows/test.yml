@@ -17,7 +17,7 @@ jobs:
       # Python versions in sync with the ones in build.yml.
       matrix:
         os:
-          - "macos-11"
+          - "macos-latest"
           - "ubuntu-22.04"
           - "windows-2022"
         python-version:
