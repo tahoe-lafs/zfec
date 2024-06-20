@@ -23,6 +23,8 @@ on:
   release:
     types: [published, created, edited]
 
+env:
+  CIBW_PRERELEASE_PYTHONS: "True"
 
 jobs:
   build_wheels:
@@ -58,7 +60,7 @@ jobs:
           fetch-depth: 0
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.16.2
+        uses: pypa/cibuildwheel@v2.19.1
         with:
           output-dir: wheelhouse
         env:
