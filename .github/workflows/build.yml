@@ -23,9 +23,6 @@ on:
   release:
     types: [published, created, edited]
 
-env:
-  CIBW_PRERELEASE_PYTHONS: "True"
-
 jobs:
   build_wheels:
     name: "${{ matrix.wheel-selector }} wheel on ${{ matrix.os }}"
@@ -74,7 +71,8 @@ jobs:
           CIBW_ARCHS_MACOS: "x86_64 universal2 arm64"
           # Skip testing arm64 builds on Intel Macs.
           CIBW_TEST_SKIP: "*-macosx_arm64 *-macosx_universal2:arm64"
-
+          # Allow beta releases of Python:
+          CIBW_PRERELEASE_PYTHONS: "True"
       - uses: actions/upload-artifact@v3
         name: Upload artifacts
         with:
