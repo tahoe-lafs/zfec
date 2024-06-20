@@ -124,6 +124,9 @@ Encoder_encode(Encoder *self, PyObject *args) {
     unsigned num_check_blocks_produced = 0; /* The first num_check_blocks_produced elements of the check_blocks_produced array and of the pystrs_produced array will be used. */
     const gf** incblocks = (const gf**)alloca(self->kk * sizeof(const gf*));
     Py_buffer *pybufs = (Py_buffer *)alloca(self->kk * sizeof(Py_buffer));
+    for (int i = 0; i < self->kk; i++) {
+        pybufs[i].buf = NULL;
+    }
     size_t num_desired_blocks;
     PyObject* fast_desired_blocks_nums = NULL;
     PyObject** fast_desired_blocks_nums_items;
@@ -180,7 +183,6 @@ Encoder_encode(Encoder *self, PyObject *args) {
     if (!fastinblocksitems)
         goto err;
 
-    // TODO on an error, we leak references.
     for (i = 0; i < self->kk; i++) {
       if (PyObject_GetBuffer(fastinblocksitems[i], &pybufs[i], 0))
         goto err;
@@ -246,15 +248,17 @@ Encoder_encode(Encoder *self, PyObject *args) {
         Py_XDECREF(pystrs_produced[i]);
     Py_XDECREF(result); result = NULL;
   cleanup:
-      for (i = 0; i < self->kk; i++) {
-        // TODO release Py_buffers
-      }
-       Py_XDECREF(fastinblocks);
-      fastinblocks = NULL;
-      Py_XDECREF(fast_desired_blocks_nums);
-      fast_desired_blocks_nums = NULL;
-      return result;
+    for (i = 0; i < self->kk; i++) {
+        if (pybufs[i].buf != NULL) {
+            PyBuffer_Release(&pybufs[i]);
+        }
     }
+    Py_XDECREF(fastinblocks);
+    fastinblocks = NULL;
+    Py_XDECREF(fast_desired_blocks_nums);
+    fast_desired_blocks_nums = NULL;
+    return result;
+}
 
 static void
 Encoder_dealloc(Encoder * self) {
@@ -402,6 +406,9 @@ Decoder_decode(Decoder *self, PyObject *args) {
 
     const gf**restrict cblocks = (const gf**restrict)alloca(self->kk * sizeof(const gf*));
     Py_buffer *pybufs = (Py_buffer *)alloca(self->kk * sizeof(Py_buffer));
+    for (int i = 0; i < self->kk; i++) {
+        pybufs[i].buf = NULL;
+    }
     unsigned* cblocknums = (unsigned*)alloca(self->kk * sizeof(unsigned));
     gf**restrict recoveredcstrs = (gf**)alloca(self->kk * sizeof(gf*)); /* self->kk is actually an upper bound -- we probably won't need all of this space. */
     PyObject**restrict recoveredpystrs = (PyObject**restrict)alloca(self->kk * sizeof(PyObject*)); /* self->kk is actually an upper bound -- we probably won't need all of this space. */
@@ -458,9 +465,10 @@ Decoder_decode(Decoder *self, PyObject *args) {
         if (cblocknums[i] >= self->kk)
             needtorecover+=1;
 
-        // TODO object reference leaks on error?
-        if (PyObject_GetBuffer(fastblocksitems[i], &pybufs[i], 0))
+        if (PyObject_GetBuffer(fastblocksitems[i], &pybufs[i], 0)) {
+            pybufs[i].buf = NULL;
             goto err;
+        }
         if (oldsz != 0 && oldsz != pybufs[i].len) {
             PyErr_Format(py_fec_error, "Precondition violation: Input blocks are required to be all the same length.  length of one block was: %zu, length of another block was: %zu\n", oldsz, pybufs[i].len);
             goto err;
@@ -527,7 +535,11 @@ Decoder_decode(Decoder *self, PyObject *args) {
         Py_XDECREF(recoveredpystrs[i]);
     Py_XDECREF(result); result = NULL;
   cleanup:
-    // TODO clean up Py_buffers
+    for (i = 0; i < self->kk; i++) {
+        if (pybufs[i].buf != NULL) {
+          PyBuffer_Release(&pybufs[i]);
+        }
+    }
     Py_XDECREF(fastblocks); fastblocks=NULL;
     Py_XDECREF(fastblocknums); fastblocknums=NULL;
     return result;
