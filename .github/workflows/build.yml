@@ -23,7 +23,6 @@ on:
   release:
     types: [published, created, edited]
 
-
 jobs:
   build_wheels:
     name: "${{ matrix.wheel-selector }} wheel on ${{ matrix.os }}"
@@ -35,7 +34,7 @@ jobs:
       # Python versions in sync with the ones in test.yml.
       matrix:
         os:
-          - "macos-11"
+          - "macos-12"
           - "ubuntu-22.04"
           - "windows-2022"
         wheel-selector:
@@ -44,9 +43,10 @@ jobs:
           - "cp310-*"
           - "cp311-*"
           - "cp312-*"
-          - "pp37-*"
+          - "cp313-*"
           - "pp38-*"
           - "pp39-*"
+          - "pp310-*"
 
     steps:
       - name: Check out zfec sources
@@ -57,7 +57,7 @@ jobs:
           fetch-depth: 0
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.16.2
+        uses: pypa/cibuildwheel@v2.20.0
         with:
           output-dir: wheelhouse
         env:
@@ -71,7 +71,6 @@ jobs:
           CIBW_ARCHS_MACOS: "x86_64 universal2 arm64"
           # Skip testing arm64 builds on Intel Macs.
           CIBW_TEST_SKIP: "*-macosx_arm64 *-macosx_universal2:arm64"
-
       - uses: actions/upload-artifact@v3
         name: Upload artifacts
         with:

@@ -123,6 +123,10 @@ Encoder_encode(Encoder *self, PyObject *args) {
     PyObject** pystrs_produced = (PyObject**)alloca((self->mm - self->kk) * sizeof(PyObject*)); /* This is an upper bound -- we will actually use only num_check_blocks_produced of these elements (see below). */
     unsigned num_check_blocks_produced = 0; /* The first num_check_blocks_produced elements of the check_blocks_produced array and of the pystrs_produced array will be used. */
     const gf** incblocks = (const gf**)alloca(self->kk * sizeof(const gf*));
+    Py_buffer *pybufs = (Py_buffer *)alloca(self->kk * sizeof(Py_buffer));
+    for (int i = 0; i < self->kk; i++) {
+        pybufs[i].buf = NULL;
+    }
     size_t num_desired_blocks;
     PyObject* fast_desired_blocks_nums = NULL;
     PyObject** fast_desired_blocks_nums_items;
@@ -131,7 +135,7 @@ Encoder_encode(Encoder *self, PyObject *args) {
     size_t i;
     PyObject* fastinblocks = NULL;
     PyObject** fastinblocksitems;
-    Py_ssize_t sz, oldsz = 0;
+    Py_ssize_t oldsz = 0;
     unsigned char check_block_index = 0; /* index into the check_blocks_produced and (parallel) pystrs_produced arrays */
 
     if (!PyArg_ParseTuple(args, "O|O:Encoder.encode", &inblocks, &desired_blocks_nums))
@@ -180,17 +184,21 @@ Encoder_encode(Encoder *self, PyObject *args) {
         goto err;
 
     for (i = 0; i < self->kk; i++) {
-        if (!PyObject_CheckReadBuffer(fastinblocksitems[i])) {
-            PyErr_Format(py_fec_error, "Precondition violation: %zu'th item is required to offer the single-segment read character buffer protocol, but it does not.", i);
-            goto err;
-        }
-        if (PyObject_AsReadBuffer(fastinblocksitems[i], (const void**)&(incblocks[i]), &sz))
-            goto err;
-        if (oldsz != 0 && oldsz != sz) {
-            PyErr_Format(py_fec_error, "Precondition violation: Input blocks are required to be all the same length.  length of one block was: %zu, length of another block was: %zu", oldsz, sz);
-            goto err;
-        }
-        oldsz = sz;
+      if (PyObject_GetBuffer(fastinblocksitems[i], &pybufs[i], 0))
+        goto err;
+      if (!PyBuffer_IsContiguous(&pybufs[i], 'C')) {
+        goto err;
+      }
+      if (oldsz != 0 && oldsz != pybufs[i].len) {
+        PyErr_Format(py_fec_error,
+                     "Precondition violation: Input blocks are required to be "
+                     "all the same length.  length of one block was: %zu, "
+                     "length of another block was: %zu",
+                     oldsz, pybufs[i].len);
+        goto err;
+      }
+      incblocks[i] = pybufs[i].buf;
+      oldsz = pybufs[i].len;
     }
 
     /* Allocate space for all of the check blocks. */
@@ -198,7 +206,7 @@ Encoder_encode(Encoder *self, PyObject *args) {
     for (i = 0; i < num_desired_blocks; i++) {
         if (c_desired_blocks_nums[i] >= self->kk) {
             c_desired_checkblocks_ids[check_block_index] = c_desired_blocks_nums[i];
-            pystrs_produced[check_block_index] = PyString_FromStringAndSize(NULL, sz);
+            pystrs_produced[check_block_index] = PyString_FromStringAndSize(NULL, oldsz);
             if (pystrs_produced[check_block_index] == NULL)
                 goto err;
             check_blocks_produced[check_block_index] = (gf*)PyString_AsString(pystrs_produced[check_block_index]);
@@ -211,7 +219,7 @@ Encoder_encode(Encoder *self, PyObject *args) {
 
     /* Encode any check blocks that are needed. */
     Py_BEGIN_ALLOW_THREADS
-    fec_encode(self->fec_matrix, incblocks, check_blocks_produced, c_desired_checkblocks_ids, num_check_blocks_produced, sz);
+    fec_encode(self->fec_matrix, incblocks, check_blocks_produced, c_desired_checkblocks_ids, num_check_blocks_produced, oldsz);
     Py_END_ALLOW_THREADS
 
     /* Wrap all requested blocks up into a Python list of Python strings. */
@@ -240,8 +248,15 @@ Encoder_encode(Encoder *self, PyObject *args) {
         Py_XDECREF(pystrs_produced[i]);
     Py_XDECREF(result); result = NULL;
   cleanup:
-    Py_XDECREF(fastinblocks); fastinblocks=NULL;
-    Py_XDECREF(fast_desired_blocks_nums); fast_desired_blocks_nums=NULL;
+    for (i = 0; i < self->kk; i++) {
+        if (pybufs[i].buf != NULL) {
+            PyBuffer_Release(&pybufs[i]);
+        }
+    }
+    Py_XDECREF(fastinblocks);
+    fastinblocks = NULL;
+    Py_XDECREF(fast_desired_blocks_nums);
+    fast_desired_blocks_nums = NULL;
     return result;
 }
 
@@ -390,6 +405,10 @@ Decoder_decode(Decoder *self, PyObject *args) {
     PyObject* result = NULL;
 
     const gf**restrict cblocks = (const gf**restrict)alloca(self->kk * sizeof(const gf*));
+    Py_buffer *pybufs = (Py_buffer *)alloca(self->kk * sizeof(Py_buffer));
+    for (int i = 0; i < self->kk; i++) {
+        pybufs[i].buf = NULL;
+    }
     unsigned* cblocknums = (unsigned*)alloca(self->kk * sizeof(unsigned));
     gf**restrict recoveredcstrs = (gf**)alloca(self->kk * sizeof(gf*)); /* self->kk is actually an upper bound -- we probably won't need all of this space. */
     PyObject**restrict recoveredpystrs = (PyObject**restrict)alloca(self->kk * sizeof(PyObject*)); /* self->kk is actually an upper bound -- we probably won't need all of this space. */
@@ -399,7 +418,7 @@ Decoder_decode(Decoder *self, PyObject *args) {
     unsigned needtorecover=0;
     PyObject** fastblocksitems;
     PyObject** fastblocknumsitems;
-    Py_ssize_t sz, oldsz = 0;
+    Py_ssize_t oldsz = 0;
     long tmpl;
     unsigned nextrecoveredix=0;
 
@@ -446,17 +465,16 @@ Decoder_decode(Decoder *self, PyObject *args) {
         if (cblocknums[i] >= self->kk)
             needtorecover+=1;
 
-        if (!PyObject_CheckReadBuffer(fastblocksitems[i])) {
-            PyErr_Format(py_fec_error, "Precondition violation: %u'th item is required to offer the single-segment read character buffer protocol, but it does not.\n", i);
+        if (PyObject_GetBuffer(fastblocksitems[i], &pybufs[i], 0)) {
+            pybufs[i].buf = NULL;
             goto err;
         }
-        if (PyObject_AsReadBuffer(fastblocksitems[i], (const void**)&(cblocks[i]), &sz))
-            goto err;
-        if (oldsz != 0 && oldsz != sz) {
-            PyErr_Format(py_fec_error, "Precondition violation: Input blocks are required to be all the same length.  length of one block was: %zu, length of another block was: %zu\n", oldsz, sz);
+        if (oldsz != 0 && oldsz != pybufs[i].len) {
+            PyErr_Format(py_fec_error, "Precondition violation: Input blocks are required to be all the same length.  length of one block was: %zu, length of another block was: %zu\n", oldsz, pybufs[i].len);
             goto err;
         }
-        oldsz = sz;
+        cblocks[i] = pybufs[i].buf;
+        oldsz = pybufs[i].len;
     }
 
     /* Move src packets into position.  At the end of this loop we want the i'th
@@ -477,7 +495,7 @@ Decoder_decode(Decoder *self, PyObject *args) {
 
     /* Allocate space for all of the recovered blocks. */
     for (i=0; i<needtorecover; i++) {
-        recoveredpystrs[i] = PyString_FromStringAndSize(NULL, sz);
+        recoveredpystrs[i] = PyString_FromStringAndSize(NULL, oldsz);
         if (recoveredpystrs[i] == NULL)
             goto err;
         recoveredcstrs[i] = (gf*)PyString_AsString(recoveredpystrs[i]);
@@ -487,7 +505,7 @@ Decoder_decode(Decoder *self, PyObject *args) {
 
     /* Decode any recovered blocks that are needed. */
     Py_BEGIN_ALLOW_THREADS
-    fec_decode(self->fec_matrix, cblocks, recoveredcstrs, cblocknums, sz);
+    fec_decode(self->fec_matrix, cblocks, recoveredcstrs, cblocknums, oldsz);
     Py_END_ALLOW_THREADS
 
     /* Wrap up both original primary blocks and decoded blocks into a Python list of Python strings. */
@@ -517,6 +535,11 @@ Decoder_decode(Decoder *self, PyObject *args) {
         Py_XDECREF(recoveredpystrs[i]);
     Py_XDECREF(result); result = NULL;
   cleanup:
+    for (i = 0; i < self->kk; i++) {
+        if (pybufs[i].buf != NULL) {
+          PyBuffer_Release(&pybufs[i]);
+        }
+    }
     Py_XDECREF(fastblocks); fastblocks=NULL;
     Py_XDECREF(fastblocknums); fastblocknums=NULL;
     return result;
