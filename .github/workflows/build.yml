@@ -38,7 +38,6 @@ jobs:
           - "ubuntu-22.04"
           - "windows-2022"
         wheel-selector:
-          - "cp38-*"
           - "cp39-*"
           - "cp310-*"
           - "cp311-*"
