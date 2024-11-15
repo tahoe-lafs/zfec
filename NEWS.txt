@@ -1,5 +1,12 @@
 User visible changes in zfec.           -*- outline -*-
 
+* Release 1.6.0.0 (2024-11-15)
+
+** Speed doubled (thanks itamarst)
+** Python 3.7 is no longer supported
+** MacOS 11 is no longer supported
+** manylinux 2.28 is now the minimum (with arch x86-64-v2 now required)
+
 * Release 1.5.7.4 (2023-10-23)
 
 ** Python 3.7 is no longer supported.
