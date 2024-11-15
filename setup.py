@@ -26,7 +26,7 @@ for arg in sys.argv:
 extra_compile_args.append("-std=c99")
 if platform.machine() == "x86_64" and platform.system().lower().startswith("linux"):
     # Only support CPUs starting from 2008/2009 or so, and run twice as fast as
-    # a result!
+    # a result! This requires sufficiently new gcc, 11 maybe?
     extra_compile_args.append("-march=x86-64-v2")
 
 if DEBUGMODE:
