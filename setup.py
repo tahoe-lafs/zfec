@@ -1,8 +1,8 @@
 from setuptools import setup
 from setuptools.extension import Extension
 
+import platform
 import sys
-import os
 import versioneer
 
 DEBUGMODE = False
@@ -24,6 +24,11 @@ for arg in sys.argv:
         break
 
 extra_compile_args.append("-std=c99")
+if platform.machine() == "x86_64" and platform.system().lower().startswith("linux"):
+    # Only support CPUs starting from 2008/2009 or so, and run twice as fast as
+    # a result!
+    extra_compile_args.append("-march=x86-64-v2")
+
 if DEBUGMODE:
     extra_compile_args.append("-O0")
     extra_compile_args.append("-g")
