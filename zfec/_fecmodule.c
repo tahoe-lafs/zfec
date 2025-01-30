@@ -2,6 +2,12 @@
  * zfec -- fast forward error correction library with Python interface
  */
 
+/*
+ * Limit the available API to that in CPython 3.7 so that the resulting
+ * extension module is usable with Python 3.7 and onwards.
+ */
+#define Py_LIMITED_API 0x03070000
+
 #include <Python.h>
 #include <structmember.h>
 #include <stddef.h>
