@@ -74,17 +74,17 @@ instance NFData FECParams where
 instance Show FECParams where
     show (FECParams _ k n) = "FEC (" ++ show k ++ ", " ++ show n ++ ")"
 
-foreign import ccall unsafe "fec_init"
+foreign import ccall "fec_init"
     _init :: IO ()
-foreign import ccall unsafe "fec_new"
+foreign import ccall "fec_new"
     _new ::
         -- | k
         CUInt ->
         -- | n
         CUInt ->
         IO (Ptr CFEC)
-foreign import ccall unsafe "&fec_free" _free :: FunPtr (Ptr CFEC -> IO ())
-foreign import ccall unsafe "fec_encode"
+foreign import ccall "&fec_free" _free :: FunPtr (Ptr CFEC -> IO ())
+foreign import ccall "fec_encode"
     _encode ::
         Ptr CFEC ->
         -- | primary blocks
@@ -98,7 +98,7 @@ foreign import ccall unsafe "fec_encode"
         -- | block length
         CSize ->
         IO ()
-foreign import ccall unsafe "fec_decode"
+foreign import ccall "fec_decode"
     _decode ::
         Ptr CFEC ->
         -- | input blocks
