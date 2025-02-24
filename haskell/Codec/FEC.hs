@@ -21,7 +21,6 @@
 -}
 module Codec.FEC (
     FECParams (paramK, paramN),
-    initialize,
     fec,
     encode,
     decode,
@@ -153,6 +152,7 @@ fec k n =
         else
             unsafePerformIO
                 ( do
+                    initialize
                     cfec' <- _new (fromIntegral k) (fromIntegral n)
                     -- new will return null if the library hasn't been
                     -- initialized.
