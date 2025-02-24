@@ -1,4 +1,5 @@
 {-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Main where
 
@@ -10,7 +11,9 @@ import qualified Data.ByteString.Lazy as BL
 import Data.List (sortOn)
 import Data.Word (Word16, Word8)
 import System.Random (Random (randoms), mkStdGen)
+import Test.QuickCheck.Property (ioProperty)
 import Test.QuickCheck (
+    again,
     Arbitrary (arbitrary),
     Property,
     Testable (property),
@@ -63,24 +66,25 @@ testFEC ::
     Int ->
     -- | True if the encoded input was reconstructed by decoding, False
     -- otherwise.
-    Bool
-testFEC fec len seed = FEC.decode fec someTaggedBlocks == origBlocks
-  where
-    -- Construct some blocks.  Each will just be the byte corresponding to the
-    -- block number repeated to satisfy the requested length.
-    origBlocks = B.replicate (fromIntegral len) . fromIntegral <$> [0 .. (FEC.paramK fec - 1)]
-
-    -- Encode the data to produce the "secondary" blocks which (might) add
-    -- redundancy to the original blocks.
-    secondaryBlocks = FEC.encode fec origBlocks
-
+    IO Bool
+testFEC fec len seed = do
+  -- Construct some blocks.  Each will just be the byte corresponding to the
+  -- block number repeated to satisfy the requested length.
+  let origBlocks = B.replicate (fromIntegral len) . fromIntegral <$> [0 .. (FEC.paramK fec - 1)]
+  -- Encode the data to produce the "secondary" blocks which (might) add
+  -- redundancy to the original blocks.
+  secondaryBlocks <- FEC.encode fec origBlocks
     -- Tag each block with its block number because the decode API requires
     -- this information.
-    taggedBlocks = zip [0 ..] (origBlocks ++ secondaryBlocks)
+  let taggedBlocks = zip [0 ..] (origBlocks ++ secondaryBlocks)
+  -- Choose enough of the tagged blocks (some combination of original and
+  -- secondary) to try to use for decoding.
+      someTaggedBlocks = randomTake seed (FEC.paramK fec) taggedBlocks
+  decoded <- FEC.decode fec someTaggedBlocks 
+  pure $ decoded == origBlocks
 
-    -- Choose enough of the tagged blocks (some combination of original and
-    -- secondary) to try to use for decoding.
-    someTaggedBlocks = randomTake seed (FEC.paramK fec) taggedBlocks
+
+
 
 -- | @FEC.secureDivide@ is the inverse of @FEC.secureCombine@.
 prop_divide :: Word16 -> Word8 -> Word8 -> Property
@@ -91,25 +95,26 @@ prop_divide size byte divisor = monadicIO $ do
 
 -- | @FEC.encode@ is the inverse of @FEC.decode@.
 prop_decode :: Params -> Word16 -> Int -> Property
-prop_decode (Params req tot) len seed = property $ do
-    testFEC fec len seed === True
-  where
-    fec = FEC.fec req tot
+prop_decode (Params req tot) len seed = again $ ioProperty $ do -- Dunno whether we need the again or not.
+  fec <- FEC.fec req tot
+  testFEC fec len seed
 
 -- | @FEC.enFEC@ is the inverse of @FEC.deFEC@.
 prop_deFEC :: Params -> B.ByteString -> Property
-prop_deFEC (Params req tot) testdata =
-    FEC.deFEC req tot minimalShares === testdata
-  where
-    allShares = FEC.enFEC req tot testdata
-    minimalShares = take req allShares
+prop_deFEC (Params req tot) testdata = again $ ioProperty $ do
+    allShares :: [B.ByteString] <- FEC.enFEC req tot testdata
+    let minimalShares = take req allShares
+    decr :: B.ByteString <- FEC.deFEC req tot minimalShares
+    pure (decr == testdata)
+    
 
 prop_primary_copies :: Params -> BL.ByteString -> Property
-prop_primary_copies (Params _ tot) primary = property $ do
-    conjoin $ (BL.toStrict primary ===) <$> secondary
+prop_primary_copies (Params _ tot) primary = again $ ioProperty $ do
+    fec <- FEC.fec 1 tot
+    secondary :: [B.ByteString] <- FEC.encode fec [BL.toStrict primary]
+    let x :: Bool = all (BL.toStrict primary ==) secondary
+    pure x
   where
-    fec = FEC.fec 1 tot
-    secondary = FEC.encode fec [BL.toStrict primary]
 
 main :: IO ()
 main = do
