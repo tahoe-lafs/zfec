@@ -13,7 +13,6 @@ import Data.Word (Word16, Word8)
 import System.Random (Random (randoms), mkStdGen)
 import Test.QuickCheck.Property (ioProperty)
 import Test.QuickCheck (
-    again,
     Arbitrary (arbitrary),
     Property,
     Testable (property),
@@ -95,13 +94,13 @@ prop_divide size byte divisor = monadicIO $ do
 
 -- | @FEC.encode@ is the inverse of @FEC.decode@.
 prop_decode :: Params -> Word16 -> Int -> Property
-prop_decode (Params req tot) len seed = again $ ioProperty $ do -- Dunno whether we need the again or not.
+prop_decode (Params req tot) len seed = ioProperty $ do
   fec <- FEC.fec req tot
   testFEC fec len seed
 
 -- | @FEC.enFEC@ is the inverse of @FEC.deFEC@.
 prop_deFEC :: Params -> B.ByteString -> Property
-prop_deFEC (Params req tot) testdata = again $ ioProperty $ do
+prop_deFEC (Params req tot) testdata = ioProperty $ do
     allShares :: [B.ByteString] <- FEC.enFEC req tot testdata
     let minimalShares = take req allShares
     decr :: B.ByteString <- FEC.deFEC req tot minimalShares
@@ -109,7 +108,7 @@ prop_deFEC (Params req tot) testdata = again $ ioProperty $ do
     
 
 prop_primary_copies :: Params -> BL.ByteString -> Property
-prop_primary_copies (Params _ tot) primary = again $ ioProperty $ do
+prop_primary_copies (Params _ tot) primary = ioProperty $ do
     fec <- FEC.fec 1 tot
     secondary :: [B.ByteString] <- FEC.encode fec [BL.toStrict primary]
     let x :: Bool = all (BL.toStrict primary ==) secondary
