@@ -1,6 +1,6 @@
 module Main where
 
-import Codec.FEC (FECParams (paramK, paramN), decode, encode, fec)
+import Codec.FEC (FECParams (paramK, paramN), decode, encode, feck)
 import Control.Monad (replicateM)
 import Criterion.Main (Benchmark, bench, bgroup, defaultMain, env, nfAppIO)
 import Data.Bifunctor (bimap)
@@ -13,9 +13,9 @@ main =
     defaultMain
         -- Run against some somewhat arbitrarily chosen configurations.  Notably,
         -- though, 94/100 matches the numbers recorded in the readme.
-        [ env (fec 2 3) makeFECBenchmarks
-        , env (fec 16 31) makeFECBenchmarks
-        , env (fec 94 100) makeFECBenchmarks
+        [ env (feck 2 3) makeFECBenchmarks
+        , env (feck 16 31) makeFECBenchmarks
+        , env (feck 94 100) makeFECBenchmarks
         ]
   where
 
