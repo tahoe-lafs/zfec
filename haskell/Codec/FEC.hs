@@ -54,6 +54,7 @@ import System.IO (IOMode (..), withFile)
 import System.GlobalLock
 
 data CFEC
+-- | The handle returned to the caller from fec and used in subsequent calls.
 data FECParams = FECParams
     { _cfec :: !(ForeignPtr CFEC)
     , paramK :: Int
