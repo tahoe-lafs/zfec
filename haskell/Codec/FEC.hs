@@ -21,7 +21,7 @@
 -}
 module Codec.FEC (
     FECParams (paramK, paramN),
-    feck,
+    fec,
     encode,
     decode,
 
@@ -136,13 +136,13 @@ initialize :: IO ()
 initialize = lock _init
 
 -- | Return a FEC with the given parameters.
-feck ::
+fec ::
     -- | the number of primary blocks
     Int ->
     -- | the total number blocks, must be < 256
     Int ->
     IO FECParams
-feck k n =
+fec k n =
     if not (isValidConfig k n)
         then error $ "Invalid FEC parameters: " ++ show k ++ " " ++ show n
         else do
@@ -358,7 +358,7 @@ enFEC ::
     -- | the resulting blocks
     IO [B.ByteString]
 enFEC k n input = do
-  params <- feck k n
+  params <- fec k n
   let remainder = B.length input `mod` k
       paddingLength = if remainder >= 1 then k - remainder else k
       paddingBytes = B.replicate (paddingLength - 1) 0 `B.append` B.singleton (fromIntegral paddingLength)
@@ -384,7 +384,7 @@ deFEC ::
     [B.ByteString] ->
     IO B.ByteString
 deFEC k n inputs = if length inputs < k then error "Too few inputs to deFEC" else do
-  params <- feck k n
+  params <- fec k n
   let kInputs = take k inputs
   let taggedInputs = map (\bs -> (fromIntegral $ B.head bs, B.tail bs)) kInputs
   fecOutput <- B.concat <$> decode params taggedInputs
