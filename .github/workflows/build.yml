@@ -75,7 +75,7 @@ jobs:
           # patch releases of Python 3.9 if they haven't updated pip in their
           # virtualenv.
           CIBW_MANYLINUX_X86_64_IMAGE: "manylinux_2_28"
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         name: Upload artifacts
         with:
           path: ./wheelhouse/*.whl
@@ -101,7 +101,7 @@ jobs:
         run: |
           python3 setup.py sdist
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         name: Upload artifacts
         with:
           path: dist/*.tar.gz
