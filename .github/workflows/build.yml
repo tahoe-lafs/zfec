@@ -78,6 +78,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         name: Upload artifacts
         with:
+          name: ${{ matrix.wheel-selector }}-on-${{ matrix.runs-on }}
           path: ./wheelhouse/*.whl
 
   build_sdist:
@@ -104,6 +105,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         name: Upload artifacts
         with:
+          name: sdist-${{ matrix.wheel-selector }}-on-${{ matrix.runs-on }}
           path: dist/*.tar.gz
 
   upload_pypi:
