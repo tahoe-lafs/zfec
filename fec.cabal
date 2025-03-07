@@ -31,10 +31,10 @@ extra-doc-files:    ChangeLog.md
 
 library
   build-depends:
-    , base        >=4.9  && <5
-    , bytestring  >=0.10 && <0.13
-    , deepseq     >=1.4  && <1.6
-    , extra       >=1.7  && <1.8
+    , base        
+    , bytestring  
+    , deepseq     
+    , extra       
     , global-lock
 
   exposed-modules:    Codec.FEC
@@ -51,11 +51,11 @@ Benchmark benchmark-zfec
   main-is:          Main.hs
   ghc-options:      -threaded
   build-depends:
-    , base        >=4.9  && <5
-    , bytestring  >=0.10 && <0.13
-    , criterion   >=1.1  && <1.7
+    , base        
+    , bytestring  
+    , criterion   
     , fec
-    , random      >=1.1  && <1.3
+    , random      
 
   hs-source-dirs:   benchmark-zfec
   default-language: Haskell2010
@@ -67,13 +67,13 @@ test-suite tests
   hs-source-dirs:   haskell/test
   ghc-options:      -Wall -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-    , base                  >=4.9  && <5
-    , bytestring            >=0.10 && <0.13
-    , data-serializer       >=0.3  && <0.4
+    , base                 
+    , bytestring           
+    , data-serializer      
     , fec
-    , hspec                 >=2.7  && <2.12
-    , QuickCheck            >=2.14 && <2.15
-    , quickcheck-instances  >=0.3  && <0.4
-    , random                >=1.1  && <1.3
+    , hspec                
+    , QuickCheck           
+    , quickcheck-instances 
+    , random               
 
   default-language: Haskell2010
