@@ -34,7 +34,7 @@ jobs:
       # Python versions in sync with the ones in test.yml.
       matrix:
         os:
-          - "macos-12"
+          - "macos-latest"
           - "ubuntu-22.04"
           - "windows-2022"
         wheel-selector:
