@@ -30,7 +30,9 @@ extra-source-files:
 library
   build-depends:
     , base
-    , bytestring  >=0.9
+    , bytestring
+    , deepseq
+    , extra
 
   exposed-modules:    Codec.FEC
   default-extensions: ForeignFunctionInterface
@@ -39,6 +41,19 @@ library
   c-sources:          zfec/fec.c
   cc-options:         -std=c99
   include-dirs:       zfec
+
+executable benchmark-zfec
+  main-is:          Main.hs
+  ghc-options:      -threaded
+  build-depends:
+    , base     
+    , bytestring
+    , criterion
+    , fec
+    , random
+
+  hs-source-dirs:   benchmark-zfec
+  default-language: Haskell2010
 
 test-suite tests
   type:             exitcode-stdio-1.0

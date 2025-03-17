@@ -28,5 +28,17 @@
       checks = hslib.checks {};
       devShells = hslib.devShells {};
       packages = hslib.packages {};
+      apps = {
+        hlint = hslib.apps.hlint {argv = ["haskell/"];};
+        cabal-test = hslib.apps.cabal-test {
+          extraRuntimeInputs = pkgs: [
+            # Some build-time dependencies of old-time, a transitive
+            # dependency of ours...
+            pkgs.gnused
+            pkgs.gawk
+          ];
+          testTargetName = "test:tests";
+        };
+      };
     });
 }

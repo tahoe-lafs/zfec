@@ -393,12 +393,23 @@ _invert_vdm (gf* src, unsigned k) {
     return;
 }
 
+/* There are few (if any) ordering guarantees that apply to reads and writes
+ * of this static int across threads.  This is the reason for some of the
+ * tight requirements for how `fec_init` is called.  If we could use a mutex
+ * or a C11 atomic here we might be able to provide more flexibility to
+ * callers.  It's tricky to do that while remaining compatible with all of
+ * macOS/Linux/Windows and CPython's MSVC requirements and not switching to
+ * C++ (or something even more different).
+ */
 static int fec_initialized = 0;
-static void
-init_fec (void) {
-    generate_gf();
-    _init_mul_table();
-    fec_initialized = 1;
+
+void
+fec_init (void) {
+    if (fec_initialized == 0) {
+        generate_gf();
+        _init_mul_table();
+        fec_initialized = 1;
+    }
 }
 
 /*
@@ -428,8 +439,9 @@ fec_new(unsigned short k, unsigned short n) {
     assert(n <= 256);
     assert(k <= n);
 
-    if (fec_initialized == 0)
-        init_fec ();
+    if (fec_initialized == 0) {
+        return NULL;
+    }
 
     retval = (fec_t *) malloc (sizeof (fec_t));
     retval->k = k;
@@ -499,7 +511,7 @@ fec_encode(const fec_t* code, const gf*restrict const*restrict const src, gf*res
  */
 void
 build_decode_matrix_into_space(const fec_t*restrict const code, const unsigned*const restrict index, const unsigned k, gf*restrict const matrix) {
-    unsigned char i;
+    unsigned short i;
     gf* p;
     for (i=0, p=matrix; i < k; i++, p += k) {
         if (index[i] < k) {
@@ -515,9 +527,22 @@ build_decode_matrix_into_space(const fec_t*restrict const code, const unsigned*c
 void
 fec_decode(const fec_t* code, const gf*restrict const*restrict const inpkts, gf*restrict const*restrict const outpkts, const unsigned*restrict const index, size_t sz) {
     gf* m_dec = (gf*)alloca(code->k * code->k);
+
+    /* char is large enough for outix - it counts the number of primary blocks
+       we are decoding for return.  the most primary blocks we might have to
+       decode is for k == 128, m == 256.  in this case we might be given 128
+       secondary blocks and have to decode 128 primary blocks.  if k decreases
+       then the number of total blocks we might have to return decreases.  if
+       k increases then the number of secondary blocks that exist decreases so
+       we will be passed some primary blocks and the number of primary blocks
+       we have to decode decreases. */
     unsigned char outix=0;
-    unsigned char row=0;
-    unsigned char col=0;
+
+    /* row and col are compared directly to k, which could be 256, so make
+       them large enough to represent 256.
+     */
+    unsigned short row=0;
+    unsigned short col=0;
     build_decode_matrix_into_space(code, index, code->k, m_dec);
 
     for (row=0; row<code->k; row++) {

@@ -1,5 +1,8 @@
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE EmptyDataDecls #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
+{-# LANGUAGE NamedFieldPuns #-}
 
 {- |
  Module:    Codec.FEC
@@ -18,6 +21,7 @@
 -}
 module Codec.FEC (
     FECParams (paramK, paramN),
+    initialize,
     fec,
     encode,
     decode,
@@ -29,6 +33,9 @@ module Codec.FEC (
     deFEC,
 ) where
 
+import Control.Concurrent.Extra (Lock, newLock, withLock)
+import Control.DeepSeq (NFData (rnf))
+import Control.Exception (Exception, throwIO)
 import Data.Bits (xor)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Unsafe as BU
@@ -40,21 +47,35 @@ import Foreign.C.Types (CSize (..), CUInt (..))
 import Foreign.ForeignPtr ( ForeignPtr, newForeignPtr, withForeignPtr,)
 import Foreign.Marshal.Alloc (allocaBytes)
 import Foreign.Marshal.Array (advancePtr, withArray)
-import Foreign.Ptr (FunPtr, Ptr, castPtr)
+import Foreign.Ptr (FunPtr, Ptr, castPtr, nullPtr)
 import Foreign.Storable (poke, sizeOf)
+import GHC.Generics (Generic)
 import System.IO (IOMode (..), withFile)
 import System.IO.Unsafe (unsafePerformIO)
 
 data CFEC
 data FECParams = FECParams
-    { _cfec :: ForeignPtr CFEC
+    { _cfec :: !(ForeignPtr CFEC)
     , paramK :: Int
     , paramN :: Int
     }
+    deriving (Generic)
+
+-- Provide an NFData instance so it's possible to use a FECParams in a
+-- Criterion benchmark.
+instance NFData FECParams where
+    rnf FECParams{_cfec, paramK, paramN} =
+        -- ForeignPtr has no NFData instance and I don't know how to implement
+        -- one for it so we punt on it here.  We do make it strict in the
+        -- record definition which at least shallowly evaluates the
+        -- ForeignPtr which is ... part of the job?
+        rnf paramK `seq` rnf paramN
 
 instance Show FECParams where
     show (FECParams _ k n) = "FEC (" ++ show k ++ ", " ++ show n ++ ")"
 
+foreign import ccall unsafe "fec_init"
+    _init :: IO ()
 foreign import ccall unsafe "fec_new"
     _new ::
         -- | k
@@ -98,6 +119,24 @@ isValidConfig k n
     | n < 1 = False
     | n > 255 = False
     | otherwise = True
+
+{- | The underlying library signaled that it has not been properly initialized
+ yet.  Use @initialize@ to initialize it.
+-}
+data Uninitialized = Uninitialized deriving (Ord, Eq, Show)
+
+instance Exception Uninitialized
+
+-- A lock to ensure at most one thread attempts to initialize the underlying
+-- library at a time.  Multiple initializations are harmless but concurrent
+-- initializations are disallowed.
+_initializationLock :: Lock
+{-# NOINLINE _initializationLock #-}
+_initializationLock = unsafePerformIO newLock
+
+-- | Initialize the library.  This must be done before other APIs can succeed.
+initialize :: IO ()
+initialize = withLock _initializationLock _init
 
 -- | Return a FEC with the given parameters.
 fec :: Int  -- ^ the number of primary blocks
