@@ -91,18 +91,18 @@ prop_decode (Params req tot) len seed =
         fec <- FEC.fec req tot
         testFEC fec len seed
 
-prop_primary_copies :: Params -> B.ByteString -> Property
-prop_primary_copies (Params _ tot) primary = monadicIO $ do
-    fec <- run $ FEC.fec 1 tot
-    secondary <- run $ FEC.encode fec [primary]
-    assert $ all (primary ==) secondary
-
 -- | @FEC.enFEC@ is the inverse of @FEC.deFEC@.
 prop_deFEC :: Params -> B.ByteString -> Property
 prop_deFEC (Params req tot) testdata = monadicIO $ do
     encoded <- run $ FEC.enFEC req tot testdata
     decoded <- run $ FEC.deFEC req tot (take req encoded)
     assert $ testdata == decoded
+
+prop_primary_copies :: Params -> B.ByteString -> Property
+prop_primary_copies (Params _ tot) primary = monadicIO $ do
+    fec <- run $ FEC.fec 1 tot
+    secondary <- run $ FEC.encode fec [primary]
+    assert $ all (primary ==) secondary
 
 main :: IO ()
 main = do
