@@ -35,19 +35,17 @@ module Codec.FEC (
 
 import Control.Concurrent.Extra (Lock, newLock, withLock)
 import Control.DeepSeq (NFData (rnf))
-import Control.Exception (Exception, throwIO)
+import Control.Exception (Exception)
 import Data.Bits (xor)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Unsafe as BU
 import Data.List (nub, partition, sortBy, (\\))
 import Data.Word (Word8)
-import Data.Bits (xor)
-import Data.List (sortBy, partition, (\\), nub)
 import Foreign.C.Types (CSize (..), CUInt (..))
 import Foreign.ForeignPtr ( ForeignPtr, newForeignPtr, withForeignPtr,)
 import Foreign.Marshal.Alloc (allocaBytes)
 import Foreign.Marshal.Array (advancePtr, withArray)
-import Foreign.Ptr (FunPtr, Ptr, castPtr, nullPtr)
+import Foreign.Ptr (FunPtr, Ptr, castPtr)
 import Foreign.Storable (poke, sizeOf)
 import GHC.Generics (Generic)
 import System.IO (IOMode (..), withFile)

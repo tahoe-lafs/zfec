@@ -1,27 +1,22 @@
 {-# LANGUAGE DerivingStrategies #-}
 
+
 module Main where
 
 import Test.Hspec (describe, hspec, it, parallel, Expectation, shouldBe)
 
 import Control.Monad (replicateM_)
-import Control.Monad.IO.Class (
-    liftIO,
- )
 
 import qualified Codec.FEC as FEC
 import qualified Data.ByteString as B
-import qualified Data.ByteString.Lazy as BL
 import Data.List (sortOn)
 import Data.Word (Word16, Word8)
-import System.IO (IOMode (..), withFile)
 import System.Random (Random (randoms), mkStdGen)
-import Test.QuickCheck ( Arbitrary (arbitrary), Property, Testable (property), choose, once, withMaxSuccess, (===),)
+import Test.QuickCheck ( Arbitrary (arbitrary), Property, Testable (property), choose, once, withMaxSuccess)
 import Test.QuickCheck.Monadic (assert, monadicIO, run)
 
 -- Imported for the orphan Arbitrary ByteString instance.
 
-import Control.Monad (replicateM_)
 import Test.QuickCheck.Instances.ByteString ()
 
 -- | Valid ZFEC parameters.
@@ -34,9 +29,9 @@ data Params = Params
 -- | A somewhat efficient generator for valid ZFEC parameters.
 instance Arbitrary Params where
     arbitrary = do
-        required <- choose (1, 255)
-        total <- choose (required, 255)
-        return $ Params required total
+        req <- choose (1, 255)
+        tot <- choose (req, 255)
+        return $ Params req tot
 
 randomTake :: Int -> Int -> [a] -> [a]
 randomTake seed n values = map snd $ take n sortedValues
@@ -91,22 +86,22 @@ prop_divide size byte divisor = monadicIO $ do
 
 -- | @FEC.encode@ is the inverse of @FEC.decode@.
 prop_decode :: Params -> Word16 -> Int -> Property
-prop_decode (Params required total) len seed =
+prop_decode (Params req tot) len seed =
     monadicIO . run $ do
-        fec <- FEC.fec required total
+        fec <- FEC.fec req tot
         testFEC fec len seed
 
 prop_primary_copies :: Params -> B.ByteString -> Property
-prop_primary_copies (Params _ total) primary = monadicIO $ do
-    fec <- run $ FEC.fec 1 total
+prop_primary_copies (Params _ tot) primary = monadicIO $ do
+    fec <- run $ FEC.fec 1 tot
     secondary <- run $ FEC.encode fec [primary]
     assert $ all (primary ==) secondary
 
 -- | @FEC.enFEC@ is the inverse of @FEC.deFEC@.
 prop_deFEC :: Params -> B.ByteString -> Property
-prop_deFEC (Params required total) testdata = monadicIO $ do
-    encoded <- run $ FEC.enFEC required total testdata
-    decoded <- run $ FEC.deFEC required total (take required encoded)
+prop_deFEC (Params req tot) testdata = monadicIO $ do
+    encoded <- run $ FEC.enFEC req tot testdata
+    decoded <- run $ FEC.deFEC req tot (take req encoded)
     assert $ testdata == decoded
 
 main :: IO ()
