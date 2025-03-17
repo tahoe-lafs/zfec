@@ -1,5 +1,14 @@
 User visible changes in zfec.           -*- outline -*-
 
+* Release 1.5.7.4 (2023-10-23)
+
+** Python 3.7 is no longer supported.
+** Python 3.12 is now supported.
+** Binary packages for the macOS "universal2" and "arm64" architectures are now provided.
+** The benchmark tool has been ported to Python 3.
+** The GIL is now released for zfec.Encoder and zfec.Decoder initialization and for encode and decode operations.
+   This enables multithreaded use of zfec to use multiple CPU cores for increased aggregate throughput.
+
 * Release 1.5.5 (2020-11-12)
 
 ** Upload wheel packages to the Python Package Index.

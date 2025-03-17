@@ -39,11 +39,11 @@ jobs:
           - "ubuntu-22.04"
           - "windows-2022"
         wheel-selector:
-          - "cp37-*"
           - "cp38-*"
           - "cp39-*"
           - "cp310-*"
           - "cp311-*"
+          - "cp312-*"
           - "pp37-*"
           - "pp38-*"
           - "pp39-*"
@@ -57,7 +57,7 @@ jobs:
           fetch-depth: 0
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.11.3
+        uses: pypa/cibuildwheel@v2.16.2
         with:
           output-dir: wheelhouse
         env:
@@ -67,6 +67,10 @@ jobs:
           CIBW_BUILD: "${{ matrix.wheel-selector }}"
           # Just make sure that Python can use zfec package.
           CIBW_TEST_COMMAND: python -c "import zfec; print(zfec.__version__)"
+          # Build `universal2` and `arm64` wheels on an Intel runner.
+          CIBW_ARCHS_MACOS: "x86_64 universal2 arm64"
+          # Skip testing arm64 builds on Intel Macs.
+          CIBW_TEST_SKIP: "*-macosx_arm64 *-macosx_universal2:arm64"
 
       - uses: actions/upload-artifact@v3
         name: Upload artifacts
