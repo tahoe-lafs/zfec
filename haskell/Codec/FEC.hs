@@ -1,82 +1,103 @@
-{-# LANGUAGE ForeignFunctionInterface, EmptyDataDecls #-}
--- |
--- Module:    Codec.FEC
--- Copyright: Adam Langley
--- License:   GPLv2+|TGPPLv1+ (see README.rst for details)
---
--- Stability: experimental
---
--- The module provides k of n encoding - a way to generate (n - k) secondary
--- blocks of data from k primary blocks such that any k blocks (primary or
--- secondary) are sufficient to regenerate all blocks.
---
--- All blocks must be the same length and you need to keep track of which
--- blocks you have in order to tell decode. By convention, the blocks are
--- numbered 0..(n - 1) and blocks numbered < k are the primary blocks.
+{-# LANGUAGE EmptyDataDecls #-}
+{-# LANGUAGE ForeignFunctionInterface #-}
 
+{- |
+ Module:    Codec.FEC
+ Copyright: Adam Langley
+ License:   GPLv2+|TGPPLv1+ (see README.rst for details)
+
+ Stability: experimental
+
+ The module provides k of n encoding - a way to generate (n - k) secondary
+ blocks of data from k primary blocks such that any k blocks (primary or
+ secondary) are sufficient to regenerate all blocks.
+
+ All blocks must be the same length and you need to keep track of which
+ blocks you have in order to tell decode. By convention, the blocks are
+ numbered 0..(n - 1) and blocks numbered < k are the primary blocks.
+-}
 module Codec.FEC (
-    FECParams(paramK, paramN)
-  , fec
-  , encode
-  , decode
+    FECParams (paramK, paramN),
+    fec,
+    encode,
+    decode,
 
-  -- * Utility functions
-  , secureDivide
-  , secureCombine
-  , enFEC
-  , deFEC
-  ) where
+    -- * Utility functions
+    secureDivide,
+    secureCombine,
+    enFEC,
+    deFEC,
+) where
 
+import Data.Bits (xor)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Unsafe as BU
-import qualified Data.ByteString.Internal as BI
+import Data.List (nub, partition, sortBy, (\\))
 import Data.Word (Word8)
 import Data.Bits (xor)
 import Data.List (sortBy, partition, (\\), nub)
-import Foreign.Ptr
-import Foreign.Storable (sizeOf, poke)
-import Foreign.ForeignPtr
-import Foreign.C.Types
-import Foreign.Marshal.Alloc
-import Foreign.Marshal.Array (withArray, advancePtr)
-import System.IO (withFile, IOMode(..))
+import Foreign.C.Types (CSize (..), CUInt (..))
+import Foreign.ForeignPtr ( ForeignPtr, newForeignPtr, withForeignPtr,)
+import Foreign.Marshal.Alloc (allocaBytes)
+import Foreign.Marshal.Array (advancePtr, withArray)
+import Foreign.Ptr (FunPtr, Ptr, castPtr)
+import Foreign.Storable (poke, sizeOf)
+import System.IO (IOMode (..), withFile)
+import System.IO.Unsafe (unsafePerformIO)
 
 data CFEC
 data FECParams = FECParams
-  { cfec   :: (ForeignPtr CFEC)
-  , paramK :: Int
-  , paramN :: Int
-  }
+    { _cfec :: ForeignPtr CFEC
+    , paramK :: Int
+    , paramN :: Int
+    }
 
 instance Show FECParams where
-  show (FECParams _ k n) = "FEC (" ++ show k ++ ", " ++ show n ++ ")"
+    show (FECParams _ k n) = "FEC (" ++ show k ++ ", " ++ show n ++ ")"
 
-foreign import ccall unsafe "fec_new" _new :: CUInt  -- ^ k
-                                           -> CUInt  -- ^ n
-                                           -> IO (Ptr CFEC)
+foreign import ccall unsafe "fec_new"
+    _new ::
+        -- | k
+        CUInt ->
+        -- | n
+        CUInt ->
+        IO (Ptr CFEC)
 foreign import ccall unsafe "&fec_free" _free :: FunPtr (Ptr CFEC -> IO ())
-foreign import ccall unsafe "fec_encode" _encode :: Ptr CFEC
-                                                 -> Ptr (Ptr Word8)  -- ^ primary blocks
-                                                 -> Ptr (Ptr Word8)  -- ^ (output) secondary blocks
-                                                 -> Ptr CUInt  -- ^ array of secondary block ids
-                                                 -> CSize  -- ^ length of previous
-                                                 -> CSize  -- ^ block length
-                                                 -> IO ()
-foreign import ccall unsafe "fec_decode" _decode :: Ptr CFEC
-                                                 -> Ptr (Ptr Word8)  -- ^ input blocks
-                                                 -> Ptr (Ptr Word8)  -- ^ output blocks
-                                                 -> Ptr CUInt  -- ^ array of input indexes
-                                                 -> CSize  -- ^ block length
-                                                 -> IO ()
+foreign import ccall unsafe "fec_encode"
+    _encode ::
+        Ptr CFEC ->
+        -- | primary blocks
+        Ptr (Ptr Word8) ->
+        -- | (output) secondary blocks
+        Ptr (Ptr Word8) ->
+        -- | array of secondary block ids
+        Ptr CUInt ->
+        -- | length of previous
+        CSize ->
+        -- | block length
+        CSize ->
+        IO ()
+foreign import ccall unsafe "fec_decode"
+    _decode ::
+        Ptr CFEC ->
+        -- | input blocks
+        Ptr (Ptr Word8) ->
+        -- | output blocks
+        Ptr (Ptr Word8) ->
+        -- | array of input indexes
+        Ptr CUInt ->
+        -- | block length
+        CSize ->
+        IO ()
 
 -- | Return true if the given @k@ and @n@ values are valid
 isValidConfig :: Int -> Int -> Bool
 isValidConfig k n
-  | k > n = False
-  | k < 1 = False
-  | n < 1 = False
-  | n > 255 = False
-  | otherwise = True
+    | k > n = False
+    | k < 1 = False
+    | n < 1 = False
+    | n > 255 = False
+    | otherwise = True
 
 -- | Return a FEC with the given parameters.
 fec :: Int  -- ^ the number of primary blocks
@@ -91,37 +112,54 @@ fec k n =
        return $ FECParams params k n
 
 -- | Create a C array of unsigned from an input array
-uintCArray :: [Int] -> ((Ptr CUInt) -> IO a) -> IO a
-uintCArray xs f = withArray (map fromIntegral xs) f
+uintCArray :: [Int] -> (Ptr CUInt -> IO a) -> IO a
+uintCArray = withArray . map fromIntegral
 
 -- | Convert a list of ByteStrings to an array of pointers to their data
-byteStringsToArray :: [B.ByteString] -> ((Ptr (Ptr Word8)) -> IO a) -> IO a
+byteStringsToArray :: [B.ByteString] -> (Ptr (Ptr Word8) -> IO a) -> IO a
 byteStringsToArray inputs f = do
-  let l = length inputs
-  allocaBytes (l * sizeOf (undefined :: Ptr Word8)) (\array -> do
-    let inner _ [] = f array
-        inner array' (bs : bss) = BU.unsafeUseAsCString bs (\ptr -> do
-          poke array' $ castPtr ptr
-          inner (advancePtr array' 1) bss)
-    inner array inputs)
+    let l = length inputs
+    allocaBytes
+        (l * sizeOf (undefined :: Ptr Word8))
+        ( \array -> do
+            let inner _ [] = f array
+                inner array' (bs : bss) =
+                    BU.unsafeUseAsCString
+                        bs
+                        ( \ptr -> do
+                            poke array' $ castPtr ptr
+                            inner (advancePtr array' 1) bss
+                        )
+            inner array inputs
+        )
 
 -- | Return True iff all the given ByteStrings are the same length
 allByteStringsSameLength :: [B.ByteString] -> Bool
 allByteStringsSameLength [] = True
-allByteStringsSameLength (bs : bss) = all ((==) (B.length bs)) $ map B.length bss
+allByteStringsSameLength (bs : bss) = all ((==) (B.length bs) . B.length) bss
 
--- | Run the given function with a pointer to an array of @n@ pointers to
---   buffers of size @size@. Return these buffers as a list of ByteStrings
-createByteStringArray :: Int  -- ^ the number of buffers requested
-                      -> Int  -- ^ the size of each buffer
-                      -> ((Ptr (Ptr Word8)) -> IO ())
-                      -> IO [B.ByteString]
+{- | Run the given function with a pointer to an array of @n@ pointers to
+   buffers of size @size@. Return these buffers as a list of ByteStrings
+-}
+createByteStringArray ::
+    -- | the number of buffers requested
+    Int ->
+    -- | the size of each buffer
+    Int ->
+    (Ptr (Ptr Word8) -> IO ()) ->
+    IO [B.ByteString]
 createByteStringArray n size f = do
-  allocaBytes (n * sizeOf (undefined :: Ptr Word8)) (\array -> do
-    allocaBytes (n * size) (\ptr -> do
-      mapM_ (\i -> poke (advancePtr array i) (advancePtr ptr (size * i))) [0..(n - 1)]
-      f array
-      mapM (\i -> B.packCStringLen (castPtr $ advancePtr ptr (i * size), size)) [0..(n - 1)]))
+    allocaBytes
+        (n * sizeOf (undefined :: Ptr Word8))
+        ( \array -> do
+            allocaBytes
+                (n * size)
+                ( \ptr -> do
+                    mapM_ (\i -> poke (advancePtr array i) (advancePtr ptr (size * i))) [0 .. (n - 1)]
+                    f array
+                    mapM (\i -> B.packCStringLen (castPtr $ advancePtr ptr (i * size), size)) [0 .. (n - 1)]
+                )
+        )
 
 -- | Generate the secondary blocks from a list of the primary blocks. The
 --   primary blocks must be in order and all of the same size. There must be
@@ -144,17 +182,19 @@ encode (FECParams params k n) inblocks
 sortTagged :: [(Int, a)] -> [(Int, a)]
 sortTagged = sortBy (\a b -> compare (fst a) (fst b))
 
--- | Reorder the given list so that elements with tag numbers < the first
---   argument have an index equal to their tag number (if possible)
+{- | Reorder the given list so that elements with tag numbers < the first
+   argument have an index equal to their tag number (if possible)
+-}
 reorderPrimaryBlocks :: Int -> [(Int, a)] -> [(Int, a)]
-reorderPrimaryBlocks n blocks = inner (sortTagged pBlocks) sBlocks [] where
-  (pBlocks, sBlocks) = partition (\(tag, _) -> tag < n) blocks
-  inner [] sBlocks acc = acc ++ sBlocks
-  inner pBlocks [] acc = acc ++ pBlocks
-  inner pBlocks@((tag, a) : ps) sBlocks@(s : ss) acc =
-    if length acc == tag
-       then inner ps sBlocks (acc ++ [(tag, a)])
-       else inner pBlocks ss (acc ++ [s])
+reorderPrimaryBlocks n blocks = inner (sortTagged pBlocks) sBlocks []
+  where
+    (pBlocks, sBlocks) = partition (\(tag, _) -> tag < n) blocks
+    inner [] sBlocks' acc = acc ++ sBlocks'
+    inner pBlocks' [] acc = acc ++ pBlocks'
+    inner pBlocks'@((tag, a) : ps) sBlocks'@(s : ss) acc =
+        if length acc == tag
+            then inner ps sBlocks' (acc ++ [(tag, a)])
+            else inner pBlocks' ss (acc ++ [s])
 
 -- | Recover the primary blocks from a list of @k@ blocks. Each block must be
 --   tagged with its number (see the module comments about block numbering)
@@ -180,32 +220,42 @@ decode (FECParams params k n) inblocks
               allBlocks = sortTagged $ tagged ++ inblocks'
           return $ take k $ map snd allBlocks))
 
--- | Break a ByteString into @n@ parts, equal in length to the original, such
---   that all @n@ are required to reconstruct the original, but having less
---   than @n@ parts reveals no information about the orginal.
---
---   This code works in IO monad because it needs a source of random bytes,
---   which it gets from /dev/urandom. If this file doesn't exist an
---   exception results
---
---   Not terribly fast - probably best to do it with short inputs (e.g. an
---   encryption key)
-secureDivide :: Int  -- ^ the number of parts requested
-             -> B.ByteString  -- ^ the data to be split
-             -> IO [B.ByteString]
-secureDivide n input
-  | n < 0 = error "secureDivide called with negative number of parts"
-  | otherwise = withFile "/dev/urandom" ReadMode (\handle -> do
-      let inner 1 bs = return [bs]
-          inner n bs = do
-            mask <- B.hGet handle (B.length bs)
-            let masked = B.pack $ B.zipWith xor bs mask
-            rest <- inner (n - 1) masked
-            return (mask : rest)
-      inner n input)
+{- | Break a ByteString into @n@ parts, equal in length to the original, such
+   that all @n@ are required to reconstruct the original, but having less
+   than @n@ parts reveals no information about the orginal.
 
--- | Reverse the operation of secureDivide. The order of the inputs doesn't
---   matter, but they must all be the same length
+   This code works in IO monad because it needs a source of random bytes,
+   which it gets from /dev/urandom. If this file doesn't exist an
+   exception results
+
+   Not terribly fast - probably best to do it with short inputs (e.g. an
+   encryption key)
+-}
+secureDivide ::
+    -- | the number of parts requested
+    Int ->
+    -- | the data to be split
+    B.ByteString ->
+    IO [B.ByteString]
+secureDivide n input
+    | n < 0 = error "secureDivide called with negative number of parts"
+    | otherwise =
+        withFile
+            "/dev/urandom"
+            ReadMode
+            ( \handle -> do
+                let inner 1 bs = return [bs]
+                    inner n' bs = do
+                        mask <- B.hGet handle (B.length bs)
+                        let masked = B.pack $ B.zipWith xor bs mask
+                        rest <- inner (n' - 1) masked
+                        return (mask : rest)
+                inner n input
+            )
+
+{- | Reverse the operation of secureDivide. The order of the inputs doesn't
+   matter, but they must all be the same length
+-}
 secureCombine :: [B.ByteString] -> B.ByteString
 secureCombine [] = error "Passed empty list of inputs to secureCombine"
 secureCombine [a] = a

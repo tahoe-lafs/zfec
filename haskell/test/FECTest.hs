@@ -2,7 +2,7 @@
 
 module Main where
 
-import Test.Hspec
+import Test.Hspec (describe, hspec, it, parallel, Expectation, shouldBe)
 
 import Control.Monad (replicateM_)
 import Control.Monad.IO.Class (
@@ -11,15 +11,14 @@ import Control.Monad.IO.Class (
 
 import qualified Codec.FEC as FEC
 import qualified Data.ByteString as B
-import qualified Data.ByteString.Lazy as BL
-import Data.Int
+import Data.Int ()
 import Data.List (sortOn)
-import Data.Serializer
-import Data.Word
+import Data.Serializer ()
+import Data.Word (Word16, Word8)
 import System.IO (IOMode (..), withFile)
-import System.Random
-import Test.QuickCheck
-import Test.QuickCheck.Monadic
+import System.Random (Random (randoms), mkStdGen)
+import Test.QuickCheck ( Arbitrary (arbitrary), Property, Testable (property), choose, once, withMaxSuccess, (===),)
+import Test.QuickCheck.Monadic (assert, monadicIO, run)
 
 -- Imported for the orphan Arbitrary ByteString instance.
 import Test.QuickCheck.Instances.ByteString ()
@@ -135,3 +134,10 @@ main = hspec $
                 it "returns copies of the primary block for all 1 of N encodings" $
                     property $
                         withMaxSuccess 10000 prop_primary_copies
+-- =======
+--            it "is the inverse of enFEC" (withMaxSuccess 2000 prop_deFEC)
+--
+--        describe "decode" $ do
+--            it "is (nearly) the inverse of encode" (withMaxSuccess 2000 prop_decode)
+--            it "works with required=255" $ property $ prop_decode (Params 255 255)
+-- >>>>>>> c315bd3
