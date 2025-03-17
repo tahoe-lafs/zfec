@@ -1,3 +1,6 @@
+// This is not part of the main build but is included for reference onby. 
+// It's used to generate tables.c, but that's been done and the result committed to source control.
+
 #include "fec.c"
 
 void print_table_int(const char * name, const int data[], int len) {
@@ -28,7 +31,6 @@ void print_table_gf_256_256(const char * name, const gf data[256][256]) {
   }
   printf("};\n");
 }
-
 
 int main()
 {

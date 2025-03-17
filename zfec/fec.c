@@ -394,17 +394,15 @@ _invert_vdm (gf* src, unsigned k) {
     return;
 }
 
-/* There are few (if any) ordering guarantees that apply to reads and writes
- * of this static int across threads.  This is the reason for some of the
- * tight requirements for how `fec_init` is called.  If we could use a mutex
- * or a C11 atomic here we might be able to provide more flexibility to
- * callers.  It's tricky to do that while remaining compatible with all of
- * macOS/Linux/Windows and CPython's MSVC requirements and not switching to
- * C++ (or something even more different).
+/* fec_init is no longer required but retained for backward compatibility.
  */
 void
 fec_init (void) {}
 
+/* This is the logic for setting up gf_exp, gf_log, gf_inverse and gf_mul_table.
+ * It is no longer called at run time but has been invoked by write.c to generate
+ * tables.c in which the contents of these tables are initialised verbatim.
+ */
 void
 fec_init_internal (void) {
   generate_gf();
