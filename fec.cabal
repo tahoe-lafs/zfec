@@ -45,7 +45,7 @@ library
   cc-options:         -std=c99
   include-dirs:       zfec
 
-Benchmark benchmark-zfec
+benchmark benchmark-zfec
   type:             exitcode-stdio-1.0
   main-is:          Main.hs
   ghc-options:      -threaded
