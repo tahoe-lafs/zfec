@@ -1,5 +1,9 @@
 # Changelog for fec
 
+## 0.3.0 (2025-03-17)
+
+`initialize` no longer required (but retained as no-op) because the global tables are initialized data, i.e., the values in the tables are defined in C.
+
 ## 0.2.0 (2023-10-06)
 
 * Application code must now execute the `Codec.FEC.initialize` action at least

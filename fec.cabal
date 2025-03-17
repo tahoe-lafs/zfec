@@ -1,6 +1,6 @@
 cabal-version:      3.0
 name:               fec
-version:            0.2.0
+version:            0.3.0
 license:            GPL-2.0-or-later
 license-file:       README.rst
 author:             Adam Langley <agl@imperialviolet.org>
