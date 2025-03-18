@@ -45,7 +45,6 @@ import Foreign.Marshal.Array (advancePtr, withArray)
 import Foreign.Ptr (FunPtr, Ptr, castPtr)
 import Foreign.Storable (poke, sizeOf)
 import GHC.Generics (Generic)
-import System.GlobalLock
 import System.IO (IOMode (..), withFile)
 
 data CFEC
@@ -112,6 +111,7 @@ isValidConfig k n
     | n < 1 = False
     | n > 255 = False
     | otherwise = True
+
 
 -- | Return a FEC with the given parameters.
 fec :: Int  -- ^ the number of primary blocks

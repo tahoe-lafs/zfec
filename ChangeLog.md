@@ -2,7 +2,7 @@
 
 ## 2.0.0 (2025-03-17)
 
-`fec_init` no longer required (but retained as no-op) because the global tables are initialized data, i.e., the values in the tables are defined in C.
+`fec_init` completely removed because the global tables are initialized data, i.e., the values in the tables are listed in C.
 
 ## 1.0 0 (2025-03-17)
 

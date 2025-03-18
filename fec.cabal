@@ -35,7 +35,6 @@ library
     , bytestring <0.13
     , deepseq <1.7
     , extra <2
-    , global-lock <1
 
   exposed-modules:    Codec.FEC
   default-language:   Haskell2010
