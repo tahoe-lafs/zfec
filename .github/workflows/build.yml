@@ -34,18 +34,18 @@ jobs:
       # Python versions in sync with the ones in test.yml.
       matrix:
         os:
-          # - "macos-latest"
+          - "macos-latest"
           - "ubuntu-22.04"
-          # - "windows-2022"
+          - "windows-2022"
         wheel-selector:
-          # - "cp39"
-          # - "cp310"
-          # - "cp311"
+          - "cp39"
+          - "cp310"
+          - "cp311"
           - "cp312"
-          # - "cp313"
-          # - "pp38"
-          # - "pp39"
-          # - "pp310"
+          - "cp313"
+          - "pp38"
+          - "pp39"
+          - "pp310"
 
     steps:
       - name: Check out zfec sources
