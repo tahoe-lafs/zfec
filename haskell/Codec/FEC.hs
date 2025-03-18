@@ -34,7 +34,7 @@ module Codec.FEC (
 ) where
 
 import Control.DeepSeq (NFData (rnf))
-import Control.Exception (Exception)
+import Control.Exception (Exception, throwIO)
 import Data.Bits (xor)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Unsafe as BU
@@ -44,7 +44,7 @@ import Foreign.C.Types (CSize (..), CUInt (..))
 import Foreign.ForeignPtr ( ForeignPtr, newForeignPtr, withForeignPtr,)
 import Foreign.Marshal.Alloc (allocaBytes)
 import Foreign.Marshal.Array (advancePtr, withArray)
-import Foreign.Ptr (FunPtr, Ptr, castPtr)
+import Foreign.Ptr (FunPtr, Ptr, castPtr, nullPtr)
 import Foreign.Storable (poke, sizeOf)
 import GHC.Generics (Generic)
 import System.GlobalLock
@@ -137,8 +137,13 @@ fec k n =
      then error $ "Invalid FEC parameters: " ++ show k ++ " " ++ show n
      else do
        cfec <- _new (fromIntegral k) (fromIntegral n)
-       params <- newForeignPtr _free cfec
-       return $ FECParams params k n
+       -- new will return null if the library hasn't been
+       -- initialized.
+       if cfec == nullPtr
+          then throwIO Uninitialized
+          else do
+            params <- newForeignPtr _free cfec
+            return $ FECParams params k n
 
 -- | Create a C array of unsigned from an input array
 uintCArray :: [Int] -> (Ptr CUInt -> IO a) -> IO a
