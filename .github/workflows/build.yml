@@ -205,6 +205,6 @@ jobs:
         with:
           # Override the default in order to upload it to the testing
           # deployment.
-          repository-url: https://test.pypi.org/legacy/
+          repository_url: https://test.pypi.org/legacy/
           # please computer
           verbose: true
