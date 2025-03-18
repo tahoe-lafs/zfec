@@ -1,6 +1,6 @@
 module Main where
 
-import Codec.FEC (FECParams (paramK, paramN), decode, encode, fec, initialize)
+import Codec.FEC (FECParams (paramK, paramN), decode, encode, fec)
 import Control.Monad (replicateM)
 import Criterion.Main (Benchmark, bench, bgroup, defaultMain, env, nfAppIO)
 import Data.Bifunctor (bimap)

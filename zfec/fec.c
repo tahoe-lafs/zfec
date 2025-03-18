@@ -394,11 +394,6 @@ _invert_vdm (gf* src, unsigned k) {
     return;
 }
 
-/* fec_init is no longer required but retained for backward compatibility.
- */
-void
-fec_init (void) {}
-
 /* This is the logic for setting up gf_exp, gf_log, gf_inverse and gf_mul_table.
  * It is no longer called at run time but has been invoked by write.c to generate
  * tables.c in which the contents of these tables are initialised verbatim.

@@ -107,7 +107,6 @@ prop_primary_copies (Params _ tot) primary = monadicIO $ do
 main :: IO ()
 main = do
     -- Be sure to do the required zfec initialization first.
-    FEC.initialize
     hspec . parallel $ do
         describe "encode" $ do
             -- This test originally caught a bug in multi-threaded
