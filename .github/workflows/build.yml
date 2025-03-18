@@ -201,7 +201,7 @@ jobs:
       #
       # The conditional in this step should cause it to run only for case (3).
       - name: "Publish to TEST PyPI"
-        uses: "pypa/gh-action-pypi-publish@v1.6.4"
+        uses: "pypa/gh-action-pypi-publish@release/v1"
         with:
           # Override the default in order to upload it to the testing
           # deployment.
