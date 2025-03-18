@@ -113,7 +113,8 @@ jobs:
 
     # Publish to PyPI on release tag pushes.
     if: >-
-      github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/zfec-')
+      github.event_name == 'push' &&
+      startsWith(github.event.ref, 'refs/tags/zfec-')
 
     needs:
       - "build_wheels"
