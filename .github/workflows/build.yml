@@ -140,8 +140,11 @@ jobs:
           path: "dist"
           merge-multiple: true
 
-      - name: "Publish to LIVE PyPI"
+      - name: "Publish to PyPI"
         uses: "pypa/gh-action-pypi-publish@release/v1"
+        with:
+          # Run `twine upload --verbose`.
+          verbose: true
 
   upload_testpypi:
     name: Publish zfec on TestPyPI
@@ -172,20 +175,10 @@ jobs:
           path: "dist"
           merge-multiple: true
 
-      # Define a conditional step to upload packages to the testing instance
-      # of PyPI.
-      #
-      # The overall workflow is already restricted so that it runs for:
-      # 1) pushes to master
-      # 2) pushes to release tags
-      # 3) pushes to branches with associated PRs
-      #
-      # The conditional in this step should cause it to run only for case (3).
-      - name: "Publish to TEST PyPI"
+      - name: "Publish to TestPyPI"
         uses: "pypa/gh-action-pypi-publish@release/v1"
         with:
-          # Override the default in order to upload it to the testing
-          # deployment.
+          # Override the default in order to upload to TestPyPi.
           repository_url: https://test.pypi.org/legacy/
-          # please computer
+          # Run `twine upload --verbose`.
           verbose: true
