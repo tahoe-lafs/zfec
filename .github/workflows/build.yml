@@ -145,6 +145,8 @@ jobs:
         uses: "pypa/gh-action-pypi-publish@v1.6.4"
         if: >-
           github.event_name == 'pull_request'
+        with:
+          repository-url: https://test.pypi.org/legacy/
 
       # Now define a conditional step to upload packages to the production
       # instance of PyPI.
