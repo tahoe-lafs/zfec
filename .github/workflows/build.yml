@@ -120,7 +120,8 @@ jobs:
     # Select the GitHub Actions environment that contains the PyPI tokens
     # necessary to perform uploads.  This was configured manually using the
     # GitHub web interface.
-    environment: "release"
+    environment:
+      name: "release"
 
     # This permission is mandatory for trusted publishing
     permissions:
