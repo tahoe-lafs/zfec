@@ -154,10 +154,9 @@ jobs:
           verbose: true
 
   upload_testpypi:
+    # Publish both builds triggered by pull requests and builds
+    # triggered by release tags to TestPyPI.
     name: Publish zfec on TestPyPI
-
-    # Publish to TestPyPI on pull requests.
-    if: github.event_name == 'pull_request'
 
     needs:
       - "build_wheels"
