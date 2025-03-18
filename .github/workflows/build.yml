@@ -154,6 +154,8 @@ jobs:
           # Override the default in order to upload it to the testing
           # deployment.
           repository-url: https://test.pypi.org/legacy/
+          # please computer
+          verbose: true
 
       # Now define a conditional step to upload packages to the production
       # instance of PyPI.
