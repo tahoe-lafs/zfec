@@ -114,6 +114,19 @@ jobs:
 # section under "The whole CI/CD workflow".
 #
 # https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/#the-whole-ci-cd-workflow
+#
+# The important bit here is that we use GitHub Actions as the "trusted
+# publisher" to publish packages on both PyPI and TestPyPI.  We do not
+# use long-lived tokens anymore.  Instead, both PyPI and TestPyPI are
+# configured to trust this GH Actions workflow, and the workflow will
+# use a short-lived tokens minted by them.
+#
+# https://docs.pypi.org/trusted-publishers/
+#
+# There is a bit of duplication below but that seems to be necessary
+# because the environment configuration is different for PyPI and
+# TestPyPI.  Perhaps the duplication is not necessary, but let us just
+# stick with the Python Package User Guide's recommendation.
 
   upload_pypi:
     name: Publish zfec on PyPI
