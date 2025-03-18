@@ -198,6 +198,6 @@ jobs:
         uses: "pypa/gh-action-pypi-publish@v1.12.4"
         with:
           # Override the default in order to upload to TestPyPi.
-          repository_url: https://test.pypi.org/legacy/
+          repository-url: https://test.pypi.org/legacy/
           # Run `twine upload --verbose`.
           verbose: true
