@@ -33,7 +33,6 @@ module Codec.FEC (
     deFEC,
 ) where
 
-import Control.Concurrent.Extra (Lock, newLock, withLock)
 import Control.DeepSeq (NFData (rnf))
 import Control.Exception (Exception)
 import Data.Bits (xor)
@@ -48,8 +47,8 @@ import Foreign.Marshal.Array (advancePtr, withArray)
 import Foreign.Ptr (FunPtr, Ptr, castPtr)
 import Foreign.Storable (poke, sizeOf)
 import GHC.Generics (Generic)
+import System.GlobalLock
 import System.IO (IOMode (..), withFile)
-import System.IO.Unsafe (unsafePerformIO)
 
 data CFEC
 data FECParams = FECParams
@@ -125,16 +124,9 @@ data Uninitialized = Uninitialized deriving (Ord, Eq, Show)
 
 instance Exception Uninitialized
 
--- A lock to ensure at most one thread attempts to initialize the underlying
--- library at a time.  Multiple initializations are harmless but concurrent
--- initializations are disallowed.
-_initializationLock :: Lock
-{-# NOINLINE _initializationLock #-}
-_initializationLock = unsafePerformIO newLock
-
 -- | Initialize the library.  This must be done before other APIs can succeed.
 initialize :: IO ()
-initialize = withLock _initializationLock _init
+initialize = lock _init
 
 -- | Return a FEC with the given parameters.
 fec :: Int  -- ^ the number of primary blocks
