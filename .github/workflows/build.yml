@@ -140,17 +140,8 @@ jobs:
           path: "dist"
           merge-multiple: true
 
-      # Now define a conditional step to upload packages to the production
-      # instance of PyPI.
-      #
-      # The cases to consider are the same as for the upload to the testing
-      # instance.  This time, we have a conditional that runs only for case
-      # (2).
       - name: "Publish to LIVE PyPI"
         uses: "pypa/gh-action-pypi-publish@release/v1"
-        if: >-
-          github.event_name == 'push' &&
-          startsWith(github.event.ref, 'refs/tags/zfec-')
 
   upload_testpypi:
     name: Publish zfec on TestPyPI
