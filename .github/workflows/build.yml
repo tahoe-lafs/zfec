@@ -122,6 +122,10 @@ jobs:
     # GitHub web interface.
     environment: "release"
 
+    # This permission is mandatory for trusted publishing
+    permissions:
+      id-token: write
+
     steps:
       # Download all artifacts previously built by this workflow to the dist
       # directory where the publish step can find them.  These are the sdist
