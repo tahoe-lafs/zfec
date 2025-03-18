@@ -108,6 +108,13 @@ jobs:
           name: sdist
           path: dist/*.tar.gz
 
+# Both `upload_pypi` and `upload_testpypi` jobs are based on
+# "Publishing package distribution releases using GitHub Actions CI/CD
+# workflows" page of Python Package User Guide.  Specifically see the
+# section under "The whole CI/CD workflow".
+#
+# https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/#the-whole-ci-cd-workflow
+
   upload_pypi:
     name: Publish zfec on PyPI
 
