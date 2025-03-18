@@ -159,7 +159,7 @@ jobs:
   upload_testpypi:
     name: Publish zfec on TestPyPI
 
-    # Publish to TestPyPI on pull requests. 
+    # Publish to TestPyPI on pull requests.
     if: github.event_name == 'pull_request'
 
     needs:
