@@ -151,7 +151,7 @@ jobs:
       # instance.  This time, we have a conditional that runs only for case
       # (2).
       - name: "Publish to LIVE PyPI"
-        uses: "pypa/gh-action-pypi-publish@v1.6.4"
+        uses: "pypa/gh-action-pypi-publish@release/v1"
         if: >-
           github.event_name == 'push' &&
           startsWith(github.event.ref, 'refs/tags/zfec-')
