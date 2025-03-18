@@ -150,6 +150,8 @@ jobs:
         if: >-
           github.event_name == 'pull_request'
         with:
+          # Override the default in order to upload it to the testing
+          # deployment.
           repository-url: https://test.pypi.org/legacy/
 
       # Now define a conditional step to upload packages to the production
