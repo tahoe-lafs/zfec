@@ -122,7 +122,7 @@ jobs:
     # GitHub web interface.
     environment:
       name: "release"
-      url: https://pypi.org/project/zfec/
+      url: https://test.pypi.org/project/zfec/
 
     # This permission is mandatory for trusted publishing
     permissions:
@@ -155,8 +155,6 @@ jobs:
           # Override the default in order to upload it to the testing
           # deployment.
           repository-url: https://test.pypi.org/legacy/
-          # Do we need a different URL, or a whole new environment?
-          url: https://test.pypi.org/project/zfec/
           # please computer
           verbose: true
 
