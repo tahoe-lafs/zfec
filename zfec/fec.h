@@ -8,6 +8,25 @@
 
 typedef unsigned char gf;
 
+typedef enum {
+  /**
+   * This is the default option if you do not specify one.
+   * This instanciates the vandermonde matrix over a vector of
+   * powers of the primitive element. It ensures maximum 
+   * separation between elements in the field, which enhances
+   * error correction performance.
+   */
+  FEC_OPTION_POWER_SEQUENCE = 0,
+  /**
+   * This instanciates the vandermonde matrix over a vector of
+   * sequential integers. This choice is common among libraries
+   * that implement reed solomon erasure coding.
+   * Known libraries that do this:
+   *  - klauspost/reedsolomon
+   */
+  FEC_OPTION_SEQUENTIAL_INTEGERS = 1,
+} fec_option_t;
+
 typedef struct {
   unsigned long magic;
   unsigned short k, n;                     /* parameters of the code */
@@ -37,6 +56,12 @@ void fec_init(void);
  * param m the total number of blocks created
  */
 fec_t* fec_new(unsigned short k, unsigned short m);
+/**
+ * param k the number of blocks required to reconstruct
+ * param m the total number of blocks created
+ * param option options that control how the encoding/decoding matrix is built.
+ */
+fec_t* fec_new2(unsigned short k, unsigned short m, fec_option_t option);
 void fec_free(fec_t* p);
 
 /**
