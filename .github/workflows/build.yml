@@ -150,7 +150,7 @@ jobs:
 
     environment:
       name: "release"
-      url: https://pypi.org/project/zfec/
+      url: "https://pypi.org/project/zfec/"
 
     # This permission is mandatory for trusted publishing
     permissions:
@@ -185,7 +185,7 @@ jobs:
 
     environment:
       name: "testpypi"
-      url: https://test.pypi.org/project/zfec/
+      url: "https://test.pypi.org/project/zfec/"
 
     # This permission is mandatory for trusted publishing
     permissions:
