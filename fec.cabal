@@ -1,6 +1,6 @@
 cabal-version:      3.0
 name:               fec
-version:            0.2.0
+version:            2.0.0
 license:            GPL-2.0-or-later
 license-file:       README.rst
 author:             Adam Langley <agl@imperialviolet.org>
@@ -31,10 +31,10 @@ extra-doc-files:    ChangeLog.md
 
 library
   build-depends:
-    , base        >=4.9  && <5
-    , bytestring  >=0.10 && <0.13
-    , deepseq     >=1.4  && <1.6
-    , extra       >=1.7  && <1.8
+    , base <5
+    , bytestring <0.13
+    , deepseq <1.7
+    , extra <2
 
   exposed-modules:    Codec.FEC
   default-language:   Haskell2010
@@ -49,11 +49,11 @@ executable benchmark-zfec
   main-is:          Main.hs
   ghc-options:      -threaded
   build-depends:
-    , base        >=4.9  && <5
-    , bytestring  >=0.10 && <0.13
-    , criterion   >=1.1  && <1.7
+    , base <5
+    , bytestring <0.13
+    , criterion <1.7
     , fec
-    , random      >=1.1  && <1.3
+    , random <2
 
   hs-source-dirs:   benchmark-zfec
   default-language: Haskell2010
@@ -65,13 +65,13 @@ test-suite tests
   hs-source-dirs:   haskell/test
   ghc-options:      -Wall -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-    , base                  >=4.9  && <5
-    , bytestring            >=0.10 && <0.13
-    , data-serializer       >=0.3  && <0.4
+    , base <5                
+    , bytestring <0.13
+    , data-serializer <1
     , fec
-    , hspec                 >=2.7  && <2.12
-    , QuickCheck            >=2.14 && <2.15
-    , quickcheck-instances  >=0.3  && <0.4
-    , random                >=1.1  && <1.3
+    , hspec <3
+    , QuickCheck <2.16
+    , quickcheck-instances <1
+    , random <2
 
   default-language: Haskell2010

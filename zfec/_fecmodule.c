@@ -706,8 +706,6 @@ init_fec(void) {
     py_fec_error = PyErr_NewException("_fec.Error", NULL, NULL);
     PyDict_SetItemString(module_dict, "Error", py_fec_error);
 
-    fec_init();
-
 #if PY_MAJOR_VERSION >= 3
     return module;
 #endif
