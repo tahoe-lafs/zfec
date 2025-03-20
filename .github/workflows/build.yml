@@ -10,7 +10,6 @@
 name: "Packages"
 
 on:
-  workflow_dispatch:
   push:
     branches:
       # Do build on pushes to master.
