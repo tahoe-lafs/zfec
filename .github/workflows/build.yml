@@ -1,9 +1,16 @@
-# Build sdist+wheel packages using GitHub Actions.  Mostly adopted
-# from https://cibuildwheel.readthedocs.io/en/stable/setup/
+# Build sdist+wheel packages using GitHub Actions, and publish them on
+# TestPyPI (on pull requests and tags) and PyPI (on tags).
+#
+# The build_wheels job is mostly adopted from
+# https://cibuildwheel.readthedocs.io/en/stable/setup/
+#
+# The upload_pypi and upload_testpypi jobs are adopted from Python
+# Packaging User Guide.
 
 name: "Packages"
 
 on:
+  workflow_dispatch:
   push:
     branches:
       # Do build on pushes to master.
@@ -144,7 +151,7 @@ jobs:
 
     environment:
       name: "release"
-      url: https://pypi.org/project/zfec/
+      url: "https://pypi.org/project/zfec/"
 
     # This permission is mandatory for trusted publishing
     permissions:
@@ -179,7 +186,7 @@ jobs:
 
     environment:
       name: "testpypi"
-      url: https://test.pypi.org/project/zfec/
+      url: "https://test.pypi.org/project/zfec/"
 
     # This permission is mandatory for trusted publishing
     permissions:
