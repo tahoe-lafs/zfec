@@ -1,5 +1,11 @@
-# Build sdist+wheel packages using GitHub Actions.  Mostly adopted
-# from https://cibuildwheel.readthedocs.io/en/stable/setup/
+# Build sdist+wheel packages using GitHub Actions, and publish them on
+# TestPyPI (on pull requests and tags) and PyPI (on tags).
+#
+# The build_wheels job is mostly adopted from
+# https://cibuildwheel.readthedocs.io/en/stable/setup/
+#
+# The upload_pypi and upload_testpypi jobs are adopted from Python
+# Packaging User Guide.
 
 name: "Packages"
 
@@ -25,7 +31,7 @@ on:
 
 jobs:
   build_wheels:
-    name: "${{ matrix.wheel-selector }} wheel on ${{ matrix.os }}"
+    name: "${{ matrix.wheel-selector }}-* wheel on ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -38,18 +44,18 @@ jobs:
           - "ubuntu-22.04"
           - "windows-2022"
         wheel-selector:
-          - "cp39-*"
-          - "cp310-*"
-          - "cp311-*"
-          - "cp312-*"
-          - "cp313-*"
-          - "pp38-*"
-          - "pp39-*"
-          - "pp310-*"
+          - "cp39"
+          - "cp310"
+          - "cp311"
+          - "cp312"
+          - "cp313"
+          - "pp38"
+          - "pp39"
+          - "pp310"
 
     steps:
       - name: Check out zfec sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           # Check out the full history, including tags.  This is necessary to
           # construct non-release version numbers.
@@ -63,7 +69,7 @@ jobs:
           # Configure cibuildwheel to build just some of the total wheels we
           # could build for this architecture.  This yields better parallelism
           # on GitHub Actions execution.
-          CIBW_BUILD: "${{ matrix.wheel-selector }}"
+          CIBW_BUILD: "${{ matrix.wheel-selector }}-*"
           # Just make sure that Python can use zfec package.
           CIBW_TEST_COMMAND: python -c "import zfec; print(zfec.__version__)"
           # Build `universal2` and `arm64` wheels on an Intel runner.
@@ -75,9 +81,10 @@ jobs:
           # patch releases of Python 3.9 if they haven't updated pip in their
           # virtualenv.
           CIBW_MANYLINUX_X86_64_IMAGE: "manylinux_2_28"
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         name: Upload artifacts
         with:
+          name: wheels-${{ matrix.wheel-selector }}-on-${{ matrix.os }}
           path: ./wheelhouse/*.whl
 
   build_sdist:
@@ -85,7 +92,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         name: Check out zfec sources
         with:
           # Check out the full history, including tags.  This is necessary to
@@ -101,71 +108,102 @@ jobs:
         run: |
           python3 setup.py sdist
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         name: Upload artifacts
         with:
+          name: sdist
           path: dist/*.tar.gz
 
+# Both `upload_pypi` and `upload_testpypi` jobs are based on
+# "Publishing package distribution releases using GitHub Actions CI/CD
+# workflows" page of Python Package User Guide.  Specifically see the
+# section under "The whole CI/CD workflow".
+#
+# https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/#the-whole-ci-cd-workflow
+#
+# The important bit here is that we use GitHub Actions as the "trusted
+# publisher" to publish packages on both PyPI and TestPyPI.  We do not
+# use long-lived tokens anymore.  Instead, both PyPI and TestPyPI are
+# configured to trust this GH Actions workflow, and the workflow will
+# use a short-lived tokens minted by them.
+#
+# https://docs.pypi.org/trusted-publishers/
+#
+# There is a bit of duplication below but that seems to be necessary
+# because the environment configuration is different for PyPI and
+# TestPyPI.  Perhaps the duplication is not necessary, but let us just
+# stick with the Python Package User Guide's recommendation.
+
   upload_pypi:
+    name: Publish zfec on PyPI
+
+    # Publish to PyPI on release tag pushes.
+    if: >-
+      github.event_name == 'push' &&
+      startsWith(github.event.ref, 'refs/tags/zfec-')
+
     needs:
       - "build_wheels"
       - "build_sdist"
 
-    # It only needs to run once.  It will fetch all of the other build
-    # artifacts created by the other jobs and then upload them.
     runs-on: "ubuntu-latest"
 
-    # Select the GitHub Actions environment that contains the PyPI tokens
-    # necessary to perform uploads.  This was configured manually using the
-    # GitHub web interface.
-    environment: "release"
+    environment:
+      name: "release"
+      url: "https://pypi.org/project/zfec/"
+
+    # This permission is mandatory for trusted publishing
+    permissions:
+      id-token: write
 
     steps:
       # Download all artifacts previously built by this workflow to the dist
       # directory where the publish step can find them.  These are the sdist
       # and all of the wheels build by the other jobs.
-      - uses: "actions/download-artifact@v3"
+      - uses: "actions/download-artifact@v4"
         with:
-          name: "artifact"
+          pattern: "*"
           path: "dist"
+          merge-multiple: true
 
-      # Define a conditional step to upload packages to the testing instance
-      # of PyPI.
-      #
-      # The overall workflow is already restricted so that it runs for:
-      # 1) pushes to master
-      # 2) pushes to release tags
-      # 3) pushes to branches with associated PRs
-      #
-      # The conditional in this step should cause it to run only for case (3).
-      - name: "Publish to TEST PyPI"
-        uses: "pypa/gh-action-pypi-publish@v1.6.4"
-        if: >-
-          github.event_name == 'pull_request'
-
+      - name: "Publish to PyPI"
+        uses: "pypa/gh-action-pypi-publish@v1.12.4"
         with:
-          # Authenticate using a token from a PyPI account with upload
-          # permission to the project.  See https://pypi.org/help/#apitoken
-          user: "__token__"
-          # Read it from a GitHub Actions "environment" secret.  See
-          # https://docs.github.com/en/actions/security-guides/encrypted-secrets
-          password: "${{ secrets.testpypi_token }}"
-          # Override the default in order to upload it to the testing
-          # deployment.
-          repository_url: "https://test.pypi.org/legacy/"
+          # Run `twine upload --verbose`.
+          verbose: true
 
-      # Now define a conditional step to upload packages to the production
-      # instance of PyPI.
-      #
-      # The cases to consider are the same as for the upload to the testing
-      # instance.  This time, we have a conditional that runs only for case
-      # (2).
-      - name: "Publish to LIVE PyPI"
-        uses: "pypa/gh-action-pypi-publish@v1.6.4"
-        if: >-
-          github.event_name == 'push' &&
-          startsWith(github.event.ref, 'refs/tags/zfec-')
+  upload_testpypi:
+    # Publish both builds triggered by pull requests and builds
+    # triggered by release tags to TestPyPI.
+    name: Publish zfec on TestPyPI
 
+    needs:
+      - "build_wheels"
+      - "build_sdist"
+
+    runs-on: "ubuntu-latest"
+
+    environment:
+      name: "testpypi"
+      url: "https://test.pypi.org/project/zfec/"
+
+    # This permission is mandatory for trusted publishing
+    permissions:
+      id-token: write
+
+    steps:
+      # Do the same thing as the download-artfact step in
+      # upload_testpypi job.
+      - uses: "actions/download-artifact@v4"
         with:
-          user: "__token__"
-          password: "${{ secrets.pypi_token }}"
+          pattern: "*"
+          path: "dist"
+          merge-multiple: true
+
+      - name: "Publish to TestPyPI"
+        uses: "pypa/gh-action-pypi-publish@v1.12.4"
+        with:
+          # Override the default in order to upload to TestPyPi.
+          repository-url: https://test.pypi.org/legacy/
+          # Run `twine upload --verbose`.
+          verbose: true
