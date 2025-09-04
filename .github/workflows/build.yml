@@ -167,7 +167,7 @@ jobs:
           merge-multiple: true
 
       - name: "Publish to PyPI"
-        uses: "pypa/gh-action-pypi-publish@v1.12.4"
+        uses: "pypa/gh-action-pypi-publish@v1.13.0"
         with:
           # Run `twine upload --verbose`.
           verbose: true
@@ -201,7 +201,7 @@ jobs:
           merge-multiple: true
 
       - name: "Publish to TestPyPI"
-        uses: "pypa/gh-action-pypi-publish@v1.12.4"
+        uses: "pypa/gh-action-pypi-publish@v1.13.0"
         with:
           # Override the default in order to upload to TestPyPi.
           repository-url: https://test.pypi.org/legacy/
