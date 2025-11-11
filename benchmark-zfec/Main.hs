@@ -1,8 +1,8 @@
 module Main where
 
-import Codec.FEC (FECParams (paramK, paramN), decode, encode, fec, initialize)
+import Codec.FEC (FECParams (paramK, paramN), decode, encode, fec)
 import Control.Monad (replicateM)
-import Criterion.Main (Benchmark, bench, bgroup, defaultMain, env, nf)
+import Criterion.Main (Benchmark, bench, bgroup, defaultMain, env, nfAppIO)
 import Data.Bifunctor (bimap)
 import qualified Data.ByteString as B
 import Data.List (unfoldr)
@@ -13,15 +13,11 @@ main =
     defaultMain
         -- Run against some somewhat arbitrarily chosen configurations.  Notably,
         -- though, 94/100 matches the numbers recorded in the readme.
-        [ env (setupFEC 2 3) makeFECBenchmarks
-        , env (setupFEC 16 31) makeFECBenchmarks
-        , env (setupFEC 94 100) makeFECBenchmarks
+        [ env (fec 2 3) makeFECBenchmarks
+        , env (fec 16 31) makeFECBenchmarks
+        , env (fec 94 100) makeFECBenchmarks
         ]
   where
-    setupFEC :: Int -> Int -> IO FECParams
-    setupFEC k n = do
-        initialize
-        pure (fec k n)
 
     makeFECBenchmarks = fecGroup [10 ^ 6]
 
@@ -53,20 +49,20 @@ main =
             -- result is serialize use all of the bytes (eg, to write them to a
             -- file or send them over the network) so they will certainly all be
             -- used.
-            nf (uncurry encode) (params, blocks)
+            nfAppIO (uncurry encode) (params, blocks)
 
     benchmarkPrimaryDecode params blocks =
         bench ("decode [0..] blockSize=" <> showWithUnit (B.length $ head blocks)) $
             -- normal form here for the same reason as in benchmarkEncode.
             -- assign block numbers to use only primary blocks
-            nf (uncurry decode) (params, (zip [0 ..] blocks))
+            nfAppIO (uncurry decode) (params, (zip [0 ..] blocks))
 
     benchmarkSecondaryDecode params blocks =
         bench ("decode [" <> show n <> "..] blockSize=" <> showWithUnit (B.length $ head blocks)) $
             -- normal form here for the same reason as in benchmarkEncode.
             -- assign block numbers to use as many non-primary blocks as
             -- possible
-            nf (uncurry decode) (params, (zip [n ..] blocks))
+            nfAppIO (uncurry decode) (params, (zip [n ..] blocks))
       where
         n = paramN params - paramK params
 

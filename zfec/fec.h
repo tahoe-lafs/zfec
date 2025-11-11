@@ -20,18 +20,6 @@ typedef struct {
 #define restrict
 #endif
 
-/** Initialize the fec library.
- *
- * Call this:
- *
- *  - at least once
- *  - from at most one thread at a time
- *  - before calling any other APIs from the library
- *  - before creating any other threads that will use APIs from the library
- *
- */
-void fec_init(void);
-
 /**
  * param k the number of blocks required to reconstruct
  * param m the total number of blocks created
