@@ -429,6 +429,11 @@ fec_free (fec_t *p) {
 
 fec_t *
 fec_new(unsigned short k, unsigned short n) {
+    return fec_new2(k, n, FEC_OPTION_POWER_SEQUENCE);
+}
+
+fec_t *
+fec_new2(unsigned short k, unsigned short n, fec_option_t option) {
     unsigned row, col;
     gf *p, *tmp_m;
 
@@ -456,16 +461,24 @@ fec_new(unsigned short k, unsigned short n) {
     tmp_m[0] = 1;
     for (col = 1; col < k; col++)
         tmp_m[col] = 0;
-    for (p = tmp_m + k, row = 0; row + 1 < n; row++, p += k)
-        for (col = 0; col < k; col++)
-            p[col] = gf_exp[modnn (row * col)];
+    if (option == FEC_OPTION_POWER_SEQUENCE) {
+        for (p = tmp_m + k, row = 0; row + 1 < n; row++, p += k)
+            for (col = 0; col < k; col++)
+                p[col] = gf_exp[modnn (row * col)];
+    } else if (option == FEC_OPTION_SEQUENTIAL_INTEGERS) {
+        for (p = tmp_m + k, row = 1; row < n; row++, p += k)
+            for (col = 0; col < k; col++)
+                p[col] = gf_exp[modnn (gf_log[row] * col)];
+    } else {
+      assert(false);
+    }
 
     /*
      * quick code to build systematic matrix: invert the top
      * k*k vandermonde matrix, multiply right the bottom n-k rows
      * by the inverse, and construct the identity matrix at the top.
      */
-    _invert_vdm (tmp_m, k);        /* much faster than _invert_mat */
+    _invert_mat (tmp_m, k);        /* much faster than _invert_mat */
     _matmul(tmp_m + k * k, tmp_m, retval->enc_matrix + k * k, n - k, k, k);
     /*
      * the upper matrix is I so do not bother with a slow multiply
