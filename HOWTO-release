@@ -1,0 +1,40 @@
+
+* November 15, 2024
+
+meejah trying to figure out how to make a release, because it's not documented.
+
+There are tokens in GitHub, for both normal and test PyPI.
+Only "exarkun" and "sajith" are listed on the test instance (several others listed in production).
+meejah created a zfec-only, production-only token on November 15, 2024.
+meejah cannot do "trusted publishing" due to lack of permissions.
+
+A tag must be created and pushed to trigger the publishing flow.
+
+There is no documentation on how to create a tag, so meejah followed this procedure:
+
+git checkout master
+git status  # look for any changed / uncommitted files
+git tag  # list existing tags
+
+tried to verify latest:
+
+    $ git tag --verify zfec-1.5.7.4
+    error: zfec-1.5.7.4: cannot verify a non-tag object of type commit.
+
+Seems like maybe these _aren't_ actually "tags", somehow?
+
+** Create a branch for the new release
+   git checkout -b release-1.6.0.0
+
+** Update the NEWS.txt, by examining:
+   git log --merges zfec-1.5.7.4..
+
+** Commit the above
+
+** Create a tag
+
+   git tag -s -u meejah@meejah.ca -m "Release 1.6.0.0" zfec-1.6.0.0
+
+** Push the branch + tag
+
+   git push origin-push release-1.6.0.0 zfec-1.6.0.0
