@@ -4,6 +4,7 @@
   inputs = {
     # Nix Inputs
     nixpkgs.url = github:nixos/nixpkgs/?ref=nixos-25.11;
+    nixpkgs-old.url = github:nixos/nixpkgs/?ref=nixos-23.11;
     flake-utils.url = github:numtide/flake-utils;
     hs-flake-utils.url = "git+https://whetstone.private.storage/jcalderone/hs-flake-utils.git?ref=main";
     hs-flake-utils.inputs.nixpkgs.follows = "nixpkgs";
@@ -12,6 +13,7 @@
   outputs = {
     self,
     nixpkgs,
+    nixpkgs-old,
     flake-utils,
     hs-flake-utils,
   }: let
@@ -19,6 +21,7 @@
   in
     ulib.eachSystem ["x86_64-linux"] (system: let
       pkgs = nixpkgs.legacyPackages.${system};
+      oldpkgs = nixpkgs-old.legacyPackages.${system};
       hsPkgs = pkgs.haskell.packages.ghc9103;
       hslib = hs-flake-utils.lib {
         pkgs = pkgs;
@@ -38,11 +41,16 @@
           pkgs.gawk
           pkgs.gnused
 
-          # Python/PyPy matrix (closest available on nixos-25.11)
+          # Python/PyPy matrix (current channel)
           pkgs.python311
           pkgs.python312
           pkgs.python313
           pkgs.pypy310
+
+          # Python/PyPy matrix extras from older channel
+          oldpkgs.python39
+          oldpkgs.python310
+          oldpkgs.pypy39
 
           # Extra CI/release tools
           pkgs.python3Packages.build
