@@ -37,6 +37,17 @@
           hsPkgs.haskell-language-server
           pkgs.gawk
           pkgs.gnused
+
+          # Python/PyPy matrix (closest available on nixos-25.11)
+          pkgs.python311
+          pkgs.python312
+          pkgs.python313
+          pkgs.pypy310
+
+          # Extra CI/release tools
+          pkgs.python3Packages.build
+          pkgs.twine
+          pkgs.python3Packages.twisted
         ];
       };
 
