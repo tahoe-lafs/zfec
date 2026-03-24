@@ -48,6 +48,7 @@
           pkgs.python3Packages.build
           pkgs.twine
           pkgs.python3Packages.twisted
+          pkgs.python3Packages.tox
         ];
       };
 
