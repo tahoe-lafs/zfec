@@ -20,8 +20,10 @@
     ulib = flake-utils.lib;
   in
     ulib.eachSystem ["x86_64-linux"] (system: let
-      pkgs = nixpkgs.legacyPackages.${system};
       oldpkgs = nixpkgs-old.legacyPackages.${system};
+      pkgs = nixpkgs.legacyPackages.${system}.extend (self: super: {
+        python39Packages = oldpkgs.python39Packages;
+      });
       hsPkgs = pkgs.haskell.packages.ghc9103;
       hslib = hs-flake-utils.lib {
         pkgs = pkgs;
