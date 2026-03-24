@@ -21,7 +21,7 @@
       hslib = hs-flake-utils.lib {
         pkgs = nixpkgs.legacyPackages.${system};
         src = ./.;
-        compilerVersion = "ghc8107";
+        compilerVersion = "ghc9103";
         packageName = "fec";
       };
     in {
