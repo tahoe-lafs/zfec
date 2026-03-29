@@ -47,6 +47,7 @@
           pkgs.python311
           pkgs.python312
           pkgs.python313
+          pkgs.python314
           pkgs.pypy310
 
           # Python/PyPy matrix extras from older channel
@@ -54,10 +55,7 @@
           oldpkgs.python310
           oldpkgs.pypy39
 
-          # Extra CI/release tools
-          pkgs.python3Packages.build
-          pkgs.twine
-          pkgs.python3Packages.twisted
+          # The tox test tool
           pkgs.python3Packages.tox
         ];
       };
