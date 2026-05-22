@@ -177,6 +177,10 @@ jobs:
     # triggered by release tags to TestPyPI.
     name: Publish zfec on TestPyPI
 
+    # GitHub does not mint OIDC tokens for pull requests on forks.  If
+    # a PR is made from a fork, do not attempt to publish to TestPyPI.
+    if: github.event.pull_request.head.repo.fork != true
+
     needs:
       - "build_wheels"
       - "build_sdist"
