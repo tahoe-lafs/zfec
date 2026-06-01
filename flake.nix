@@ -91,8 +91,20 @@
             cabal-test = {
               type = "app";
               program = pkgs'.haskell.packages.ghc9103.cabal-install;
-              argv = [ "test" ];
-              extraRuntimeInputs = [ pkgs'.gnused pkgs'.gawk ];
+              # args = [ "test" ];
+              # extraRuntimeInputs = [ pkgs'.gnused pkgs'.gawk ];
+
+              # program = pkgs'.writeShellApplication {
+              #   name = "cabal-test";
+              #   runtimeInputs = [
+              #     # pkgs'.haskell.packages.ghc9103
+              #     pkgs'.gnused
+              #     pkgs'.gawk
+              #   ];
+              #   text = ''
+              #     ${pkgs'.haskell.packages.ghc9103.cabal-install}/bin/cabal test "$@"
+              #   '';
+              # };
             };
           };
         };
