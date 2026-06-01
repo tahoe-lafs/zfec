@@ -3,7 +3,7 @@
 
   inputs = {
     # Nix Inputs
-    nixpkgs.url = github:nixos/nixpkgs/?ref=nixos-25.11;
+    nixpkgs.url = github:nixos/nixpkgs/?ref=nixos-26.05;
     nixpkgs-old.url = github:nixos/nixpkgs/?ref=nixos-23.11;
     flake-utils.url = github:numtide/flake-utils;
     hs-flake-utils.url = "git+https://whetstone.private.storage/jcalderone/hs-flake-utils.git?ref=main";
