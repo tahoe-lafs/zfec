@@ -79,8 +79,9 @@
               ];
             };
 
-          # packages are auto-wired via haskell-flake
-          packages = config.haskellProjects.default.outputs.packages;
+          # # packages are auto-wired via haskell-flake
+          # packages = config.haskellProjects.default.outputs.packages;
+
           checks = config.haskellProjects.default.outputs.checks;
           apps = (config.haskellProjects.default.outputs.apps or {}) // {
             hlint = {
