@@ -79,10 +79,21 @@
               ];
             };
 
-          # Expose the Haskell project outputs
-          packages = config.haskellProjects.default.packages;
-          checks = config.haskellProjects.default.checks;
-          apps = config.haskellProjects.default.apps or { };
+          # packages are auto-wired via haskell-flake
+          packages = config.haskellProjects.default.outputs.packages;
+          checks = config.haskellProjects.default.outputs.checks;
+          apps = (config.haskellProjects.default.outputs.apps or {}) // {
+            hlint = {
+              type = "app";
+              program = pkgs'.haskell.packages.ghc9103.hlint;
+            };
+            cabal-test = {
+              type = "app";
+              program = pkgs'.haskell.packages.ghc9103.cabal-install;
+              argv = [ "test" ];
+              extraRuntimeInputs = [ pkgs'.gnused pkgs'.gawk ];
+            };
+          };
         };
     };
 }
