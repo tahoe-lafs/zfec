@@ -231,7 +231,6 @@ Encoder_encode(Encoder *self, PyObject *args) {
         if (c_desired_blocks_nums[i] < self->kk) {
             Py_INCREF(fastinblocksitems[c_desired_blocks_nums[i]]);
             if (PyList_SetItem(result, i, fastinblocksitems[c_desired_blocks_nums[i]]) == -1) {
-                Py_DECREF(fastinblocksitems[c_desired_blocks_nums[i]]);
                 goto err;
             }
         } else {
@@ -517,7 +516,6 @@ Decoder_decode(Decoder *self, PyObject *args) {
             /* Original primary block. */
             Py_INCREF(fastblocksitems[i]);
             if (PyList_SetItem(result, i, fastblocksitems[i]) == -1) {
-                Py_DECREF(fastblocksitems[i]);
                 goto err;
             }
         } else {
