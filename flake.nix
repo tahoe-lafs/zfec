@@ -19,8 +19,14 @@
       ...
     }:
     flake-parts.lib.mkFlake { inherit inputs; } {
-      # Systems we support
-      systems = [ "x86_64-linux" ];
+      # I am testing only on x86_64-linux, but I hope that the other
+      # systems also probably should work.
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+        "x86_64-darwin"
+        "aarch64-darwin"
+      ];
 
       perSystem =
         { system, pkgs, ... }:
