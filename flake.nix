@@ -19,6 +19,7 @@
       ...
     }:
     flake-parts.lib.mkFlake { inherit inputs; } {
+      imports = [ haskell-flake.flakeModule ];
       # I am testing only on x86_64-linux, but I hope that the other
       # systems also probably should work.
       systems = [
@@ -29,7 +30,7 @@
       ];
 
       perSystem =
-        { system, pkgs, ... }:
+        { system, pkgs, config, ... }:
         let
           # Bring in the older python packages we need
           pkgsOld = nixpkgs-old.legacyPackages.${system};
@@ -41,10 +42,14 @@
               pypy39 = pkgsOld.pypy39;
             }
           );
-          # Haskell utilities from haskell-flake
-          hs = haskell-flake.lib { inherit pkgs'; };
         in
         {
+          # Haskell utilities via haskell-flake
+          haskellProjects.default = {
+            # Automatically discover packages and expose them
+            autoWire = [ "packages" "checks" "apps" ];
+          };
+
           # Development shell – automatically picks up the Haskell project in this repo
           devShells.default =
             let
@@ -74,10 +79,10 @@
               ];
             };
 
-          # Expose the Haskell packages (empty placeholder for now)
-          packages = { };
-          checks = { };
-          apps = { };
+          # Expose the Haskell project outputs
+          packages = config.haskellProjects.default.packages;
+          checks = config.haskellProjects.default.checks;
+          apps = config.haskellProjects.default.apps or { };
         };
     };
 }
