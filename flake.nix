@@ -50,7 +50,6 @@
           );
           ghc = pkgs'.haskell.packages.ghc9103;
           python = pkgs'.python312;
-          zfecVersion = "1.6.0.0";
           haskellFec = config.haskellProjects.default.outputs.packages.fec.package;
           haskellVersion = haskellFec.version;
           haskellSdist =
@@ -76,7 +75,7 @@
               '';
           pythonZfec = python.pkgs.buildPythonPackage {
             pname = "zfec";
-            version = zfecVersion;
+            version = "dev";
             pyproject = true;
 
             src = self;
@@ -88,11 +87,6 @@
               python.pkgs.twisted
             ];
 
-            postPatch = ''
-              substituteInPlace versioneer.py zfec/_version.py \
-                --replace-fail '"0+unknown"' '"${zfecVersion}"'
-            '';
-
             checkPhase = ''
               trial zfec
             '';
@@ -100,7 +94,7 @@
             pythonImportsCheck = [ "zfec" ];
           };
           pythonSdist =
-            pkgs'.runCommand "zfec-${zfecVersion}-sdist"
+            pkgs'.runCommand "zfec-python-sdist"
               {
                 nativeBuildInputs = [
                   python
@@ -111,9 +105,6 @@
                 cp -R ${self} source
                 chmod -R u+w source
                 cd source
-
-                substituteInPlace versioneer.py zfec/_version.py \
-                  --replace-fail '"0+unknown"' '"${zfecVersion}"'
 
                 mkdir -p $out
                 python setup.py sdist --dist-dir $out
