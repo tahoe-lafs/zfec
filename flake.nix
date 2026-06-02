@@ -50,9 +50,9 @@
           );
           ghc = pkgs'.haskell.packages.ghc9103;
           python = pkgs'.python312;
-          haskellVersion = "0.2.0";
           zfecVersion = "1.6.0.0";
           haskellFec = config.haskellProjects.default.outputs.packages.fec.package;
+          haskellVersion = haskellFec.version;
           haskellSdist =
             pkgs'.runCommand "fec-${haskellVersion}-sdist"
               {
