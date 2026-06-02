@@ -19,6 +19,7 @@ jobs:
           name: "Haskell Test Suite"
           no_output_timeout: "30m"
           command: |
+            nix develop --command cabal update
             nix develop --command cabal test --enable-tests
 
   nix-build:
