@@ -48,7 +48,7 @@ jobs:
             # package build (only in CI environment setup) so the fact that
             # they float shouldn't hurt reproducibility.
             NIXPKGS="nixpkgs/nixos-26.05"
-            nix profile add $NIXPKGS#cachix $NIXPKGS#bash $NIXPKGS#jp
+            nix profile add $NIXPKGS#cachix $NIXPKGS#jp
 
             # Activate our cachix cache for "binary substitution".  This sets
             # up configuration tht lets Nix download something from the cache
