@@ -137,11 +137,26 @@
           packages.pythonWheel = pythonZfec.dist;
           packages.pythonSdist = pythonSdist;
           packages.default = pkgs'.runCommand "zfec-all" { } ''
-            mkdir -p $out
+            mkdir -p $out/dist
             ln -s ${haskellFec} $out/haskell
             ln -s ${pythonZfec} $out/python
-            ln -s ${pythonZfec.dist} $out/python-wheel
-            ln -s ${pythonSdist} $out/python-sdist
+            ln -s ${pythonZfec.dist}/*.whl $out/dist/
+            ln -s ${pythonSdist}/*.tar.gz $out/dist/
+
+            {
+              echo "zfec build artifacts"
+              echo
+              echo "Haskell package:"
+              echo "  haskell -> ${haskellFec}"
+              echo
+              echo "Python package:"
+              echo "  python -> ${pythonZfec}"
+              echo
+              echo "Python distributions:"
+              for artifact in $out/dist/*; do
+                echo "  dist/$(basename "$artifact")"
+              done
+            } > $out/ARTIFACTS.txt
           '';
 
           apps = (config.haskellProjects.default.outputs.apps or { }) // {
