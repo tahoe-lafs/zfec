@@ -87,7 +87,11 @@
           apps = (config.haskellProjects.default.outputs.apps or {}) // {
             hlint = {
               type = "app";
-              program = pkgs'.haskell.packages.ghc9103.hlint;
+              program = "${pkgs'.writeShellApplication {
+                name = "hlint";
+                runtimeInputs = [ pkgs'.haskell.packages.ghc9103.hlint ];
+                text = "hlint haskell/";
+              }}/bin/hlint";
             };
             cabal-test = {
               type = "app";
