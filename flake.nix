@@ -50,8 +50,27 @@
           );
           ghc = pkgs'.haskell.packages.ghc9103;
           python = pkgs'.python312;
+          haskellVersion = "0.2.0";
           zfecVersion = "1.6.0.0";
           haskellFec = config.haskellProjects.default.outputs.packages.fec.package;
+          haskellSdist = pkgs'.runCommand "fec-${haskellVersion}-sdist" {
+            nativeBuildInputs = [
+              ghc.cabal-install
+              ghc.ghc
+            ];
+          } ''
+            cp -R ${self} source
+            chmod -R u+w source
+            cd source
+
+            export HOME=$TMPDIR/home
+            export CABAL_CONFIG=$TMPDIR/cabal/config
+            mkdir -p "$HOME" "$(dirname "$CABAL_CONFIG")"
+            touch "$CABAL_CONFIG"
+
+            mkdir -p $out
+            cabal sdist --output-dir=$out
+          '';
           pythonZfec = python.pkgs.buildPythonPackage {
             pname = "zfec";
             version = zfecVersion;
@@ -133,6 +152,7 @@
             ];
           };
 
+          packages.haskellSdist = haskellSdist;
           packages.python = pythonZfec;
           packages.pythonWheel = pythonZfec.dist;
           packages.pythonSdist = pythonSdist;
@@ -140,6 +160,7 @@
             mkdir -p $out/dist
             ln -s ${haskellFec} $out/haskell
             ln -s ${pythonZfec} $out/python
+            ln -s ${haskellSdist}/*.tar.gz $out/dist/
             ln -s ${pythonZfec.dist}/*.whl $out/dist/
             ln -s ${pythonSdist}/*.tar.gz $out/dist/
 
@@ -152,7 +173,7 @@
               echo "Python package:"
               echo "  python -> ${pythonZfec}"
               echo
-              echo "Python distributions:"
+              echo "Distribution artifacts:"
               for artifact in $out/dist/*; do
                 echo "  dist/$(basename "$artifact")"
               done
