@@ -180,6 +180,7 @@
           apps = (config.haskellProjects.default.outputs.apps or { }) // {
             build-artifacts = {
               type = "app";
+              meta.description = "Build zfec artifacts and print the manifest";
               program = "${
                 pkgs'.writeShellApplication {
                   name = "build-artifacts";
@@ -202,6 +203,7 @@
             };
             hlint = {
               type = "app";
+              meta.description = "Run hlint on the Haskell sources";
               program = "${
                 pkgs'.writeShellApplication {
                   name = "hlint";
@@ -212,6 +214,7 @@
             };
             cabal-test = {
               type = "app";
+              meta.description = "Run the Cabal test suite";
               program = "${
                 pkgs'.writeShellApplication {
                   name = "cabal-test";
