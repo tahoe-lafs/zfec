@@ -97,7 +97,7 @@
                   pkgs'.haskell.packages.ghc9103.ghc
                   pkgs'.haskell.packages.ghc9103.cabal-install
                 ];
-                text = "cabal test";
+                text = "cabal test --enable-tests";
               }}/bin/cabal-test";
             };
           };
