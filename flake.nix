@@ -53,24 +53,27 @@
           haskellVersion = "0.2.0";
           zfecVersion = "1.6.0.0";
           haskellFec = config.haskellProjects.default.outputs.packages.fec.package;
-          haskellSdist = pkgs'.runCommand "fec-${haskellVersion}-sdist" {
-            nativeBuildInputs = [
-              ghc.cabal-install
-              ghc.ghc
-            ];
-          } ''
-            cp -R ${self} source
-            chmod -R u+w source
-            cd source
+          haskellSdist =
+            pkgs'.runCommand "fec-${haskellVersion}-sdist"
+              {
+                nativeBuildInputs = [
+                  ghc.cabal-install
+                  ghc.ghc
+                ];
+              }
+              ''
+                cp -R ${self} source
+                chmod -R u+w source
+                cd source
 
-            export HOME=$TMPDIR/home
-            export CABAL_CONFIG=$TMPDIR/cabal/config
-            mkdir -p "$HOME" "$(dirname "$CABAL_CONFIG")"
-            touch "$CABAL_CONFIG"
+                export HOME=$TMPDIR/home
+                export CABAL_CONFIG=$TMPDIR/cabal/config
+                mkdir -p "$HOME" "$(dirname "$CABAL_CONFIG")"
+                touch "$CABAL_CONFIG"
 
-            mkdir -p $out
-            cabal sdist --output-dir=$out
-          '';
+                mkdir -p $out
+                cabal sdist --output-dir=$out
+              '';
           pythonZfec = python.pkgs.buildPythonPackage {
             pname = "zfec";
             version = zfecVersion;
@@ -96,22 +99,25 @@
 
             pythonImportsCheck = [ "zfec" ];
           };
-          pythonSdist = pkgs'.runCommand "zfec-${zfecVersion}-sdist" {
-            nativeBuildInputs = [
-              python
-              python.pkgs.setuptools
-            ];
-          } ''
-            cp -R ${self} source
-            chmod -R u+w source
-            cd source
+          pythonSdist =
+            pkgs'.runCommand "zfec-${zfecVersion}-sdist"
+              {
+                nativeBuildInputs = [
+                  python
+                  python.pkgs.setuptools
+                ];
+              }
+              ''
+                cp -R ${self} source
+                chmod -R u+w source
+                cd source
 
-            substituteInPlace versioneer.py zfec/_version.py \
-              --replace-fail '"0+unknown"' '"${zfecVersion}"'
+                substituteInPlace versioneer.py zfec/_version.py \
+                  --replace-fail '"0+unknown"' '"${zfecVersion}"'
 
-            mkdir -p $out
-            python setup.py sdist --dist-dir $out
-          '';
+                mkdir -p $out
+                python setup.py sdist --dist-dir $out
+              '';
         in
         {
           # Haskell utilities via haskell-flake
