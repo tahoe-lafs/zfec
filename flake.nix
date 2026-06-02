@@ -181,6 +181,28 @@
           '';
 
           apps = (config.haskellProjects.default.outputs.apps or { }) // {
+            build-artifacts = {
+              type = "app";
+              program = "${
+                pkgs'.writeShellApplication {
+                  name = "build-artifacts";
+                  runtimeInputs = [
+                    pkgs'.coreutils
+                    pkgs'.nix
+                  ];
+                  text = ''
+                    nix build "$@"
+
+                    if [ -f result/ARTIFACTS.txt ]; then
+                      printf '\n'
+                      cat result/ARTIFACTS.txt
+                    else
+                      printf '\nBuild finished, but result/ARTIFACTS.txt was not found.\n'
+                    fi
+                  '';
+                }
+              }/bin/build-artifacts";
+            };
             hlint = {
               type = "app";
               program = "${
