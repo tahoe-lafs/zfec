@@ -53,6 +53,8 @@
         {
           # Haskell utilities via haskell-flake
           haskellProjects.default = {
+            basePackages = ghc;
+
             # Automatically discover packages and expose them
             autoWire = [
               "packages"
