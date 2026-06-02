@@ -30,7 +30,12 @@
       ];
 
       perSystem =
-        { system, pkgs, config, ... }:
+        {
+          system,
+          pkgs,
+          config,
+          ...
+        }:
         let
           # Bring in the older python packages we need
           pkgsOld = nixpkgs-old.legacyPackages.${system};
@@ -48,58 +53,66 @@
           # Haskell utilities via haskell-flake
           haskellProjects.default = {
             # Automatically discover packages and expose them
-            autoWire = [ "packages" "checks" "apps" ];
+            autoWire = [
+              "packages"
+              "checks"
+              "apps"
+            ];
           };
 
           # Development shell – automatically picks up the Haskell project in this repo
           devShells.default = pkgs'.mkShell {
-              buildInputs = [
-                ghc.cabal-install
-                ghc.ghcid
-                ghc.haskell-language-server
+            buildInputs = [
+              ghc.cabal-install
+              ghc.ghcid
+              ghc.haskell-language-server
 
-                pkgs'.gawk
-                pkgs'.gnused
+              pkgs'.gawk
+              pkgs'.gnused
 
-                # Python/PyPy matrix from the current channel.
-                pkgs'.python311
-                pkgs'.python312
-                pkgs'.python313
-                pkgs'.python314
-                pkgs'.pypy310
-                pkgs'.python3Packages.tox
+              # Python/PyPy matrix from the current channel.
+              pkgs'.python311
+              pkgs'.python312
+              pkgs'.python313
+              pkgs'.python314
+              pkgs'.pypy310
+              pkgs'.python3Packages.tox
 
-                # Python/PyPy matrix extras from older channel.
-                pkgs'.python39
-                pkgs'.python310
-                pkgs'.pypy39
-              ];
-            };
+              # Python/PyPy matrix extras from older channel.
+              pkgs'.python39
+              pkgs'.python310
+              pkgs'.pypy39
+            ];
+          };
 
           # packages are auto-wired via haskell-flake
           packages = config.haskellProjects.default.outputs.packages;
 
           checks = config.haskellProjects.default.outputs.checks;
 
-          apps = (config.haskellProjects.default.outputs.apps or {}) // {
+          apps = (config.haskellProjects.default.outputs.apps or { }) // {
             hlint = {
               type = "app";
-              program = "${pkgs'.writeShellApplication {
-                name = "hlint";
-                runtimeInputs = [ ghc.hlint ];
-                text = "hlint haskell/";
-              }}/bin/hlint";
+              program = "${
+                pkgs'.writeShellApplication {
+                  name = "hlint";
+                  runtimeInputs = [ ghc.hlint ];
+                  text = "hlint haskell/";
+                }
+              }/bin/hlint";
             };
             cabal-test = {
               type = "app";
-              program = "${pkgs'.writeShellApplication {
-                name = "cabal-test";
-                runtimeInputs = [
-                  ghc.ghc
-                  ghc.cabal-install
-                ];
-                text = "cabal test --enable-tests";
-              }}/bin/cabal-test";
+              program = "${
+                pkgs'.writeShellApplication {
+                  name = "cabal-test";
+                  runtimeInputs = [
+                    ghc.ghc
+                    ghc.cabal-install
+                  ];
+                  text = "cabal test --enable-tests";
+                }
+              }/bin/cabal-test";
             };
           };
         };
