@@ -63,7 +63,8 @@
             ];
           };
 
-          # Development shell – automatically picks up the Haskell project in this repo
+          # Development shell automatically picks up the Haskell
+          # project in this repo.
           devShells.default = pkgs'.mkShell {
             buildInputs = [
               ghc.cabal-install
