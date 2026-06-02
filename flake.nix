@@ -88,6 +88,11 @@
             ];
           };
 
+          # This will make `nix build` build the Haskell package.  We
+          # can also run `nix build .#fec` or `nix build
+          # .#packages.x86_64-linux.fec`
+          packages.default = config.haskellProjects.default.outputs.packages.fec.package;
+
           apps = (config.haskellProjects.default.outputs.apps or { }) // {
             hlint = {
               type = "app";
