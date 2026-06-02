@@ -35,7 +35,7 @@ jobs:
       - name: Configure Cachix
         uses: cachix/cachix-action@v16
         with:
-          name: tahoe-lafs-zfec
+          name: tahoe-lafs-opensource
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
 
       - name: Check flake
