@@ -83,6 +83,7 @@
           packages = config.haskellProjects.default.outputs.packages;
 
           checks = config.haskellProjects.default.outputs.checks;
+
           apps = (config.haskellProjects.default.outputs.apps or {}) // {
             hlint = {
               type = "app";
@@ -90,21 +91,14 @@
             };
             cabal-test = {
               type = "app";
-              program = pkgs'.haskell.packages.ghc9103.cabal-install;
-              # args = [ "test" ];
-              # extraRuntimeInputs = [ pkgs'.gnused pkgs'.gawk ];
-
-              # program = pkgs'.writeShellApplication {
-              #   name = "cabal-test";
-              #   runtimeInputs = [
-              #     # pkgs'.haskell.packages.ghc9103
-              #     pkgs'.gnused
-              #     pkgs'.gawk
-              #   ];
-              #   text = ''
-              #     ${pkgs'.haskell.packages.ghc9103.cabal-install}/bin/cabal test "$@"
-              #   '';
-              # };
+              program = "${pkgs'.writeShellApplication {
+                name = "cabal-test";
+                runtimeInputs = [
+                  pkgs'.haskell.packages.ghc9103.ghc
+                  pkgs'.haskell.packages.ghc9103.cabal-install
+                ];
+                text = "cabal test";
+              }}/bin/cabal-test";
             };
           };
         };
