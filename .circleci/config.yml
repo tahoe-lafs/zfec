@@ -3,7 +3,7 @@ version: "2.1"
 jobs:
   cabal-test:
     docker:
-      - image: "nixos/nix:2.13.2"
+      - image: "nixos/nix:2.32.8"
 
     environment:
       # Let us use features marked "experimental".  For example, most/all of
@@ -23,7 +23,7 @@ jobs:
 
   nix-build:
     docker:
-      - image: "nixos/nix:2.13.2"
+      - image: "nixos/nix:2.32.8"
 
     environment:
       # Let us use features marked "experimental".  For example, most/all of
