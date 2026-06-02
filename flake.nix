@@ -49,6 +49,50 @@
             }
           );
           ghc = pkgs'.haskell.packages.ghc9103;
+          python = pkgs'.python312;
+          zfecVersion = "1.6.0.0";
+          haskellFec = config.haskellProjects.default.outputs.packages.fec.package;
+          pythonZfec = python.pkgs.buildPythonPackage {
+            pname = "zfec";
+            version = zfecVersion;
+            pyproject = true;
+
+            src = self;
+
+            nativeBuildInputs = [ python.pkgs.setuptools ];
+            propagatedBuildInputs = [ python.pkgs.pyutil ];
+            nativeCheckInputs = [
+              python.pkgs.hypothesis
+              python.pkgs.twisted
+            ];
+
+            postPatch = ''
+              substituteInPlace versioneer.py zfec/_version.py \
+                --replace-fail '"0+unknown"' '"${zfecVersion}"'
+            '';
+
+            checkPhase = ''
+              trial zfec
+            '';
+
+            pythonImportsCheck = [ "zfec" ];
+          };
+          pythonSdist = pkgs'.runCommand "zfec-${zfecVersion}-sdist" {
+            nativeBuildInputs = [
+              python
+              python.pkgs.setuptools
+            ];
+          } ''
+            cp -R ${self} source
+            chmod -R u+w source
+            cd source
+
+            substituteInPlace versioneer.py zfec/_version.py \
+              --replace-fail '"0+unknown"' '"${zfecVersion}"'
+
+            mkdir -p $out
+            python setup.py sdist --dist-dir $out
+          '';
         in
         {
           # Haskell utilities via haskell-flake
@@ -89,10 +133,16 @@
             ];
           };
 
-          # This will make `nix build` build the Haskell package.  We
-          # can also run `nix build .#fec` or `nix build
-          # .#packages.x86_64-linux.fec`
-          packages.default = config.haskellProjects.default.outputs.packages.fec.package;
+          packages.python = pythonZfec;
+          packages.pythonWheel = pythonZfec.dist;
+          packages.pythonSdist = pythonSdist;
+          packages.default = pkgs'.runCommand "zfec-all" { } ''
+            mkdir -p $out
+            ln -s ${haskellFec} $out/haskell
+            ln -s ${pythonZfec} $out/python
+            ln -s ${pythonZfec.dist} $out/python-wheel
+            ln -s ${pythonSdist} $out/python-sdist
+          '';
 
           apps = (config.haskellProjects.default.outputs.apps or { }) // {
             hlint = {
