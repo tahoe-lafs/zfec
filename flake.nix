@@ -42,6 +42,7 @@
               pypy39 = pkgsOld.pypy39;
             }
           );
+          ghc = pkgs'.haskell.packages.ghc9103;
         in
         {
           # Haskell utilities via haskell-flake
@@ -51,15 +52,11 @@
           };
 
           # Development shell – automatically picks up the Haskell project in this repo
-          devShells.default =
-            let
-              hspkgs = pkgs'.haskell.packages.ghc9103;
-            in
-            pkgs'.mkShell {
+          devShells.default = pkgs'.mkShell {
               buildInputs = [
-                hspkgs.cabal-install
-                hspkgs.ghcid
-                hspkgs.haskell-language-server
+                ghc.cabal-install
+                ghc.ghcid
+                ghc.haskell-language-server
 
                 pkgs'.gawk
                 pkgs'.gnused
@@ -89,7 +86,7 @@
               type = "app";
               program = "${pkgs'.writeShellApplication {
                 name = "hlint";
-                runtimeInputs = [ pkgs'.haskell.packages.ghc9103.hlint ];
+                runtimeInputs = [ ghc.hlint ];
                 text = "hlint haskell/";
               }}/bin/hlint";
             };
@@ -98,8 +95,8 @@
               program = "${pkgs'.writeShellApplication {
                 name = "cabal-test";
                 runtimeInputs = [
-                  pkgs'.haskell.packages.ghc9103.ghc
-                  pkgs'.haskell.packages.ghc9103.cabal-install
+                  ghc.ghc
+                  ghc.cabal-install
                 ];
                 text = "cabal test --enable-tests";
               }}/bin/cabal-test";
