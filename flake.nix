@@ -38,10 +38,10 @@
         pkgsOld = nixpkgs-old.legacyPackages.${system};
         pkgs' = pkgs.extend (
           self: super: {
-            python39Packages = pkgsOld.python39Packages;
-            python39 = pkgsOld.python39;
-            python310 = pkgsOld.python310;
-            pypy39 = pkgsOld.pypy39;
+            inherit (pkgsOld) python39Packages;
+            inherit (pkgsOld) python39;
+            inherit (pkgsOld) python310;
+            inherit (pkgsOld) pypy39;
           }
         );
         ghc = pkgs'.haskell.packages.ghc9103;
@@ -111,7 +111,7 @@
             # Nix formatter
             alejandra.enable = true;
             # Nix linters
-            # statix.enable = true;
+            statix.enable = true;
             # deadnix.enable = true;
             # Haskell formatter
             # fourmolu.enable = true;
