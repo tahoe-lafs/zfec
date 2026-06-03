@@ -7,6 +7,8 @@
     nixpkgs-old.url = "github:nixos/nixpkgs/?ref=nixos-23.11";
     flake-parts.url = "github:hercules-ci/flake-parts";
     haskell-flake.url = "github:srid/haskell-flake";
+    git-hooks.url = "github:cachix/git-hooks.nix";
+    git-hooks.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = inputs @ {
@@ -15,6 +17,7 @@
     nixpkgs-old,
     flake-parts,
     haskell-flake,
+    git-hooks,
     ...
   }:
     flake-parts.lib.mkFlake {inherit inputs;} {
@@ -106,6 +109,22 @@
             mkdir -p $out
             python setup.py sdist --dist-dir $out
           '';
+        preCommitCheck = git-hooks.lib.${system}.run {
+          src = self;
+          hooks = {
+            # Nix formatter
+            alejandra.enable = true;
+            # Nix linters
+            # statix.enable = true;
+            # deadnix.enable = true;
+            # Haskell formatter
+            # fourmolu.enable = true;
+            # Cabal formatter
+            cabal-fmt.enable = true;
+          };
+          # prek is faster/smaller than pre-commit.
+          package = pkgs'.prek;
+        };
       in {
         # Haskell utilities via haskell-flake
         haskellProjects.default = {
@@ -127,6 +146,7 @@
             ghc.ghcid
             ghc.haskell-language-server
 
+            pkgs'.alejandra
             pkgs'.gawk
             pkgs'.gnused
 
@@ -172,6 +192,26 @@
             done
           } > $out/ARTIFACTS.txt
         '';
+
+        # Make `nix flake check` run pre-commit checks.
+        checks.pre-commit-check = preCommitCheck;
+
+        # Make `nix fmt` work.
+        formatter = pkgs'.writeShellApplication {
+          name = "zfec-fmt";
+          runtimeInputs = [
+            pkgs'.alejandra
+            pkgs'.findutils
+            pkgs'.git
+          ];
+          text = ''
+            if [ "$#" -eq 0 ]; then
+              git ls-files -z '*.nix' | xargs -0 --no-run-if-empty alejandra
+            else
+              exec alejandra "$@"
+            fi
+          '';
+        };
 
         apps =
           (config.haskellProjects.default.outputs.apps or {})
