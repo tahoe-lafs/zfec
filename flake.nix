@@ -167,33 +167,35 @@
           ];
         };
 
-        packages.haskellSdist = haskellSdist;
-        packages.python = pythonZfec;
-        packages.pythonWheel = pythonZfec.dist;
-        packages.pythonSdist = pythonSdist;
-        packages.default = pkgs'.runCommand "zfec-all" {} ''
-          mkdir -p $out/dist
-          ln -s ${haskellFec} $out/haskell
-          ln -s ${pythonZfec} $out/python
-          ln -s ${haskellSdist}/*.tar.gz $out/dist/
-          ln -s ${pythonZfec.dist}/*.whl $out/dist/
-          ln -s ${pythonSdist}/*.tar.gz $out/dist/
+        packages = {
+          haskellSdist = haskellSdist;
+          python = pythonZfec;
+          pythonWheel = pythonZfec.dist;
+          pythonSdist = pythonSdist;
+          default = pkgs'.runCommand "zfec-all" {} ''
+            mkdir -p $out/dist
+            ln -s ${haskellFec} $out/haskell
+            ln -s ${pythonZfec} $out/python
+            ln -s ${haskellSdist}/*.tar.gz $out/dist/
+            ln -s ${pythonZfec.dist}/*.whl $out/dist/
+            ln -s ${pythonSdist}/*.tar.gz $out/dist/
 
-          {
-            echo "zfec build artifacts"
-            echo
-            echo "Haskell package:"
-            echo "  haskell -> ${haskellFec}"
-            echo
-            echo "Python package:"
-            echo "  python -> ${pythonZfec}"
-            echo
-            echo "Distribution artifacts:"
-            for artifact in $out/dist/*; do
-              echo "  dist/$(basename "$artifact")"
-            done
-          } > $out/ARTIFACTS.txt
-        '';
+            {
+              echo "zfec build artifacts"
+              echo
+              echo "Haskell package:"
+              echo "  haskell -> ${haskellFec}"
+              echo
+              echo "Python package:"
+              echo "  python -> ${pythonZfec}"
+              echo
+              echo "Distribution artifacts:"
+              for artifact in $out/dist/*; do
+                echo "  dist/$(basename "$artifact")"
+              done
+            } > $out/ARTIFACTS.txt
+          '';
+        };
 
         # Make `nix flake check` run pre-commit checks.
         checks.pre-commit-check = preCommitCheck;
