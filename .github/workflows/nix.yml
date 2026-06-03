@@ -20,8 +20,6 @@ jobs:
         include:
           - system: "x86_64-linux"
             runner: "ubuntu-latest"
-          - system: "x86_64-darwin"
-            runner: "macos-15-intel"
           - system: "aarch64-darwin"
             runner: "macos-15"
 

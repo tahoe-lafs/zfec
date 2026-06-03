@@ -23,12 +23,8 @@
     flake-parts.lib.mkFlake {inherit inputs;} {
       imports = [haskell-flake.flakeModule];
 
-      # I have been testing things only on x86_64-linux.  Hopefully
-      # the other systems also should Just Work (tm).
       systems = [
         "x86_64-linux"
-        "aarch64-linux"
-        "x86_64-darwin"
         "aarch64-darwin"
       ];
 
