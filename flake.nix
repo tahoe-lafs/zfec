@@ -168,10 +168,10 @@
         };
 
         packages = {
-          haskellSdist = haskellSdist;
+          inherit haskellSdist;
           python = pythonZfec;
           pythonWheel = pythonZfec.dist;
-          pythonSdist = pythonSdist;
+          inherit pythonSdist;
           default = pkgs'.runCommand "zfec-all" {} ''
             mkdir -p $out/dist
             ln -s ${haskellFec} $out/haskell
