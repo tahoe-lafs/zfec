@@ -110,9 +110,8 @@
           hooks = {
             # Nix formatter
             alejandra.enable = true;
-            # Nix linters
+            # Nix linter
             statix.enable = true;
-            # deadnix.enable = true;
             # Haskell formatter
             # fourmolu.enable = true;
             # Cabal formatter
@@ -145,7 +144,6 @@
             # Formatters and linters
             pkgs'.alejandra
             pkgs'.statix
-            pkgs'.deadnix
             pkgs'.fourmolu
             ghc.cabal-fmt
 
