@@ -146,7 +146,13 @@
             ghc.ghcid
             ghc.haskell-language-server
 
+            # Formatters and linters
             pkgs'.alejandra
+            pkgs'.statix
+            pkgs'.deadnix
+            pkgs'.fourmolu
+            ghc.cabal-fmt
+
             pkgs'.gawk
             pkgs'.gnused
 
