@@ -1,5 +1,5 @@
 {
-  description = "An efficient, portable erasure coding tool";
+  description = "zfec - an efficient, portable erasure coding tool";
 
   inputs = {
     # Nix Inputs
