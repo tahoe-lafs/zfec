@@ -1,3 +1,23 @@
+#
+# Here are some commands to get started with this flake:
+#
+#  `nix develop`         - enter development shell
+#  `nix flake check`     - run formatter/linter checks
+#  `nix build`           - build all artifacts
+#  `nix fmt`             - format this very file.
+#
+# To build packages:
+#
+#  `nix build .#python`  - Python package
+#  `nix build .#fec`     - Haskell fec package
+#  `nix build .#default` - aggregate (Haskell + Python + sdists)
+#
+# To run flake apps:
+#
+#  `nix run .#hlint`           - run hlint on Haskell sources
+#  `nix run .#cabal-test`      - run Cabal test suite
+#  `nix run .#build-artifacts` - build artifacts and print manifest
+#
 {
   description = "zfec - an efficient, portable erasure coding tool";
 
