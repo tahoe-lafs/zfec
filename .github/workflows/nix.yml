@@ -1,0 +1,43 @@
+name: "Nix"
+
+# This workflow validates flake.nix. Also tests/builds the Haskell
+# package.
+
+on:
+  push:
+    branches:
+      - "master"
+  pull_request:
+
+jobs:
+  nix:
+    name: "${{ matrix.system }}"
+    runs-on: ${{ matrix.runner }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - system: "x86_64-linux"
+            runner: "ubuntu-latest"
+          - system: "aarch64-darwin"
+            runner: "macos-15"
+
+    steps:
+      - name: Check out zfec sources
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+
+      - name: Configure Cachix
+        uses: cachix/cachix-action@v16
+        with:
+          name: tahoe-lafs-opensource
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+
+      - name: Check flake
+        run: nix flake check --system "${{ matrix.system }}" --print-build-logs
+
+      - name: Build artifacts
+        run: nix build --system "${{ matrix.system }}" .#default --print-build-logs

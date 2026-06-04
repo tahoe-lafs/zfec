@@ -10,3 +10,9 @@ dist/*
 cabal.sandbox.config
 .tox/
 .eggs/
+.hypothesis/
+_trial_temp/
+.nix-cache/
+dist-newstyle/
+result
+/.nix-develop-cache*

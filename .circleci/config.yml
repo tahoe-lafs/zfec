@@ -3,7 +3,7 @@ version: "2.1"
 jobs:
   cabal-test:
     docker:
-      - image: "nixos/nix:2.13.2"
+      - image: "nixos/nix:2.32.8"
 
     environment:
       # Let us use features marked "experimental".  For example, most/all of
@@ -19,11 +19,12 @@ jobs:
           name: "Haskell Test Suite"
           no_output_timeout: "30m"
           command: |
-            nix run .#cabal-test
+            nix develop --command cabal update
+            nix develop --command cabal test --enable-tests
 
   nix-build:
     docker:
-      - image: "nixos/nix:2.13.2"
+      - image: "nixos/nix:2.32.8"
 
     environment:
       # Let us use features marked "experimental".  For example, most/all of
@@ -47,8 +48,8 @@ jobs:
             # certain release branch.  These aren't involved in the actual
             # package build (only in CI environment setup) so the fact that
             # they float shouldn't hurt reproducibility.
-            NIXPKGS="nixpkgs/nixos-23.05"
-            nix profile install $NIXPKGS#cachix $NIXPKGS#bash $NIXPKGS#jp
+            NIXPKGS="nixpkgs/nixos-26.05"
+            nix profile add $NIXPKGS#cachix $NIXPKGS#jp
 
             # Activate our cachix cache for "binary substitution".  This sets
             # up configuration tht lets Nix download something from the cache
